@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet } from "react-router-dom";
 import { UsageBadge } from "@/components/UsageBadge";
 import { useAuth } from "@/contexts/AuthContext";
+import { Footer } from "@/components/Footer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ export function AppLayout() {
           <header className="h-14 flex items-center justify-between border-b border-border/50 px-4 backdrop-blur-sm bg-background/80 sticky top-0 z-30">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
+              <span className="font-display font-bold text-foreground text-sm md:hidden">AuraPal</span>
             </div>
             <div className="flex items-center gap-3">
               <UsageBadge />
@@ -51,6 +53,7 @@ export function AppLayout() {
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
             <Outlet />
           </main>
+          <Footer />
         </div>
       </div>
     </SidebarProvider>

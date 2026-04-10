@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Settings, Crown, CreditCard,
+  LayoutDashboard, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Settings, Crown, CreditCard, Mail, MessageCircle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,8 +9,10 @@ import {
 } from "@/components/ui/sidebar";
 
 const tools = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Resume Builder", url: "/resume-builder", icon: FileText },
+  { title: "Cover Letter", url: "/cover-letter", icon: Mail },
+  { title: "Interview Prep", url: "/interview-prep", icon: MessageCircle },
   { title: "SEO Article", url: "/seo-article-generator", icon: PenLine },
   { title: "Business Plan", url: "/business-plan", icon: Briefcase },
   { title: "Side Hustle", url: "/side-hustle-ideas", icon: Lightbulb },
@@ -44,7 +46,7 @@ export function AppSidebar() {
               {tools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === "/"} className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
+                    <NavLink to={item.url} end={item.url === "/dashboard"} className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
                       <item.icon className="h-4 w-4 mr-2 shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
