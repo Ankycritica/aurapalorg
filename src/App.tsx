@@ -24,6 +24,7 @@ import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import NotFound from "@/pages/NotFound";
 import Onboarding from "@/pages/Onboarding";
+import Admin from "@/pages/Admin";
 
 const queryClient = new QueryClient();
 
