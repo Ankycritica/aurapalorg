@@ -107,7 +107,7 @@ export default function Dashboard() {
 
       <ProfileCompleteness />
 
-
+      {recentGens.length > 0 && (
         <div>
           <h2 className="font-display text-xl font-semibold mb-4">Recent Activity</h2>
           <div className="glass-card divide-y divide-border/50">
