@@ -1,13 +1,8 @@
 import { FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Target, Trophy, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-
-const stats = [
-  { label: "Resumes Created", value: "0", icon: FileText, emoji: "📄" },
-  { label: "Tools Used", value: "0", icon: Target, emoji: "🎯" },
-  { label: "AI Generations", value: "0", icon: Trophy, emoji: "🏆" },
-  { label: "Profile Completion", value: "0%", icon: Sparkles, emoji: "✨" },
-];
+import { useAuth } from "@/contexts/AuthContext";
+import { useUsage } from "@/hooks/useUsage";
 
 const tools = [
   { title: "Resume Builder", desc: "AI-powered resume creation with impact-driven bullet points.", icon: FileText, url: "/resume-builder", color: "from-primary/20 to-primary/5" },
@@ -19,13 +14,23 @@ const tools = [
 ];
 
 export default function Dashboard() {
+  const { profile } = useAuth();
+  const { usageCount, remaining, limit, plan } = useUsage();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const displayName = profile?.display_name || "there";
+
+  const stats = [
+    { label: "Plan", value: plan.charAt(0).toUpperCase() + plan.slice(1), emoji: "💎" },
+    { label: "Used Today", value: String(usageCount), emoji: "🎯" },
+    { label: "Remaining", value: limit === Infinity ? "∞" : String(remaining), emoji: "⚡" },
+    { label: "Daily Limit", value: limit === Infinity ? "∞" : String(limit), emoji: "🏆" },
+  ];
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="font-display text-3xl md:text-4xl font-bold">{greeting}, User 👋</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-bold">{greeting}, {displayName} 👋</h1>
         <p className="text-muted-foreground mt-1">Here's your career growth snapshot. Pick a tool to get started.</p>
       </motion.div>
 
