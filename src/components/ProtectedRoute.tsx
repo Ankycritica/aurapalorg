@@ -16,11 +16,5 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!user) return <Navigate to="/auth" replace />;
 
-  // Redirect to onboarding if not completed (skip if already on onboarding page)
-  const onboardingComplete = user.user_metadata?.onboarding_complete;
-  if (!onboardingComplete && location.pathname !== "/onboarding") {
-    return <Navigate to="/onboarding" replace />;
-  }
-
   return <>{children}</>;
 }
