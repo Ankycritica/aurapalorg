@@ -101,9 +101,9 @@ export default function ResumeBuilder() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const fields = [
+  const fields: { id: string; label: string; placeholder: string; type?: "text" | "textarea" }[] = [
     { id: "role", label: "Target Job Title", placeholder: "e.g. Senior Software Engineer" },
-    { id: "experience", label: "Your Experience", placeholder: "Paste your work experience, skills, and achievements...", type: "textarea" as const },
+    { id: "experience", label: "Your Experience", placeholder: "Paste your work experience, skills, and achievements...", type: "textarea" },
     { id: "keywords", label: "Key Skills / Keywords", placeholder: "e.g. React, Node.js, AWS, Agile" },
   ];
 
