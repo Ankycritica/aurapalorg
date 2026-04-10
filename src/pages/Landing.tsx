@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, Star, Menu, X, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Mail, MessageCircle, ArrowRight } from "lucide-react";
+import { Check, Star, Menu, X, FileText, PenLine, Lightbulb, MessageSquareWarning, Mail, MessageCircle } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { TrustBar } from "@/components/landing/TrustBar";
+import { StatsSection } from "@/components/landing/StatsSection";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { ComparisonTable } from "@/components/landing/ComparisonTable";
+import { StickyMobileCTA } from "@/components/landing/StickyMobileCTA";
 
 const features = [
-  { title: "AI Resume Builder", desc: "Create ATS-optimized resumes with impact-driven bullet points.", icon: FileText, color: "#00C4EE", url: "/resume-builder" },
-  { title: "Cover Letter Generator", desc: "Tailored cover letters for every job application.", icon: Mail, color: "#EC4899", url: "/cover-letter" },
-  { title: "Interview Prep", desc: "Mock sessions with AI-scored feedback and frameworks.", icon: MessageCircle, color: "#06B6D4", url: "/interview-prep" },
-  { title: "LinkedIn Profile Optimizer", desc: "Get noticed by recruiters with a polished profile.", icon: MessageSquareWarning, color: "#F97066", url: "/linkedin-roaster" },
-  { title: "Side Hustle Ideas", desc: "Discover new income streams tailored to your skills.", icon: Lightbulb, color: "#F5C842", url: "/side-hustle-ideas" },
-  { title: "SEO Article Generator", desc: "Build your personal brand with optimized content.", icon: PenLine, color: "#7C6FF7", url: "/seo-article-generator" },
+  { title: "AI Resume Builder", desc: "Create ATS-optimized resumes with impact-driven bullet points.", icon: FileText, color: "#00C4EE" },
+  { title: "Cover Letter Generator", desc: "Tailored cover letters for every job application.", icon: Mail, color: "#EC4899" },
+  { title: "Interview Prep", desc: "Mock sessions with AI-scored feedback and frameworks.", icon: MessageCircle, color: "#06B6D4" },
+  { title: "LinkedIn Profile Optimizer", desc: "Get noticed by recruiters with a polished profile.", icon: MessageSquareWarning, color: "#F97066" },
+  { title: "Side Hustle Ideas", desc: "Discover new income streams tailored to your skills.", icon: Lightbulb, color: "#F5C842" },
+  { title: "SEO Article Generator", desc: "Build your personal brand with optimized content.", icon: PenLine, color: "#7C6FF7" },
 ];
 
 const testimonials = [
@@ -66,40 +72,8 @@ export default function Landing() {
         )}
       </nav>
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden" style={{ background: "#080C18" }}>
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(50)].map((_, i) => (
-            <div key={i} className="absolute rounded-full bg-white/10" style={{
-              width: `${1 + Math.random() * 2}px`, height: `${1 + Math.random() * 2}px`,
-              left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
-              animation: `pulse ${2 + Math.random() * 3}s ease-in-out infinite`, animationDelay: `${Math.random() * 3}s`,
-            }} />
-          ))}
-        </div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-4xl sm:text-5xl md:text-6xl font-bold leading-tight">
-            Land Your Dream Job with <span className="gradient-text">AI on Your Side</span>
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-muted-foreground text-base sm:text-lg mt-6 max-w-2xl mx-auto">
-            AuraPal is your AI career engine — build resumes, prep for interviews, generate cover letters, and grow your income. All in one place.
-          </motion.p>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
-            <Link to="/auth" className="px-8 py-3 rounded-lg font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all text-sm">
-              Start for free →
-            </Link>
-            <a href="#features" className="px-8 py-3 rounded-lg font-semibold border border-border/50 text-foreground hover:bg-secondary/50 transition-all text-sm">
-              See how it works
-            </a>
-          </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex items-center justify-center gap-4 mt-8 text-sm text-muted-foreground">
-            <span>Trusted by 1,000+ job seekers</span>
-            <div className="flex gap-0.5">
-              {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-yellow-500 text-yellow-500" />)}
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <HeroSection />
+      <TrustBar />
 
       {/* Features */}
       <section id="features" className="py-20 px-4">
@@ -122,6 +96,8 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      <StatsSection />
 
       {/* How it works */}
       <section className="py-20 px-4 bg-secondary/20">
@@ -150,6 +126,9 @@ export default function Landing() {
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="glass-card p-6">
+                <div className="flex gap-0.5 mb-3">
+                  {[...Array(5)].map((_, j) => <Star key={j} className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />)}
+                </div>
                 <p className="text-sm text-secondary-foreground mb-4 italic">"{t.quote}"</p>
                 <div className="flex items-center gap-3">
                   <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary">
@@ -197,17 +176,21 @@ export default function Landing() {
         </div>
       </section>
 
+      <ComparisonTable />
+      <FAQSection />
+
       {/* Final CTA */}
-      <section className="py-20 px-4" style={{ background: "#0A0F1E" }}>
+      <section className="py-20 px-4" style={{ background: "linear-gradient(180deg, hsl(220 20% 7%) 0%, #0A0F1E 100%)" }}>
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-display text-3xl font-bold mb-6">Ready to supercharge your career?</h2>
-          <Link to="/auth" className="inline-block px-10 py-4 rounded-lg font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all text-sm">
+          <Link to="/auth" className="inline-block px-10 py-4 rounded-xl font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all text-sm">
             Get started free →
           </Link>
         </div>
       </section>
 
       <Footer />
+      <StickyMobileCTA />
     </div>
   );
 }
