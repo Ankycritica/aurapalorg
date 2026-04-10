@@ -274,26 +274,7 @@ export default function ResumeBuilder() {
         )}
       </AnimatePresence>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-        className="glass-card p-6">
-        <h2 className="font-display font-semibold text-base mb-1">🏆 Best Resume Templates</h2>
-        <p className="text-sm text-muted-foreground mb-4">Use these proven templates to format your AI-generated resume content.</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {RESUME_TEMPLATES.map((tpl) => (
-            <a key={tpl.name} href={tpl.url} target="_blank" rel="noopener noreferrer"
-              className="flex items-start gap-3 p-4 rounded-xl bg-secondary/30 hover:bg-secondary/60 border border-border/30 hover:border-primary/30 transition-all duration-200 group">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{tpl.name}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{tpl.tag}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">{tpl.description}</p>
-              </div>
-              <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors mt-0.5 shrink-0" />
-            </a>
-          ))}
-        </div>
-      </motion.div>
+      {result && !loading && <ResumeTemplates content={result} />}
 
       <AnimatePresence>
         {result && !loading && (
