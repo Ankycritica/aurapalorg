@@ -1,37 +1,11 @@
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, ExternalLink, X } from "lucide-react";
+import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import { useUsage } from "@/hooks/useUsage";
 import { PaywallModal } from "@/components/PaywallModal";
-
-const RESUME_TEMPLATES = [
-  {
-    name: "Jake's Resume",
-    description: "Clean LaTeX template, ATS-friendly, popular on r/resumes",
-    url: "https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs",
-    tag: "Most Popular",
-  },
-  {
-    name: "Harvard Template",
-    description: "Classic format recommended by Harvard career services",
-    url: "https://hwpi.harvard.edu/files/ocs/files/undergrad_resumes_and_cover_letters.pdf",
-    tag: "Traditional",
-  },
-  {
-    name: "Canva Resume",
-    description: "Modern, visually polished templates with drag & drop editor",
-    url: "https://www.canva.com/resumes/templates/",
-    tag: "Visual",
-  },
-  {
-    name: "Novoresume",
-    description: "Professional builder with ATS-tested formats",
-    url: "https://novoresume.com/resume-templates",
-    tag: "ATS-Tested",
-  },
-];
+import { ResumeTemplates } from "@/components/ResumeTemplates";
 
 async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjsLib = await import("pdfjs-dist");
@@ -300,26 +274,7 @@ export default function ResumeBuilder() {
         )}
       </AnimatePresence>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-        className="glass-card p-6">
-        <h2 className="font-display font-semibold text-base mb-1">🏆 Best Resume Templates</h2>
-        <p className="text-sm text-muted-foreground mb-4">Use these proven templates to format your AI-generated resume content.</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {RESUME_TEMPLATES.map((tpl) => (
-            <a key={tpl.name} href={tpl.url} target="_blank" rel="noopener noreferrer"
-              className="flex items-start gap-3 p-4 rounded-xl bg-secondary/30 hover:bg-secondary/60 border border-border/30 hover:border-primary/30 transition-all duration-200 group">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{tpl.name}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{tpl.tag}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">{tpl.description}</p>
-              </div>
-              <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors mt-0.5 shrink-0" />
-            </a>
-          ))}
-        </div>
-      </motion.div>
+      {result && !loading && <ResumeTemplates content={result} />}
 
       <AnimatePresence>
         {result && !loading && (
