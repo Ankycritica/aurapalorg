@@ -1,8 +1,8 @@
 import {
-  LayoutDashboard, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Settings, Crown,
+  LayoutDashboard, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Settings, Crown, CreditCard,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, useSidebar,
@@ -21,16 +21,14 @@ const tools = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { profile } = useAuth();
+  const isPaid = profile?.plan === "pro" || profile?.plan === "premium";
 
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
         <div className="p-4 flex items-center gap-3">
-          <img
-            src="/logo.png"
-            alt="AuraPal"
-            className="h-9 w-9 rounded-xl object-contain shrink-0"
-          />
+          <img src="/logo.png" alt="AuraPal" className="h-9 w-9 rounded-xl object-contain shrink-0" />
           {!collapsed && (
             <div>
               <h1 className="font-display font-bold text-foreground text-lg leading-none">AuraPal</h1>
@@ -46,12 +44,7 @@ export function AppSidebar() {
               {tools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/"}
-                      className="hover:bg-sidebar-accent/50 transition-colors duration-200"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
-                    >
+                    <NavLink to={item.url} end={item.url === "/"} className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
                       <item.icon className="h-4 w-4 mr-2 shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
@@ -67,6 +60,14 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
+                  <NavLink to="/pricing" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
+                    <CreditCard className="h-4 w-4 mr-2 shrink-0" />
+                    {!collapsed && <span>Pricing</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
                   <NavLink to="/settings" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
                     <Settings className="h-4 w-4 mr-2 shrink-0" />
                     {!collapsed && <span>Settings</span>}
@@ -79,16 +80,16 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        {!collapsed && (
+        {!collapsed && !isPaid && (
           <div className="mx-3 mb-3 p-4 rounded-xl glass-card gradient-border">
             <div className="flex items-center gap-2 mb-2">
               <Crown className="h-4 w-4 text-primary" />
               <span className="text-sm font-semibold text-primary">Go Premium</span>
             </div>
             <p className="text-xs text-muted-foreground mb-3">Unlimited AI generations, priority support, and advanced analytics.</p>
-            <button className="w-full py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 active:scale-[0.98]">
+            <NavLink to="/pricing" className="w-full py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 active:scale-[0.98] block text-center">
               Upgrade Now
-            </button>
+            </NavLink>
           </div>
         )}
       </SidebarFooter>
