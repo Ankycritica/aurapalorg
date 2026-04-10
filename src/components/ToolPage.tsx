@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, RotateCcw, Loader2, CheckCheck } from "lucide-react";
+import { Copy, RotateCcw, Loader2, CheckCheck, ArrowRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 
 interface ToolPageProps {
@@ -17,12 +17,23 @@ interface ToolPageProps {
   seoContent?: React.ReactNode;
 }
 
+const toolSuggestions = [
+  { title: "Resume Builder", url: "/resume-builder", emoji: "📄" },
+  { title: "SEO Article", url: "/seo-article-generator", emoji: "✍️" },
+  { title: "Business Plan", url: "/business-plan", emoji: "💼" },
+  { title: "Side Hustle", url: "/side-hustle-ideas", emoji: "💡" },
+  { title: "LinkedIn Roaster", url: "/linkedin-roaster", emoji: "🔥" },
+  { title: "Resume Roast", url: "/resume-roast", emoji: "🌶️" },
+];
+
 export function ToolPage({ title, description, icon: Icon, fields, systemPrompt, buildUserPrompt, seoContent }: ToolPageProps) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+
+  const otherTools = toolSuggestions.filter(t => t.title !== title).slice(0, 3);
 
   const generate = useCallback(async () => {
     const missing = fields.filter(f => !values[f.id]?.trim());
@@ -128,7 +139,7 @@ export function ToolPage({ title, description, icon: Icon, fields, systemPrompt,
                 placeholder={field.placeholder}
                 value={values[field.id] || ""}
                 onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
-                className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[120px] resize-y"
+                className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[120px] resize-y transition-all duration-200"
               />
             ) : (
               <input
@@ -136,18 +147,22 @@ export function ToolPage({ title, description, icon: Icon, fields, systemPrompt,
                 placeholder={field.placeholder}
                 value={values[field.id] || ""}
                 onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
-                className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
               />
             )}
           </div>
         ))}
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-2">
+            {error}
+          </motion.p>
+        )}
 
         <button
           onClick={generate}
           disabled={loading}
-          className="w-full py-3 rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2"
         >
           {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating...</> : "Generate with AI ✨"}
         </button>
@@ -161,11 +176,11 @@ export function ToolPage({ title, description, icon: Icon, fields, systemPrompt,
               <h2 className="font-display font-semibold text-lg">Result</h2>
               {result && (
                 <div className="flex gap-2">
-                  <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
                     {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied!" : "Copy"}
                   </button>
-                  <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
                     <RotateCcw className="h-4 w-4" /> Regenerate
                   </button>
                 </div>
@@ -182,6 +197,29 @@ export function ToolPage({ title, description, icon: Icon, fields, systemPrompt,
                 <ReactMarkdown>{result}</ReactMarkdown>
               </div>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Cross-tool suggestions after result */}
+      <AnimatePresence>
+        {result && !loading && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="glass-card p-5">
+            <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {otherTools.map((tool) => (
+                <Link
+                  key={tool.title}
+                  to={tool.url}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/60 transition-all duration-200 group"
+                >
+                  <span className="text-lg">{tool.emoji}</span>
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{tool.title}</span>
+                  <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+                </Link>
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

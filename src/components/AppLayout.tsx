@@ -1,6 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Bell, Search } from "lucide-react";
 import { Outlet } from "react-router-dom";
 
 export function AppLayout() {
@@ -11,17 +10,9 @@ export function AppLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 flex items-center justify-between border-b border-border/50 px-4 backdrop-blur-sm bg-background/80 sticky top-0 z-30">
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-              <div className="hidden md:flex items-center gap-2 bg-secondary/50 rounded-lg px-3 py-1.5 text-sm text-muted-foreground">
-                <Search className="h-4 w-4" />
-                <span>Search...</span>
-                <kbd className="ml-4 text-xs bg-muted px-1.5 py-0.5 rounded">⌘K</kbd>
-              </div>
+              <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
             </div>
             <div className="flex items-center gap-3">
-              <button className="p-2 rounded-lg hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors">
-                <Bell className="h-5 w-5" />
-              </button>
               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-semibold text-primary-foreground">
                 U
               </div>
