@@ -1,37 +1,11 @@
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, ExternalLink, X } from "lucide-react";
+import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import { useUsage } from "@/hooks/useUsage";
 import { PaywallModal } from "@/components/PaywallModal";
-
-const RESUME_TEMPLATES = [
-  {
-    name: "Jake's Resume",
-    description: "Clean LaTeX template, ATS-friendly, popular on r/resumes",
-    url: "https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs",
-    tag: "Most Popular",
-  },
-  {
-    name: "Harvard Template",
-    description: "Classic format recommended by Harvard career services",
-    url: "https://hwpi.harvard.edu/files/ocs/files/undergrad_resumes_and_cover_letters.pdf",
-    tag: "Traditional",
-  },
-  {
-    name: "Canva Resume",
-    description: "Modern, visually polished templates with drag & drop editor",
-    url: "https://www.canva.com/resumes/templates/",
-    tag: "Visual",
-  },
-  {
-    name: "Novoresume",
-    description: "Professional builder with ATS-tested formats",
-    url: "https://novoresume.com/resume-templates",
-    tag: "ATS-Tested",
-  },
-];
+import { ResumeTemplates } from "@/components/ResumeTemplates";
 
 async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjsLib = await import("pdfjs-dist");
