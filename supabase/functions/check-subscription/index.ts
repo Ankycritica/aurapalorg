@@ -15,7 +15,7 @@ const PRODUCT_TO_PLAN: Record<string, string> = {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  const supabaseClient = createClient(
+  const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     { auth: { persistSession: false } }
@@ -23,20 +23,29 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    if (!authHeader?.startsWith("Bearer ")) throw new Error("No authorization header");
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(userError.message);
-    const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated");
+
+    // Use a user-context client to validate the JWT via getClaims
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) throw new Error("Unauthorized");
+
+    const userId = claimsData.claims.sub as string;
+    const email = claimsData.claims.email as string;
+    if (!email) throw new Error("User email not found in token");
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    const customers = await stripe.customers.list({ email, limit: 1 });
 
     if (customers.data.length === 0) {
-      // Update profile to free if no customer
-      await supabaseClient.from("profiles").update({ plan: "free", stripe_customer_id: null, stripe_subscription_id: null }).eq("user_id", user.id);
+      await supabaseAdmin.from("profiles").update({ plan: "free", stripe_customer_id: null, stripe_subscription_id: null }).eq("user_id", userId);
       return new Response(JSON.stringify({ subscribed: false, plan: "free" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -46,7 +55,7 @@ serve(async (req) => {
     const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
 
     if (subscriptions.data.length === 0) {
-      await supabaseClient.from("profiles").update({ plan: "free", stripe_customer_id: customerId, stripe_subscription_id: null }).eq("user_id", user.id);
+      await supabaseAdmin.from("profiles").update({ plan: "free", stripe_customer_id: customerId, stripe_subscription_id: null }).eq("user_id", userId);
       return new Response(JSON.stringify({ subscribed: false, plan: "free" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -56,11 +65,11 @@ serve(async (req) => {
     const productId = sub.items.data[0].price.product as string;
     const plan = PRODUCT_TO_PLAN[productId] || "pro";
 
-    await supabaseClient.from("profiles").update({
+    await supabaseAdmin.from("profiles").update({
       plan,
       stripe_customer_id: customerId,
       stripe_subscription_id: sub.id,
-    }).eq("user_id", user.id);
+    }).eq("user_id", userId);
 
     return new Response(JSON.stringify({
       subscribed: true,
