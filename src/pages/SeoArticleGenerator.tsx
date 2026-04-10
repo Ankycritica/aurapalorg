@@ -10,6 +10,7 @@ export default function SeoArticleGenerator() {
         title="SEO Article Generator"
         description="Generate keyword-optimized blog posts with proper SEO structure"
         icon={PenLine}
+        toolSlug="seo-article"
         fields={[
           { id: "keyword", label: "Target Keyword", placeholder: "e.g. best project management tools 2025" },
           { id: "tone", label: "Tone / Style", placeholder: "e.g. Professional, conversational, authoritative" },

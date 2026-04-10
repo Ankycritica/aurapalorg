@@ -7,6 +7,7 @@ export default function ResumeRoast() {
       title="Resume Roast"
       description="Get your resume roasted with actionable improvements"
       icon={FlameKindling}
+      toolSlug="resume-roast"
       fields={[
         { id: "resume", label: "Paste Your Resume", placeholder: "Paste the full text of your resume here...", type: "textarea" },
         { id: "role", label: "Target Role (optional)", placeholder: "e.g. Product Manager at Google" },
