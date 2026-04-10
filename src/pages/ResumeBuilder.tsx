@@ -10,6 +10,7 @@ export default function ResumeBuilder() {
         title="Resume Builder"
         description="AI-powered resume creation with impact-driven XYZ bullet points"
         icon={FileText}
+        toolSlug="resume-builder"
         fields={[
           { id: "role", label: "Target Job Title", placeholder: "e.g. Senior Software Engineer" },
           { id: "experience", label: "Your Experience", placeholder: "Paste your work experience, skills, and achievements...", type: "textarea" },

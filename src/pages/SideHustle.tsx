@@ -10,6 +10,7 @@ export default function SideHustle() {
         title="Side Hustle Generator"
         description="Discover personalized side income opportunities based on your skills"
         icon={Lightbulb}
+        toolSlug="side-hustle"
         fields={[
           { id: "skills", label: "Your Skills & Interests", placeholder: "e.g. Writing, design, coding, marketing, teaching...", type: "textarea" },
           { id: "time", label: "Time Available Per Week", placeholder: "e.g. 10-15 hours" },

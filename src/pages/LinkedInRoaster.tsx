@@ -7,6 +7,7 @@ export default function LinkedInRoaster() {
       title="LinkedIn Roaster"
       description="Get brutally honest (but helpful) feedback on your LinkedIn profile"
       icon={MessageSquareWarning}
+      toolSlug="linkedin-roaster"
       fields={[
         { id: "headline", label: "Your LinkedIn Headline", placeholder: "e.g. Marketing Manager | Growth Hacker | Coffee Lover" },
         { id: "about", label: "Your About Section", placeholder: "Paste your LinkedIn About section here...", type: "textarea" },

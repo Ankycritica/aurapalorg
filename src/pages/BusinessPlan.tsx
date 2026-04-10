@@ -7,6 +7,7 @@ export default function BusinessPlan() {
       title="Business Plan Generator"
       description="Turn any idea into a structured, investor-ready business plan"
       icon={Briefcase}
+      toolSlug="business-plan"
       fields={[
         { id: "idea", label: "Business Idea", placeholder: "Describe your business idea in detail...", type: "textarea" },
         { id: "market", label: "Target Market", placeholder: "e.g. Small businesses, remote workers, students" },
