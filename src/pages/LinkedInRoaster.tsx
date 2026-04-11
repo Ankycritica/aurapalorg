@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquareWarning, Loader2, Copy, RotateCcw, CheckCheck, Share2 } from "lucide-react";
+import { MessageSquareWarning, Loader2, Copy, RotateCcw, CheckCheck, Share2, Link as LinkIcon } from "lucide-react";
 import { useUsage } from "@/hooks/useUsage";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
@@ -45,17 +45,26 @@ export default function LinkedInRoaster() {
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
 
-  const fields: { id: string; label: string; placeholder: string; type?: "text" | "textarea" }[] = [
-    { id: "headline", label: "Your Headline (first impressions matter...)", placeholder: "e.g. Marketing Manager | Growth Hacker | Coffee Lover" },
-    { id: "about", label: "Your About Section (let's see that story)", placeholder: "Paste your LinkedIn About section here...", type: "textarea" },
-    { id: "experience", label: "Your Experience (the highlight reel)", placeholder: "Brief overview of your listed experience...", type: "textarea" },
-    { id: "skills", label: "Your Skills (optional — comma separated)", placeholder: "e.g. SEO, Content Marketing, Growth Hacking" },
+  const fields: { id: string; label: string; placeholder: string; type?: "text" | "textarea"; required?: boolean; hint?: string }[] = [
+    { id: "profileUrl", label: "LinkedIn Profile URL (optional)", placeholder: "e.g. https://linkedin.com/in/yourname", hint: "We won't scrape it — just for context and reference" },
+    { id: "headline", label: "Your Headline (first impressions matter...)", placeholder: "e.g. Marketing Manager | Growth Hacker | Coffee Lover", required: true },
+    { id: "about", label: "Your About Section (let's see that story)", placeholder: "Paste your LinkedIn About section here...", type: "textarea", required: true },
+    { id: "experience", label: "Your Experience (the highlight reel)", placeholder: "Brief overview of your listed roles, companies, and key achievements...", type: "textarea", required: true },
+    { id: "skills", label: "Your Skills (optional — comma separated)", placeholder: "e.g. SEO, Content Marketing, Growth Hacking, Data Analysis" },
   ];
 
   const generate = useCallback(async () => {
     const required = ["headline", "about", "experience"];
     const missing = required.filter(id => !values[id]?.trim());
-    if (missing.length) { setError("Please fill in headline, about, and experience."); return; }
+    if (missing.length) { setError("Please fill in headline, about, and experience sections."); return; }
+    
+    // Check minimum content length
+    const totalContent = [values.headline, values.about, values.experience].join(" ").trim();
+    if (totalContent.length < 80) {
+      setError("Please provide more detail in your profile sections. A few words isn't enough for an accurate roast — give us your real LinkedIn content!");
+      return;
+    }
+    
     if (isLimitReached) { setShowPaywall(true); return; }
 
     setError(""); setLoading(true); setResult(null);
@@ -66,6 +75,14 @@ export default function LinkedInRoaster() {
 
       const systemPrompt = `You are a LinkedIn profile roast expert — think comedy roast meets career advice. Be funny, brutally honest, and savage BUT always constructive. 
 
+IMPORTANT SCORING RULES:
+- Score based on the ACTUAL quality and depth of content provided.
+- Short or vague sections should be scored harshly (e.g., a one-word headline = critical).
+- If the headline is generic buzzwords like "Manager | Leader | Passionate", rate it critically.
+- If the about section is under 2 sentences, rate it critically.
+- Only rate "good" if the section is genuinely strong, specific, and compelling.
+- A mediocre profile should score 30-50. Only truly polished profiles score 70+.
+
 CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact schema:
 {
   "score": <number 0-100>,
@@ -75,7 +92,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
   "experience": { "rating": "<critical|needs_work|good>", "critique": "<2-3 sentences>", "fixes": ["<fix 1>", "<fix 2>", "<fix 3>"] }
 }`;
 
-      const userPrompt = `Roast this LinkedIn profile:\n\nHeadline: ${values.headline}\n\nAbout: ${values.about}\n\nExperience: ${values.experience}${values.skills ? `\n\nSkills: ${values.skills}` : ""}`;
+      const userPrompt = `Roast this LinkedIn profile:\n\n${values.profileUrl ? `Profile URL: ${values.profileUrl}\n\n` : ""}Headline: ${values.headline}\n\nAbout: ${values.about}\n\nExperience: ${values.experience}${values.skills ? `\n\nSkills: ${values.skills}` : ""}`;
 
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
@@ -110,12 +127,10 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
         }
       }
 
-      // Parse JSON from response
       const cleaned = fullText.replace(/```json\s*/g, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(cleaned) as RoastResult;
       setResult(parsed);
 
-      // Save to generations
       if (user) {
         await supabase.from("generations").insert({
           user_id: user.id,
@@ -167,15 +182,26 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
         className="glass-card p-6 space-y-4">
         {fields.map((field) => (
           <div key={field.id}>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">{field.label}</label>
+            <label className="text-sm font-medium text-foreground mb-1.5 block">
+              {field.label}
+              {field.required && <span className="text-red-400 ml-1">*</span>}
+            </label>
+            {field.hint && (
+              <p className="text-xs text-muted-foreground/70 mb-1.5">{field.hint}</p>
+            )}
             {field.type === "textarea" ? (
               <textarea placeholder={field.placeholder} value={values[field.id] || ""}
                 onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
                 className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[120px] resize-y transition-all duration-200" />
             ) : (
-              <input type="text" placeholder={field.placeholder} value={values[field.id] || ""}
-                onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
-                className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
+              <div className="relative">
+                {field.id === "profileUrl" && (
+                  <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                )}
+                <input type="text" placeholder={field.placeholder} value={values[field.id] || ""}
+                  onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
+                  className={`w-full bg-secondary/50 border border-border/50 rounded-lg py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${field.id === "profileUrl" ? "pl-10 pr-4" : "px-4"}`} />
+              </div>
             )}
           </div>
         ))}
@@ -194,7 +220,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
       <AnimatePresence>
         {loading && !result && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-6">
-            <p className="text-sm text-muted-foreground mb-4">Preparing your roast... 🔥</p>
+            <p className="text-sm text-muted-foreground mb-4">Analyzing your LinkedIn profile... 🔥 This takes 10-20 seconds</p>
             <div className="space-y-3">
               {[85, 70, 90, 60].map((w, i) => (
                 <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />
