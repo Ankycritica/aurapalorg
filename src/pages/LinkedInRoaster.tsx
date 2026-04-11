@@ -45,10 +45,10 @@ export default function LinkedInRoaster() {
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
 
-  const fields = [
+  const fields: { id: string; label: string; placeholder: string; type?: "text" | "textarea" }[] = [
     { id: "headline", label: "Your Headline (first impressions matter...)", placeholder: "e.g. Marketing Manager | Growth Hacker | Coffee Lover" },
-    { id: "about", label: "Your About Section (let's see that story)", placeholder: "Paste your LinkedIn About section here...", type: "textarea" as const },
-    { id: "experience", label: "Your Experience (the highlight reel)", placeholder: "Brief overview of your listed experience...", type: "textarea" as const },
+    { id: "about", label: "Your About Section (let's see that story)", placeholder: "Paste your LinkedIn About section here...", type: "textarea" },
+    { id: "experience", label: "Your Experience (the highlight reel)", placeholder: "Brief overview of your listed experience...", type: "textarea" },
     { id: "skills", label: "Your Skills (optional — comma separated)", placeholder: "e.g. SEO, Content Marketing, Growth Hacking" },
   ];
 
