@@ -1,8 +1,10 @@
 import {
-  LayoutDashboard, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Settings, Crown, CreditCard, Mail, MessageCircle,
+  LayoutDashboard, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Settings, Crown, CreditCard, Mail, MessageCircle, ShieldCheck,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
+
+const ADMIN_EMAIL = "dongare.ankit29@gmail.com";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, useSidebar,
@@ -23,8 +25,9 @@ const tools = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const isPaid = profile?.plan === "pro" || profile?.plan === "premium";
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   return (
     <Sidebar collapsible="icon">
@@ -76,6 +79,16 @@ export function AppSidebar() {
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/admin" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
+                      <ShieldCheck className="h-4 w-4 mr-2 shrink-0" />
+                      {!collapsed && <span>Admin</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
