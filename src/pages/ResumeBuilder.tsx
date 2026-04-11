@@ -1,11 +1,14 @@
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, X } from "lucide-react";
+import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, X, Heart, Download } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import { useUsage } from "@/hooks/useUsage";
+import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
 import { ResumeTemplates } from "@/components/ResumeTemplates";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjsLib = await import("pdfjs-dist");
@@ -28,39 +31,43 @@ async function extractTextFromDocx(file: File): Promise<string> {
   return result.value.trim();
 }
 
+interface ATSScore {
+  score: number;
+  positives: string[];
+  missing: string[];
+}
+
 export default function ResumeBuilder() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [extracting, setExtracting] = useState(false);
+  const [atsScore, setAtsScore] = useState<ATSScore | null>(null);
+  const [atsLoading, setAtsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
+  const { user } = useAuth();
 
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (!["pdf", "doc", "docx"].includes(ext || "")) {
       setError("Please upload a PDF or Word document (.pdf, .doc, .docx)");
       return;
     }
-
     setUploadedFile(file);
     setExtracting(true);
     setError("");
-
     try {
       let text = "";
-      if (ext === "pdf") {
-        text = await extractTextFromPDF(file);
-      } else {
-        text = await extractTextFromDocx(file);
-      }
+      if (ext === "pdf") text = await extractTextFromPDF(file);
+      else text = await extractTextFromDocx(file);
       setValues(v => ({ ...v, experience: text }));
     } catch {
       setError("Could not extract text from file. Please paste your resume content manually.");
@@ -75,40 +82,94 @@ export default function ResumeBuilder() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const fields: { id: string; label: string; placeholder: string; type?: "text" | "textarea" }[] = [
+  const contactFields = [
+    { id: "fullName", label: "Full Name", placeholder: "e.g. John Doe", required: true },
+    { id: "email", label: "Email", placeholder: "e.g. john@example.com", required: true, type: "email" },
+    { id: "phone", label: "Phone (optional)", placeholder: "e.g. +1 555-123-4567" },
+    { id: "city", label: "City, State (optional)", placeholder: "e.g. San Francisco, CA" },
+    { id: "linkedin", label: "LinkedIn URL (optional)", placeholder: "e.g. linkedin.com/in/johndoe" },
+    { id: "portfolio", label: "Portfolio / GitHub URL (optional)", placeholder: "e.g. github.com/johndoe" },
+  ];
+
+  const mainFields: { id: string; label: string; placeholder: string; type?: "text" | "textarea" }[] = [
     { id: "role", label: "Target Job Title", placeholder: "e.g. Senior Software Engineer" },
     { id: "experience", label: "Your Experience", placeholder: "Paste your work experience, skills, and achievements...", type: "textarea" },
     { id: "keywords", label: "Key Skills / Keywords", placeholder: "e.g. React, Node.js, AWS, Agile" },
   ];
 
+  const runAtsScore = async (resumeText: string) => {
+    setAtsLoading(true);
+    try {
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        body: JSON.stringify({
+          systemPrompt: `You are an ATS (Applicant Tracking System) expert. Analyze the resume and return ONLY valid JSON, no markdown:
+{"score": <0-100>, "positives": ["<strength 1>", "<strength 2>"], "missing": ["<missing keyword 1>", "<missing keyword 2>"]}
+Be specific. Score based on formatting, keywords, quantified achievements, and ATS compatibility.`,
+          userPrompt: `Analyze this resume for ATS compatibility for a ${values.role || "general"} role:\n\n${resumeText}`,
+        }),
+      });
+      if (!resp.ok || !resp.body) return;
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "", fullText = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let idx: number;
+        while ((idx = buffer.indexOf("\n")) !== -1) {
+          let line = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 1);
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") break;
+          try {
+            const p = JSON.parse(jsonStr);
+            const c = p.choices?.[0]?.delta?.content;
+            if (c) fullText += c;
+          } catch {}
+        }
+      }
+      const cleaned = fullText.replace(/```json\s*/g, "").replace(/```/g, "").trim();
+      setAtsScore(JSON.parse(cleaned));
+    } catch {} finally {
+      setAtsLoading(false);
+    }
+  };
+
   const generate = useCallback(async () => {
-    const missing = fields.filter(f => !values[f.id]?.trim());
-    if (missing.length) {
-      setError(`Please fill in: ${missing.map(f => f.label).join(", ")}`);
+    if (!values.fullName?.trim() || !values.email?.trim()) {
+      setError("Please fill in Full Name and Email.");
+      return;
+    }
+    if (!values.role?.trim() || !values.experience?.trim() || !values.keywords?.trim()) {
+      setError("Please fill in Target Job Title, Experience, and Key Skills.");
       return;
     }
     if (isLimitReached) { setShowPaywall(true); return; }
 
-    setError(""); setLoading(true); setResult("");
+    setError(""); setLoading(true); setResult(""); setSaved(false); setAtsScore(null);
 
     try {
       const tracked = await trackUsage("resume-builder");
       if (!tracked) { setShowPaywall(true); setLoading(false); return; }
 
+      const contactInfo = `Full Name: ${values.fullName}\nEmail: ${values.email}${values.phone ? `\nPhone: ${values.phone}` : ""}${values.city ? `\nLocation: ${values.city}` : ""}${values.linkedin ? `\nLinkedIn: ${values.linkedin}` : ""}${values.portfolio ? `\nPortfolio: ${values.portfolio}` : ""}`;
+
       const systemPrompt = uploadedFile
-        ? "You are an expert resume writer and career coach. The user has uploaded their existing resume. Analyze it and provide a significantly improved version. Use impact-driven XYZ format bullet points: 'Accomplished [X] as measured by [Y], by doing [Z]'. Fix weak bullet points, add quantifiable metrics, improve structure, optimize for ATS. Keep the factual content but dramatically improve the presentation."
-        : "You are an expert resume writer and career coach. Create a professional, ATS-optimized resume. Use impact-driven XYZ format bullet points: 'Accomplished [X] as measured by [Y], by doing [Z]'. Structure with clear sections: Summary, Experience, Skills, Education. Use strong action verbs. Be specific with metrics and results.";
+        ? `You are an expert resume writer and career coach. The user has uploaded their existing resume. Analyze it and provide a significantly improved version. Use impact-driven XYZ format bullet points: 'Accomplished [X] as measured by [Y], by doing [Z]'. Fix weak bullet points, add quantifiable metrics, improve structure, optimize for ATS. Use these exact contact details: ${values.fullName}, ${values.email}, ${values.phone || ""}, ${values.city || ""}, ${values.linkedin || ""}, ${values.portfolio || ""}. Do not use bracket placeholders like [FIRST NAME] or [Email Address].`
+        : `You are an expert resume writer and career coach. Create a professional, ATS-optimized resume. Use impact-driven XYZ format bullet points: 'Accomplished [X] as measured by [Y], by doing [Z]'. Structure with clear sections: Summary, Experience, Skills, Education. Use strong action verbs. Be specific with metrics and results. Use these exact contact details: ${values.fullName}, ${values.email}, ${values.phone || ""}, ${values.city || ""}, ${values.linkedin || ""}, ${values.portfolio || ""}. Do not use bracket placeholders.`;
 
       const userPrompt = uploadedFile
-        ? `Improve this resume for a ${values.role} role. Here is my current resume:\n\n${values.experience}\n\nKey Skills to highlight: ${values.keywords}`
-        : `Create a professional resume for a ${values.role} role.\n\nExperience:\n${values.experience}\n\nKey Skills: ${values.keywords}`;
+        ? `Improve this resume for a ${values.role} role.\n\nContact Info:\n${contactInfo}\n\nHere is my current resume:\n\n${values.experience}\n\nKey Skills to highlight: ${values.keywords}`
+        : `Create a professional resume for a ${values.role} role.\n\nContact Info:\n${contactInfo}\n\nExperience:\n${values.experience}\n\nKey Skills: ${values.keywords}`;
 
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
         body: JSON.stringify({ systemPrompt, userPrompt }),
       });
 
@@ -118,8 +179,7 @@ export default function ResumeBuilder() {
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = "";
-      let fullText = "";
+      let buffer = "", fullText = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -140,17 +200,44 @@ export default function ResumeBuilder() {
           } catch {}
         }
       }
+
+      // Run ATS score in parallel (non-blocking)
+      if (fullText) runAtsScore(fullText);
+
+      // Save
+      if (user && fullText) {
+        await supabase.from("generations").insert({
+          user_id: user.id,
+          tool_name: "resume-builder",
+          input_data: values as any,
+          output_text: fullText,
+        });
+      }
     } catch {
       setError("Failed to connect. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
-  }, [values, fields, isLimitReached, trackUsage, uploadedFile]);
+  }, [values, isLimitReached, trackUsage, uploadedFile, user]);
 
   const copyResult = () => {
     navigator.clipboard.writeText(result);
     setCopied(true);
+    toast.success("Copied!");
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const saveToHistory = async () => {
+    if (!user || !result) return;
+    await supabase.from("generations").insert({
+      user_id: user.id,
+      tool_name: "resume-builder",
+      input_data: values as any,
+      output_text: result,
+    });
+    setSaved(true);
+    toast.success("Saved to history ✓");
+    setTimeout(() => setSaved(false), 3000);
   };
 
   const otherTools = [
@@ -182,11 +269,11 @@ export default function ResumeBuilder() {
         </div>
       </motion.div>
 
+      {/* Upload */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
         className="glass-card p-6">
         <h2 className="font-display font-semibold text-base mb-3">📄 Upload Existing Resume (Optional)</h2>
         <p className="text-sm text-muted-foreground mb-4">Have an existing resume? Upload it and our AI will analyze and improve it.</p>
-
         {!uploadedFile ? (
           <label className="flex flex-col items-center gap-3 p-6 border-2 border-dashed border-border/50 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-secondary/20 transition-all duration-200">
             <Upload className="h-8 w-8 text-muted-foreground" />
@@ -199,9 +286,7 @@ export default function ResumeBuilder() {
             <FileText className="h-5 w-5 text-primary shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{uploadedFile.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {extracting ? "Extracting text..." : "Text extracted — edit below if needed"}
-              </p>
+              <p className="text-xs text-muted-foreground">{extracting ? "Extracting text..." : "Text extracted — edit below if needed"}</p>
             </div>
             {extracting ? (
               <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
@@ -214,9 +299,27 @@ export default function ResumeBuilder() {
         )}
       </motion.div>
 
+      {/* Contact Info */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+        className="glass-card p-6 space-y-4">
+        <h2 className="font-display font-semibold text-base mb-1">👤 Contact Information</h2>
+        <p className="text-xs text-muted-foreground mb-3">This info will be used directly in your resume — no placeholders.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {contactFields.map((field) => (
+            <div key={field.id}>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{field.label}</label>
+              <input type={field.type || "text"} placeholder={field.placeholder} value={values[field.id] || ""}
+                onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
+                className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Main fields */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="glass-card p-6 space-y-4">
-        {fields.map((field) => (
+        {mainFields.map((field) => (
           <div key={field.id}>
             <label className="text-sm font-medium text-foreground mb-1.5 block">{field.label}</label>
             {field.type === "textarea" ? (
@@ -232,42 +335,94 @@ export default function ResumeBuilder() {
         ))}
 
         {error && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-2">
-            {error}
-          </motion.p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-2">{error}</motion.p>
         )}
 
         <button onClick={generate} disabled={loading || extracting}
-          className="w-full py-3 rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2">
-          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating...</> : uploadedFile ? "Improve Resume with AI ✨" : "Generate with AI ✨"}
+          className="w-full py-3 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2">
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating... (~15 sec)</> : uploadedFile ? "Improve Resume with AI ✨" : "Generate with AI ✨"}
         </button>
       </motion.div>
 
+      {/* Result panel */}
       <AnimatePresence>
         {(result || loading) && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display font-semibold text-lg">Result</h2>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="glass-card overflow-hidden" style={{ borderTop: "3px solid hsl(var(--primary))" }}>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 pb-0 sm:pb-0 gap-3">
+              <h2 className="font-display font-semibold text-lg">Your Results</h2>
               {result && (
-                <div className="flex gap-2">
-                  <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
                     {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied!" : "Copy"}
                   </button>
-                  <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
-                    <RotateCcw className="h-4 w-4" /> Regenerate
+                  <button onClick={saveToHistory} disabled={saved} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all disabled:opacity-60">
+                    <Heart className={`h-4 w-4 ${saved ? "fill-primary text-primary" : ""}`} /> {saved ? "Saved ✓" : "Save"}
+                  </button>
+                  <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
+                    <RotateCcw className="h-4 w-4" /> Regen
                   </button>
                 </div>
               )}
             </div>
-            {loading && !result ? (
+            <div className="p-4 sm:p-6">
+              {loading && !result ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground mb-3">Generating your resume... (~15 sec)</p>
+                  {[85, 70, 90, 60, 75].map((w, i) => (
+                    <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />
+                  ))}
+                </div>
+              ) : (
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground">
+                  <ReactMarkdown>{result}</ReactMarkdown>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ATS Score */}
+      <AnimatePresence>
+        {(atsLoading || atsScore) && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6" style={{ borderTop: "3px solid hsl(var(--accent))" }}>
+            <h3 className="font-display font-semibold text-base mb-4">📊 ATS Compatibility Score</h3>
+            {atsLoading ? (
               <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${60 + Math.random() * 40}%` }} />
-                ))}
+                <div className="h-16 bg-secondary/50 rounded-lg animate-pulse" />
+                <div className="h-4 bg-secondary/50 rounded animate-pulse w-3/4" />
+                <div className="h-4 bg-secondary/50 rounded animate-pulse w-1/2" />
               </div>
-            ) : (
-              <div className="prose prose-invert prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground">
-                <ReactMarkdown>{result}</ReactMarkdown>
+            ) : atsScore && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className={`inline-flex items-center justify-center h-16 w-16 rounded-full border-4 ${atsScore.score >= 70 ? "border-green-500" : atsScore.score >= 50 ? "border-amber-500" : "border-red-500"}`}>
+                    <span className={`font-display text-xl font-bold ${atsScore.score >= 70 ? "text-green-400" : atsScore.score >= 50 ? "text-amber-400" : "text-red-400"}`}>{atsScore.score}</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">ATS Score: {atsScore.score}/100</p>
+                    <p className="text-xs text-muted-foreground">{atsScore.score >= 70 ? "Great ATS compatibility!" : atsScore.score >= 50 ? "Good, but room for improvement" : "Needs significant improvement"}</p>
+                  </div>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                    <p className="text-xs text-green-400 font-semibold mb-2">✅ Strengths</p>
+                    <ul className="space-y-1">
+                      {atsScore.positives.map((p, i) => (
+                        <li key={i} className="text-sm text-foreground flex gap-2"><span className="text-green-400 shrink-0">✓</span> {p}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+                    <p className="text-xs text-amber-400 font-semibold mb-2">⚠️ Missing Keywords</p>
+                    <ul className="space-y-1">
+                      {atsScore.missing.map((m, i) => (
+                        <li key={i} className="text-sm text-foreground flex gap-2"><span className="text-amber-400 shrink-0">!</span> {m}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
             )}
           </motion.div>
@@ -300,7 +455,7 @@ export default function ResumeBuilder() {
         <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
           <li>Upload & improve existing resumes (PDF/Word)</li>
           <li>Impact-driven XYZ format bullet points</li>
-          <li>ATS-optimized keyword placement</li>
+          <li>ATS compatibility score with keyword analysis</li>
           <li>Curated best resume templates</li>
           <li>Tailored to your target role</li>
         </ul>

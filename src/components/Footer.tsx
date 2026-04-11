@@ -16,7 +16,7 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold mb-3">Product</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/" className="hover:text-foreground transition-colors">Dashboard</Link></li>
+              <li><Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link></li>
               <li><Link to="/resume-builder" className="hover:text-foreground transition-colors">Resume Builder</Link></li>
               <li><Link to="/cover-letter" className="hover:text-foreground transition-colors">Cover Letter</Link></li>
               <li><Link to="/interview-prep" className="hover:text-foreground transition-colors">Interview Prep</Link></li>
@@ -26,8 +26,8 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold mb-3">Company</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><span className="text-muted-foreground/60">About</span></li>
-              <li><span className="text-muted-foreground/60">Blog</span></li>
+              <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
+              <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
               <li><a href="mailto:contact@aurapal.org" className="hover:text-foreground transition-colors">Contact</a></li>
             </ul>
           </div>

@@ -13,10 +13,19 @@ export default function CoverLetter() {
         { id: "company", label: "Company Name", placeholder: "e.g. Google" },
         { id: "jobDescription", label: "Job Description", placeholder: "Paste the job description here...", type: "textarea" },
         { id: "skills", label: "Your Key Skills / Experience", placeholder: "Summarize your relevant skills and achievements...", type: "textarea" },
+        {
+          id: "tone", label: "Tone", placeholder: "", type: "select",
+          options: [
+            { value: "professional", label: "Professional" },
+            { value: "enthusiastic", label: "Enthusiastic" },
+            { value: "concise", label: "Concise & Direct" },
+            { value: "creative", label: "Creative" },
+          ],
+        },
       ]}
       systemPrompt="You are an expert cover letter writer. Write a compelling, personalized cover letter for the role at the company based on the job description and candidate's skills. Use a professional tone. Use a strong opening hook, highlight 2-3 key achievements, and end with a confident CTA. Return only the letter text, formatted with proper paragraphs."
       buildUserPrompt={(v) =>
-        `Write a cover letter for the ${v.jobTitle} role at ${v.company}.\n\nJob Description:\n${v.jobDescription}\n\nMy Skills & Experience:\n${v.skills}`
+        `Write a cover letter for the ${v.jobTitle} role at ${v.company}.\nTone: ${v.tone || "professional"}\n\nJob Description:\n${v.jobDescription}\n\nMy Skills & Experience:\n${v.skills}`
       }
     />
   );

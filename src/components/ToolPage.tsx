@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, Trash2, Eye, Clock } from "lucide-react";
+import { Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, Trash2, Eye, Clock, Download, Heart } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
@@ -9,18 +9,29 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { toast } from "sonner";
+
+interface ToolField {
+  id: string;
+  label: string;
+  placeholder: string;
+  type?: "text" | "textarea" | "select";
+  options?: { value: string; label: string }[];
+}
 
 interface ToolPageProps {
   title: string;
   description: string;
   icon: LucideIcon;
   toolSlug: string;
-  fields: { id: string; label: string; placeholder: string; type?: "text" | "textarea" }[];
+  fields: ToolField[];
   systemPrompt: string;
   buildUserPrompt: (values: Record<string, string>) => string;
   metaTitle?: string;
   metaDescription?: string;
   seoContent?: React.ReactNode;
+  accentColor?: string;
+  generateLabel?: string;
 }
 
 const toolSuggestions = [
@@ -41,12 +52,13 @@ interface HistoryItem {
   input_data: any;
 }
 
-export function ToolPage({ title, description, icon: Icon, toolSlug, fields, systemPrompt, buildUserPrompt, seoContent }: ToolPageProps) {
+export function ToolPage({ title, description, icon: Icon, toolSlug, fields, systemPrompt, buildUserPrompt, seoContent, accentColor, generateLabel }: ToolPageProps) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [activeTab, setActiveTab] = useState<"generate" | "history">("generate");
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -79,6 +91,14 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
     });
   }, [user, toolSlug, values]);
 
+  const saveToHistory = async () => {
+    if (!user || !result) return;
+    await saveGeneration(result);
+    setSaved(true);
+    toast.success("Saved to history ✓");
+    setTimeout(() => setSaved(false), 3000);
+  };
+
   const deleteGeneration = async (id: string) => {
     await supabase.from("generations").delete().eq("id", id);
     setHistory(h => h.filter(item => item.id !== id));
@@ -89,7 +109,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
     if (missing.length) { setError(`Please fill in: ${missing.map(f => f.label).join(", ")}`); return; }
     if (isLimitReached) { setShowPaywall(true); return; }
 
-    setError(""); setLoading(true); setResult("");
+    setError(""); setLoading(true); setResult(""); setSaved(false);
 
     try {
       const tracked = await trackUsage(toolSlug);
@@ -140,8 +160,23 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
   const copyResult = () => {
     navigator.clipboard.writeText(result);
     setCopied(true);
+    toast.success("Copied to clipboard!");
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const downloadResult = (format: "txt" | "pdf") => {
+    if (format === "txt") {
+      const blob = new Blob([result], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${toolSlug}-result.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const borderColor = accentColor || "hsl(var(--primary))";
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -181,7 +216,17 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
             {fields.map((field) => (
               <div key={field.id}>
                 <label className="text-sm font-medium text-foreground mb-1.5 block">{field.label}</label>
-                {field.type === "textarea" ? (
+                {field.type === "select" && field.options ? (
+                  <select
+                    value={values[field.id] || field.options[0]?.value || ""}
+                    onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
+                  >
+                    {field.options.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                ) : field.type === "textarea" ? (
                   <textarea placeholder={field.placeholder} value={values[field.id] || ""}
                     onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
                     className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[120px] resize-y transition-all duration-200" />
@@ -193,46 +238,64 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
               </div>
             ))}
 
-            {error && (
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-2">
-                {error}
-              </motion.p>
+            {error && !result && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="border border-destructive/30 bg-destructive/10 rounded-lg p-4">
+                <p className="text-sm text-destructive font-medium mb-2">Generation failed</p>
+                <p className="text-sm text-destructive/80 mb-3">{error}</p>
+                <button onClick={generate} className="text-sm font-semibold text-destructive hover:underline">Retry →</button>
+              </motion.div>
             )}
 
             <button onClick={generate} disabled={loading}
-              className="w-full py-3 md:py-3 min-h-[52px] md:min-h-0 rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2">
-              {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating...</> : "Generate with AI ✨"}
+              className="w-full py-3 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2">
+              {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating... (~15 sec)</> : (generateLabel || "Generate with AI ✨")}
             </button>
           </motion.div>
 
+          {/* Loading skeleton */}
           <AnimatePresence>
-            {(result || loading) && (
+            {loading && !result && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-display font-semibold text-lg">Your {title} Results</h2>
-                  {result && (
-                    <div className="flex gap-2">
-                      <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
-                        {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied!" : "Copy"}
-                      </button>
-                      <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
-                        <RotateCcw className="h-4 w-4" /> Regenerate
-                      </button>
-                    </div>
-                  )}
+                <p className="text-sm text-muted-foreground mb-4">Generating your results... this takes 10-20 seconds</p>
+                <div className="space-y-3">
+                  {[85, 70, 90, 60].map((w, i) => (
+                    <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />
+                  ))}
                 </div>
-                {loading && !result ? (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground mb-3">Generating your results... this takes 10-20 seconds</p>
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${60 + Math.random() * 40}%` }} />
-                    ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Result panel */}
+          <AnimatePresence>
+            {result && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="glass-card overflow-hidden" style={{ borderTop: `3px solid ${borderColor}` }}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 pb-0 sm:pb-0 gap-3">
+                  <h2 className="font-display font-semibold text-lg">Your Results</h2>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                      {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied!" : "Copy"}
+                    </button>
+                    <button onClick={saveToHistory} disabled={saved} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 disabled:opacity-60">
+                      <Heart className={`h-4 w-4 ${saved ? "fill-primary text-primary" : ""}`} /> {saved ? "Saved ✓" : "Save"}
+                    </button>
+                    <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                      <RotateCcw className="h-4 w-4" /> Regen
+                    </button>
                   </div>
-                ) : (
+                </div>
+                <div className="p-4 sm:p-6">
                   <div className="prose prose-invert prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground">
                     <ReactMarkdown>{result}</ReactMarkdown>
                   </div>
-                )}
+                </div>
+                <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                  <button onClick={() => downloadResult("txt")}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-secondary/40 hover:bg-secondary/60 text-sm text-muted-foreground hover:text-foreground transition-all">
+                    <Download className="h-4 w-4" /> Download as TXT
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
