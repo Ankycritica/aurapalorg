@@ -217,7 +217,12 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
             className="glass-card p-6 space-y-4">
             {fields.map((field) => (
               <div key={field.id}>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">{field.label}</label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">
+                  {field.label}
+                  {field.required === false && !field.label.toLowerCase().includes("optional") && (
+                    <span className="text-muted-foreground font-normal ml-1">(optional)</span>
+                  )}
+                </label>
                 {field.type === "select" && field.options ? (
                   <select
                     value={values[field.id] || field.options[0]?.value || ""}
