@@ -13,8 +13,8 @@ export default function SeoArticleGenerator() {
         toolSlug="seo-article"
         fields={[
           { id: "keyword", label: "Target Keyword", placeholder: "e.g. best project management tools 2025" },
-          { id: "tone", label: "Tone / Style", placeholder: "e.g. Professional, conversational, authoritative" },
-          { id: "length", label: "Desired Length", placeholder: "e.g. 1500 words" },
+          { id: "tone", label: "Tone / Style", placeholder: "e.g. Professional, conversational, authoritative", required: false },
+          { id: "length", label: "Desired Length", placeholder: "e.g. 1500 words", required: false },
         ]}
         systemPrompt="You are an expert SEO content writer. Create a comprehensive, keyword-optimized blog article. Include: SEO Title (under 60 chars), Meta Description (under 160 chars), proper H1/H2/H3 heading hierarchy, introduction with hook, well-structured body sections, conclusion with CTA. Naturally incorporate the target keyword. Write engaging, valuable content that ranks."
         buildUserPrompt={(v) => `Write an SEO-optimized article targeting the keyword: "${v.keyword}"\nTone: ${v.tone || "Professional"}\nTarget length: ${v.length || "1500 words"}`}
