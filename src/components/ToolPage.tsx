@@ -17,6 +17,7 @@ interface ToolField {
   placeholder: string;
   type?: "text" | "textarea" | "select";
   options?: { value: string; label: string }[];
+  required?: boolean;
 }
 
 interface ToolPageProps {
@@ -105,7 +106,8 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
   };
 
   const generate = useCallback(async () => {
-    const missing = fields.filter(f => !values[f.id]?.trim());
+    const requiredFields = fields.filter(f => f.required !== false && f.type !== "select");
+    const missing = requiredFields.filter(f => !values[f.id]?.trim());
     if (missing.length) { setError(`Please fill in: ${missing.map(f => f.label).join(", ")}`); return; }
     if (isLimitReached) { setShowPaywall(true); return; }
 
@@ -215,7 +217,12 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
             className="glass-card p-6 space-y-4">
             {fields.map((field) => (
               <div key={field.id}>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">{field.label}</label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">
+                  {field.label}
+                  {field.required === false && !field.label.toLowerCase().includes("optional") && (
+                    <span className="text-muted-foreground font-normal ml-1">(optional)</span>
+                  )}
+                </label>
                 {field.type === "select" && field.options ? (
                   <select
                     value={values[field.id] || field.options[0]?.value || ""}

@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FlameKindling, Loader2, Copy, RotateCcw, CheckCheck, Share2, Download } from "lucide-react";
+import { FlameKindling, Loader2, Copy, RotateCcw, CheckCheck, Share2, Download, Upload, X, FileText, AlertTriangle } from "lucide-react";
 import { useUsage } from "@/hooks/useUsage";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
@@ -22,6 +22,27 @@ interface RoastResult {
   top_3_fixes: string[];
 }
 
+async function extractTextFromPDF(file: File): Promise<string> {
+  const pdfjsLib = await import("pdfjs-dist");
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let text = "";
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map((item: any) => item.str).join(" ") + "\n";
+  }
+  return text.trim();
+}
+
+async function extractTextFromDocx(file: File): Promise<string> {
+  const mammoth = await import("mammoth");
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer });
+  return result.value.trim();
+}
+
 function getScoreColor(score: number, max: number = 100) {
   const pct = (score / max) * 100;
   if (pct <= 40) return "text-red-400";
@@ -41,6 +62,8 @@ function getSectionBg(score: number) {
   return "bg-green-500/10 border-green-500/20";
 }
 
+const MIN_RESUME_LENGTH = 100;
+
 export default function ResumeRoast() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState<RoastResult | null>(null);
@@ -49,11 +72,51 @@ export default function ResumeRoast() {
   const [copied, setCopied] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [extracting, setExtracting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
 
+  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (!["pdf", "doc", "docx"].includes(ext || "")) {
+      setError("Please upload a PDF or Word document (.pdf, .doc, .docx)");
+      return;
+    }
+    setUploadedFile(file);
+    setExtracting(true);
+    setError("");
+    try {
+      let text = "";
+      if (ext === "pdf") text = await extractTextFromPDF(file);
+      else text = await extractTextFromDocx(file);
+      setValues(v => ({ ...v, resume: text }));
+      toast.success("Resume text extracted successfully!");
+    } catch {
+      setError("Could not extract text from file. Please paste your resume content manually.");
+    } finally {
+      setExtracting(false);
+    }
+  }, []);
+
+  const removeFile = () => {
+    setUploadedFile(null);
+    setValues(v => ({ ...v, resume: "" }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const resumeLength = (values.resume || "").trim().length;
+  const wordCount = (values.resume || "").trim().split(/\s+/).filter(Boolean).length;
+
   const generate = useCallback(async () => {
-    if (!values.resume?.trim()) { setError("Please paste your resume."); return; }
+    if (!values.resume?.trim()) { setError("Please paste your resume or upload a file."); return; }
+    if (resumeLength < MIN_RESUME_LENGTH) {
+      setError(`Your resume is too short (${wordCount} words). Please paste your full resume with experience, skills, and education for an accurate roast. We need at least a few sentences to analyze.`);
+      return;
+    }
     if (isLimitReached) { setShowPaywall(true); return; }
 
     setError(""); setLoading(true); setResult(null);
@@ -62,7 +125,18 @@ export default function ResumeRoast() {
       const tracked = await trackUsage("resume-roast");
       if (!tracked) { setShowPaywall(true); setLoading(false); return; }
 
-      const systemPrompt = `You are a resume roast expert — brutally honest but constructive. 
+      const systemPrompt = `You are a resume roast expert — brutally honest but constructive.
+
+IMPORTANT SCORING RULES:
+- Analyze the ACTUAL CONTENT depth. A short or vague resume must score LOW.
+- If the resume has fewer than 50 words of real content, the total_score MUST be below 20.
+- If there are no quantified achievements, deduct heavily from "Quantified Achievements" (score 1-2).
+- If there are no proper bullet points, score "Bullet Point Impact" at 1-3.
+- If there is no clear structure/sections, score "Format & Readability" at 1-3.
+- Be proportionally harsh — a one-line "resume" should score 5-15 total.
+- A decent resume with some issues should score 40-65.
+- Only score 70+ if the resume is genuinely strong.
+${values.role ? `- Evaluate specifically for the target role: ${values.role}. Check if keywords, skills, and experience match this role.` : ""}
 
 CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact schema:
 {
@@ -78,7 +152,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
   "top_3_fixes": ["<fix 1>", "<fix 2>", "<fix 3>"]
 }`;
 
-      const userPrompt = `Roast this resume${values.role ? ` (targeting: ${values.role})` : ""}:\n\n${values.resume}`;
+      const userPrompt = `Roast this resume${values.role ? ` (targeting: ${values.role})` : ""}. The resume is ${wordCount} words long — factor the length and depth into your scoring:\n\n${values.resume}`;
 
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
@@ -130,7 +204,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
     } finally {
       setLoading(false);
     }
-  }, [values, isLimitReached, trackUsage, user]);
+  }, [values, isLimitReached, trackUsage, user, resumeLength, wordCount]);
 
   const copyResult = () => {
     if (!result) return;
@@ -175,18 +249,61 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
         </div>
       </motion.div>
 
+      {/* Upload Section */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+        className="glass-card p-6">
+        <h2 className="font-display font-semibold text-base mb-3">📄 Upload Resume (Recommended)</h2>
+        <p className="text-sm text-muted-foreground mb-4">Upload your resume for the most accurate roast. We'll extract the text automatically.</p>
+        {!uploadedFile ? (
+          <label className="flex flex-col items-center gap-3 p-6 border-2 border-dashed border-border/50 rounded-xl cursor-pointer hover:border-orange-500/50 hover:bg-secondary/20 transition-all duration-200">
+            <Upload className="h-8 w-8 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Click to upload PDF or Word document</span>
+            <span className="text-xs text-muted-foreground/60">Supports .pdf, .doc, .docx</span>
+            <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileUpload} />
+          </label>
+        ) : (
+          <div className="flex items-center gap-3 p-4 bg-secondary/30 rounded-xl">
+            <FileText className="h-5 w-5 text-orange-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{uploadedFile.name}</p>
+              <p className="text-xs text-muted-foreground">{extracting ? "Extracting text..." : "Text extracted — you can edit below if needed"}</p>
+            </div>
+            {extracting ? (
+              <Loader2 className="h-4 w-4 animate-spin text-orange-400 shrink-0" />
+            ) : (
+              <button onClick={removeFile} className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            )}
+          </div>
+        )}
+      </motion.div>
+
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="glass-card p-6 space-y-4">
         <div>
-          <label className="text-sm font-medium text-foreground mb-1.5 block">Paste Your Resume</label>
-          <textarea placeholder="Paste the full text of your resume here..."
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-sm font-medium text-foreground block">Paste Your Resume</label>
+            {resumeLength > 0 && (
+              <span className={`text-xs ${resumeLength < MIN_RESUME_LENGTH ? "text-amber-400" : "text-muted-foreground"}`}>
+                {wordCount} words
+              </span>
+            )}
+          </div>
+          <textarea placeholder="Paste the full text of your resume here — include your experience, skills, education, and achievements for the best analysis..."
             value={values.resume || ""}
             onChange={(e) => setValues(v => ({ ...v, resume: e.target.value }))}
             className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[160px] resize-y transition-all duration-200" />
+          {resumeLength > 0 && resumeLength < MIN_RESUME_LENGTH && (
+            <div className="flex items-center gap-2 mt-2 text-amber-400">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+              <p className="text-xs">Your resume seems too short. Paste your full resume for an accurate score.</p>
+            </div>
+          )}
         </div>
         <div>
-          <label className="text-sm font-medium text-foreground mb-1.5 block">Target Role (optional)</label>
-          <input type="text" placeholder="e.g. Product Manager at Google"
+          <label className="text-sm font-medium text-foreground mb-1.5 block">Target Role (optional but recommended)</label>
+          <input type="text" placeholder="e.g. Data Scientist at HP — helps us check role-specific keywords"
             value={values.role || ""}
             onChange={(e) => setValues(v => ({ ...v, role: e.target.value }))}
             className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
@@ -196,7 +313,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-2">{error}</motion.p>
         )}
 
-        <button onClick={generate} disabled={loading}
+        <button onClick={generate} disabled={loading || extracting}
           className="w-full py-3 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2">
           {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Roasting...</> : "Roast My Resume 🔥"}
         </button>
@@ -206,7 +323,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
       <AnimatePresence>
         {loading && !result && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-6">
-            <p className="text-sm text-muted-foreground mb-4">Preparing your roast... 🔥</p>
+            <p className="text-sm text-muted-foreground mb-4">Analyzing your resume... 🔥 This takes 10-20 seconds</p>
             <div className="space-y-3">
               {[85, 70, 90, 60].map((w, i) => (
                 <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />

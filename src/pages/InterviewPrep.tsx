@@ -10,7 +10,7 @@ export default function InterviewPrep() {
       toolSlug="interview-prep"
       fields={[
         { id: "role", label: "Target Role", placeholder: "e.g. Senior Frontend Engineer" },
-        { id: "company", label: "Company (optional)", placeholder: "e.g. Meta" },
+        { id: "company", label: "Company (optional)", placeholder: "e.g. Meta", required: false },
         {
           id: "type", label: "Interview Type", placeholder: "", type: "select",
           options: [

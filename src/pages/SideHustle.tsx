@@ -13,8 +13,8 @@ export default function SideHustle() {
         toolSlug="side-hustle"
         fields={[
           { id: "skills", label: "Your Skills & Interests", placeholder: "e.g. Writing, design, coding, marketing, teaching...", type: "textarea" },
-          { id: "time", label: "Time Available Per Week", placeholder: "e.g. 10-15 hours" },
-          { id: "goal", label: "Income Goal", placeholder: "e.g. $1,000/month" },
+          { id: "time", label: "Time Available Per Week", placeholder: "e.g. 10-15 hours", required: false },
+          { id: "goal", label: "Income Goal", placeholder: "e.g. $1,000/month", required: false },
         ]}
         systemPrompt="You are a side hustle and entrepreneurship expert. Generate 5-7 personalized side hustle ideas. For each, include: Name, Description, Earning Potential (realistic range), Time Investment, Startup Cost, Difficulty Level, First 3 Steps to Start. Prioritize ideas that match the user's skills. Be realistic about earnings. Include both quick-start and longer-term options."
         buildUserPrompt={(v) => `Suggest side hustle ideas for someone with these skills: ${v.skills}\nAvailable time: ${v.time || "10 hours/week"}\nIncome goal: ${v.goal || "Not specified"}`}
