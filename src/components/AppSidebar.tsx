@@ -25,8 +25,9 @@ const tools = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const isPaid = profile?.plan === "pro" || profile?.plan === "premium";
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   return (
     <Sidebar collapsible="icon">
