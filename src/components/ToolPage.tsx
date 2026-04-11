@@ -17,6 +17,7 @@ interface ToolField {
   placeholder: string;
   type?: "text" | "textarea" | "select";
   options?: { value: string; label: string }[];
+  required?: boolean;
 }
 
 interface ToolPageProps {
@@ -105,7 +106,8 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
   };
 
   const generate = useCallback(async () => {
-    const missing = fields.filter(f => !values[f.id]?.trim());
+    const requiredFields = fields.filter(f => f.required !== false && f.type !== "select");
+    const missing = requiredFields.filter(f => !values[f.id]?.trim());
     if (missing.length) { setError(`Please fill in: ${missing.map(f => f.label).join(", ")}`); return; }
     if (isLimitReached) { setShowPaywall(true); return; }
 
