@@ -1,18 +1,39 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Crown, LogOut } from "lucide-react";
+import { Crown, LogOut, CreditCard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUsage } from "@/hooks/useUsage";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function Settings() {
   const { user, profile, signOut } = useAuth();
   const { usageCount, remaining, limit, plan } = useUsage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const initials = (profile?.display_name || user?.email || "U").slice(0, 1).toUpperCase();
+
+  useEffect(() => {
+    if (searchParams.get("checkout") === "success") {
+      toast.success("🎉 Welcome to Pro! Your plan has been upgraded.");
+      supabase.functions.invoke("check-subscription").then(() => window.location.reload());
+    }
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/auth");
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch {
+      toast.error("Failed to open subscription management. Please try again.");
+    }
   };
 
   return (
@@ -51,6 +72,14 @@ export default function Settings() {
             style={{ width: `${limit === Infinity ? 5 : Math.min(100, (usageCount / limit) * 100)}%` }}
           />
         </div>
+        {(plan === "pro" || plan === "premium") && (
+          <button
+            onClick={handleManageSubscription}
+            className="mt-2 w-full py-2.5 rounded-lg text-sm font-medium border border-border/50 hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2"
+          >
+            <CreditCard className="h-4 w-4" /> Manage Subscription
+          </button>
+        )}
       </div>
 
       {plan === "free" && (
