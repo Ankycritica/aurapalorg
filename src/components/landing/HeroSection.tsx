@@ -32,8 +32,8 @@ export function HeroSection() {
 
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
               className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
-              Land Your Dream Job with{" "}
-              <span className="gradient-text">AI on Your Side</span>
+              Land Your Dream Job<br />
+              with <span className="gradient-text">AI on Your Side</span>
             </motion.h1>
 
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}

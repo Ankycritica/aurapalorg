@@ -22,7 +22,11 @@ const tools = [
   { title: "Resume Roast", url: "/resume-roast", icon: FlameKindling },
 ];
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  onNavigate?: () => void;
+}
+
+export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { profile, user } = useAuth();
@@ -49,7 +53,7 @@ export function AppSidebar() {
               {tools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === "/dashboard"} className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
+                    <NavLink to={item.url} end={item.url === "/dashboard"} className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
                       <item.icon className="h-4 w-4 mr-2 shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
@@ -65,7 +69,7 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/pricing" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
+                  <NavLink to="/pricing" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
                     <CreditCard className="h-4 w-4 mr-2 shrink-0" />
                     {!collapsed && <span>Pricing</span>}
                   </NavLink>
@@ -73,7 +77,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/settings" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
+                  <NavLink to="/settings" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
                     <Settings className="h-4 w-4 mr-2 shrink-0" />
                     {!collapsed && <span>Settings</span>}
                   </NavLink>
@@ -82,7 +86,7 @@ export function AppSidebar() {
               {isAdmin && (
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium">
+                    <NavLink to="/admin" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
                       <ShieldCheck className="h-4 w-4 mr-2 shrink-0" />
                       {!collapsed && <span>Admin</span>}
                     </NavLink>
@@ -102,7 +106,7 @@ export function AppSidebar() {
               <span className="text-sm font-semibold text-primary">Go Premium</span>
             </div>
             <p className="text-xs text-muted-foreground mb-3">Unlimited AI generations, priority support, and advanced analytics.</p>
-            <NavLink to="/pricing" className="w-full py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 active:scale-[0.98] block text-center">
+            <NavLink to="/pricing" className="w-full py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 active:scale-[0.98] block text-center" onClick={onNavigate}>
               Upgrade Now
             </NavLink>
           </div>
