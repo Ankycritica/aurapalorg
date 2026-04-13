@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, X, Heart, Download } from "lucide-react";
+import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, X, Heart, Download, Plus, Trash2, GraduationCap, Briefcase } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import { useUsage } from "@/hooks/useUsage";
@@ -37,8 +37,48 @@ interface ATSScore {
   missing: string[];
 }
 
+interface ExperienceEntry {
+  id: string;
+  company: string;
+  jobTitle: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  bullets: string;
+}
+
+interface EducationEntry {
+  id: string;
+  school: string;
+  degree: string;
+  field: string;
+  year: string;
+}
+
+const emptyExperience = (): ExperienceEntry => ({
+  id: crypto.randomUUID(),
+  company: "",
+  jobTitle: "",
+  location: "",
+  startDate: "",
+  endDate: "",
+  current: false,
+  bullets: "",
+});
+
+const emptyEducation = (): EducationEntry => ({
+  id: crypto.randomUUID(),
+  school: "",
+  degree: "",
+  field: "",
+  year: "",
+});
+
 export default function ResumeBuilder() {
   const [values, setValues] = useState<Record<string, string>>({});
+  const [experiences, setExperiences] = useState<ExperienceEntry[]>([emptyExperience()]);
+  const [educations, setEducations] = useState<EducationEntry[]>([emptyEducation()]);
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -46,6 +86,7 @@ export default function ResumeBuilder() {
   const [saved, setSaved] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [extractedText, setExtractedText] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [atsScore, setAtsScore] = useState<ATSScore | null>(null);
   const [atsLoading, setAtsLoading] = useState(false);
@@ -68,9 +109,9 @@ export default function ResumeBuilder() {
       let text = "";
       if (ext === "pdf") text = await extractTextFromPDF(file);
       else text = await extractTextFromDocx(file);
-      setValues(v => ({ ...v, experience: text }));
+      setExtractedText(text);
     } catch {
-      setError("Could not extract text from file. Please paste your resume content manually.");
+      setError("Could not extract text from file. Please enter your details manually.");
     } finally {
       setExtracting(false);
     }
@@ -78,7 +119,7 @@ export default function ResumeBuilder() {
 
   const removeFile = () => {
     setUploadedFile(null);
-    setValues(v => ({ ...v, experience: "" }));
+    setExtractedText("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -91,11 +132,36 @@ export default function ResumeBuilder() {
     { id: "portfolio", label: "Portfolio / GitHub URL (optional)", placeholder: "e.g. github.com/johndoe" },
   ];
 
-  const mainFields: { id: string; label: string; placeholder: string; type?: "text" | "textarea" }[] = [
-    { id: "role", label: "Target Job Title", placeholder: "e.g. Senior Software Engineer" },
-    { id: "experience", label: "Your Experience", placeholder: "Paste your work experience, skills, and achievements...", type: "textarea" },
-    { id: "keywords", label: "Key Skills / Keywords", placeholder: "e.g. React, Node.js, AWS, Agile" },
-  ];
+  const updateExperience = (id: string, field: keyof ExperienceEntry, value: string | boolean) => {
+    setExperiences(prev => prev.map(exp => exp.id === id ? { ...exp, [field]: value } : exp));
+  };
+
+  const addExperience = () => setExperiences(prev => [...prev, emptyExperience()]);
+  const removeExperience = (id: string) => setExperiences(prev => prev.length > 1 ? prev.filter(e => e.id !== id) : prev);
+
+  const updateEducation = (id: string, field: keyof EducationEntry, value: string) => {
+    setEducations(prev => prev.map(edu => edu.id === id ? { ...edu, [field]: value } : edu));
+  };
+
+  const addEducation = () => setEducations(prev => [...prev, emptyEducation()]);
+  const removeEducation = (id: string) => setEducations(prev => prev.length > 1 ? prev.filter(e => e.id !== id) : prev);
+
+  const buildExperienceText = () => {
+    return experiences
+      .filter(e => e.company || e.jobTitle)
+      .map(e => {
+        const dateRange = e.current ? `${e.startDate} – Present` : `${e.startDate} – ${e.endDate}`;
+        return `**${e.jobTitle}** at **${e.company}**${e.location ? `, ${e.location}` : ""}\n${dateRange}\n${e.bullets}`;
+      })
+      .join("\n\n");
+  };
+
+  const buildEducationText = () => {
+    return educations
+      .filter(e => e.school || e.degree)
+      .map(e => `${e.degree}${e.field ? ` in ${e.field}` : ""} — ${e.school}${e.year ? ` (${e.year})` : ""}`)
+      .join("\n");
+  };
 
   const runAtsScore = async (resumeText: string) => {
     setAtsLoading(true);
@@ -104,9 +170,7 @@ export default function ResumeBuilder() {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
         body: JSON.stringify({
-          systemPrompt: `You are an ATS (Applicant Tracking System) expert. Analyze the resume and return ONLY valid JSON, no markdown:
-{"score": <0-100>, "positives": ["<strength 1>", "<strength 2>"], "missing": ["<missing keyword 1>", "<missing keyword 2>"]}
-Be specific. Score based on formatting, keywords, quantified achievements, and ATS compatibility.`,
+          systemPrompt: `You are an ATS (Applicant Tracking System) expert. Analyze the resume and return ONLY valid JSON, no markdown:\n{"score": <0-100>, "positives": ["<strength 1>", "<strength 2>"], "missing": ["<missing keyword 1>", "<missing keyword 2>"]}\nBe specific. Score based on formatting, keywords, quantified achievements, and ATS compatibility.`,
           userPrompt: `Analyze this resume for ATS compatibility for a ${values.role || "general"} role:\n\n${resumeText}`,
         }),
       });
@@ -145,10 +209,19 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
       setError("Please fill in Full Name and Email.");
       return;
     }
-    if (!values.role?.trim() || !values.experience?.trim() || !values.keywords?.trim()) {
-      setError("Please fill in Target Job Title, Experience, and Key Skills.");
+    if (!values.role?.trim()) {
+      setError("Please fill in Target Job Title.");
       return;
     }
+
+    const hasExperience = experiences.some(e => e.company && e.jobTitle);
+    const hasUpload = !!extractedText;
+
+    if (!hasExperience && !hasUpload) {
+      setError("Please add at least one work experience entry or upload your resume.");
+      return;
+    }
+
     if (isLimitReached) { setShowPaywall(true); return; }
 
     setError(""); setLoading(true); setResult(""); setSaved(false); setAtsScore(null);
@@ -157,15 +230,37 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
       const tracked = await trackUsage("resume-builder");
       if (!tracked) { setShowPaywall(true); setLoading(false); return; }
 
-      const contactInfo = `Full Name: ${values.fullName}\nEmail: ${values.email}${values.phone ? `\nPhone: ${values.phone}` : ""}${values.city ? `\nLocation: ${values.city}` : ""}${values.linkedin ? `\nLinkedIn: ${values.linkedin}` : ""}${values.portfolio ? `\nPortfolio: ${values.portfolio}` : ""}`;
+      const contactInfo = [
+        values.fullName,
+        values.email,
+        values.phone,
+        values.city,
+        values.linkedin,
+        values.portfolio,
+      ].filter(Boolean).join(" | ");
 
-      const systemPrompt = uploadedFile
-        ? `You are an expert resume writer and career coach. The user has uploaded their existing resume. Analyze it and provide a significantly improved version. Use impact-driven XYZ format bullet points: 'Accomplished [X] as measured by [Y], by doing [Z]'. Fix weak bullet points, add quantifiable metrics, improve structure, optimize for ATS. Use these exact contact details: ${values.fullName}, ${values.email}, ${values.phone || ""}, ${values.city || ""}, ${values.linkedin || ""}, ${values.portfolio || ""}. Do not use bracket placeholders like [FIRST NAME] or [Email Address].`
-        : `You are an expert resume writer and career coach. Create a professional, ATS-optimized resume. Use impact-driven XYZ format bullet points: 'Accomplished [X] as measured by [Y], by doing [Z]'. Structure with clear sections: Summary, Experience, Skills, Education. Use strong action verbs. Be specific with metrics and results. Use these exact contact details: ${values.fullName}, ${values.email}, ${values.phone || ""}, ${values.city || ""}, ${values.linkedin || ""}, ${values.portfolio || ""}. Do not use bracket placeholders.`;
+      const experienceText = buildExperienceText();
+      const educationText = buildEducationText();
 
-      const userPrompt = uploadedFile
-        ? `Improve this resume for a ${values.role} role.\n\nContact Info:\n${contactInfo}\n\nHere is my current resume:\n\n${values.experience}\n\nKey Skills to highlight: ${values.keywords}`
-        : `Create a professional resume for a ${values.role} role.\n\nContact Info:\n${contactInfo}\n\nExperience:\n${values.experience}\n\nKey Skills: ${values.keywords}`;
+      const systemPrompt = `You are an expert resume writer. Create a professional, ATS-optimized resume in clean markdown format.
+
+CRITICAL FORMATTING RULES:
+1. Start with the candidate's name as # heading, then contact info on one line separated by |
+2. Add a 2-3 sentence professional summary under ## Professional Summary
+3. List each job under ## Professional Experience with this EXACT format:
+   ### Job Title | Company Name
+   **Location** | **Start Date – End Date**
+   - Achievement bullet using XYZ format: "Accomplished [X] as measured by [Y], by doing [Z]"
+   - Each bullet starts with a strong action verb and includes metrics/numbers
+4. ## Education section
+5. ## Skills section with comma-separated skills grouped by category
+6. Use the candidate's EXACT contact details provided. Never use placeholders like [Name] or [Email].
+7. Every bullet point MUST have quantifiable results (%, $, numbers).
+8. Keep it to 1-2 pages worth of content.`;
+
+      const userPrompt = hasUpload && !hasExperience
+        ? `Improve this resume for a ${values.role} role. Use these exact contact details at the top: ${contactInfo}\n\nKey Skills: ${values.keywords || "Not specified"}\n\nExisting resume content:\n${extractedText}\n\nEducation:\n${educationText || "Include from existing resume"}`
+        : `Create a professional resume for a ${values.role} role.\n\nContact: ${contactInfo}\n\nWork Experience:\n${experienceText}\n\nEducation:\n${educationText}\n\nKey Skills: ${values.keywords || "Not specified"}\n\n${hasUpload ? `Additional context from uploaded resume:\n${extractedText}` : ""}`;
 
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
@@ -201,15 +296,13 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
         }
       }
 
-      // Run ATS score in parallel (non-blocking)
       if (fullText) runAtsScore(fullText);
 
-      // Save
       if (user && fullText) {
         await supabase.from("generations").insert({
           user_id: user.id,
           tool_name: "resume-builder",
-          input_data: values as any,
+          input_data: { ...values, experiences, educations } as any,
           output_text: fullText,
         });
       }
@@ -218,7 +311,7 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
     } finally {
       setLoading(false);
     }
-  }, [values, isLimitReached, trackUsage, uploadedFile, user]);
+  }, [values, experiences, educations, extractedText, isLimitReached, trackUsage, uploadedFile, user]);
 
   const copyResult = () => {
     navigator.clipboard.writeText(result);
@@ -232,7 +325,7 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
     await supabase.from("generations").insert({
       user_id: user.id,
       tool_name: "resume-builder",
-      input_data: values as any,
+      input_data: { ...values, experiences, educations } as any,
       output_text: result,
     });
     setSaved(true);
@@ -259,7 +352,7 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
           </div>
           <div className="flex-1">
             <h1 className="font-display text-2xl md:text-3xl font-bold">Resume Builder</h1>
-            <p className="text-sm text-muted-foreground">AI-powered resume creation & improvement with impact-driven XYZ bullet points</p>
+            <p className="text-sm text-muted-foreground">AI-powered resume creation with structured input & professional templates</p>
           </div>
           {plan !== "premium" && (
             <div className="text-xs text-muted-foreground bg-secondary/60 px-3 py-1.5 rounded-lg">
@@ -286,7 +379,7 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
             <FileText className="h-5 w-5 text-primary shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{uploadedFile.name}</p>
-              <p className="text-xs text-muted-foreground">{extracting ? "Extracting text..." : "Text extracted — edit below if needed"}</p>
+              <p className="text-xs text-muted-foreground">{extracting ? "Extracting text..." : "Text extracted ✓"}</p>
             </div>
             {extracting ? (
               <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
@@ -303,7 +396,7 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
         className="glass-card p-6 space-y-4">
         <h2 className="font-display font-semibold text-base mb-1">👤 Contact Information</h2>
-        <p className="text-xs text-muted-foreground mb-3">This info will be used directly in your resume — no placeholders.</p>
+        <p className="text-xs text-muted-foreground mb-3">This info will be placed directly at the top of your resume.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {contactFields.map((field) => (
             <div key={field.id}>
@@ -316,31 +409,169 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
         </div>
       </motion.div>
 
-      {/* Main fields */}
+      {/* Target Role & Skills */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="glass-card p-6 space-y-4">
-        {mainFields.map((field) => (
-          <div key={field.id}>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">{field.label}</label>
-            {field.type === "textarea" ? (
-              <textarea placeholder={field.placeholder} value={values[field.id] || ""}
-                onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
-                className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[120px] resize-y transition-all duration-200" />
-            ) : (
-              <input type="text" placeholder={field.placeholder} value={values[field.id] || ""}
-                onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
-                className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
-            )}
+        <div>
+          <label className="text-sm font-medium text-foreground mb-1.5 block">Target Job Title</label>
+          <input type="text" placeholder="e.g. Senior Software Engineer" value={values.role || ""}
+            onChange={(e) => setValues(v => ({ ...v, role: e.target.value }))}
+            className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-foreground mb-1.5 block">Key Skills / Keywords <span className="text-muted-foreground font-normal">(optional)</span></label>
+          <input type="text" placeholder="e.g. React, Node.js, AWS, Agile, Leadership" value={values.keywords || ""}
+            onChange={(e) => setValues(v => ({ ...v, keywords: e.target.value }))}
+            className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
+        </div>
+      </motion.div>
+
+      {/* Work Experience - Structured */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
+        className="glass-card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-primary" />
+            <h2 className="font-display font-semibold text-base">Work Experience</h2>
           </div>
-        ))}
+          <button onClick={addExperience}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-all">
+            <Plus className="h-3.5 w-3.5" /> Add Position
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground">Add your work experience. The AI will enhance your bullet points with metrics and impact.</p>
 
+        <div className="space-y-6">
+          {experiences.map((exp, idx) => (
+            <div key={exp.id} className="relative bg-secondary/20 border border-border/30 rounded-xl p-5 space-y-3">
+              {experiences.length > 1 && (
+                <button onClick={() => removeExperience(exp.id)}
+                  className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Position {idx + 1}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1 block">Job Title *</label>
+                  <input type="text" placeholder="e.g. Business Development Manager" value={exp.jobTitle}
+                    onChange={(e) => updateExperience(exp.id, "jobTitle", e.target.value)}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1 block">Company *</label>
+                  <input type="text" placeholder="e.g. Advanced Design Solutions" value={exp.company}
+                    onChange={(e) => updateExperience(exp.id, "company", e.target.value)}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1 block">Location</label>
+                  <input type="text" placeholder="e.g. Pune, India" value={exp.location}
+                    onChange={(e) => updateExperience(exp.id, "location", e.target.value)}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-1 block">Start Date</label>
+                    <input type="text" placeholder="e.g. Jan 2020" value={exp.startDate}
+                      onChange={(e) => updateExperience(exp.id, "startDate", e.target.value)}
+                      className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-1 block">
+                      {exp.current ? "Present" : "End Date"}
+                    </label>
+                    {exp.current ? (
+                      <div className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-muted-foreground">Present</div>
+                    ) : (
+                      <input type="text" placeholder="e.g. Dec 2023" value={exp.endDate}
+                        onChange={(e) => updateExperience(exp.id, "endDate", e.target.value)}
+                        className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                    )}
+                  </div>
+                </div>
+              </div>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" checked={exp.current}
+                  onChange={(e) => updateExperience(exp.id, "current", e.target.checked)}
+                  className="rounded border-border/50 text-primary focus:ring-primary/50" />
+                <span className="text-muted-foreground">I currently work here</span>
+              </label>
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Key Responsibilities & Achievements</label>
+                <textarea placeholder="Describe what you did — the AI will enhance these into impact-driven bullet points.&#10;&#10;Example:&#10;- Managed a team of 5 sales reps&#10;- Increased revenue by 30% through new outreach strategies&#10;- Built automated lead scoring using AI tools"
+                  value={exp.bullets}
+                  onChange={(e) => updateExperience(exp.id, "bullets", e.target.value)}
+                  className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[100px] resize-y transition-all" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Education */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
+        className="glass-card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="h-4 w-4 text-primary" />
+            <h2 className="font-display font-semibold text-base">Education</h2>
+          </div>
+          <button onClick={addEducation}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-all">
+            <Plus className="h-3.5 w-3.5" /> Add Education
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {educations.map((edu, idx) => (
+            <div key={edu.id} className="relative bg-secondary/20 border border-border/30 rounded-xl p-5 space-y-3">
+              {educations.length > 1 && (
+                <button onClick={() => removeEducation(edu.id)}
+                  className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1 block">School / University</label>
+                  <input type="text" placeholder="e.g. MIT" value={edu.school}
+                    onChange={(e) => updateEducation(edu.id, "school", e.target.value)}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1 block">Degree</label>
+                  <input type="text" placeholder="e.g. Bachelor of Science" value={edu.degree}
+                    onChange={(e) => updateEducation(edu.id, "degree", e.target.value)}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1 block">Field of Study</label>
+                  <input type="text" placeholder="e.g. Computer Science" value={edu.field}
+                    onChange={(e) => updateEducation(edu.id, "field", e.target.value)}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1 block">Graduation Year</label>
+                  <input type="text" placeholder="e.g. 2020" value={edu.year}
+                    onChange={(e) => updateEducation(edu.id, "year", e.target.value)}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Generate Button */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
+        className="glass-card p-6">
         {error && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-2">{error}</motion.p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-2 mb-4">{error}</motion.p>
         )}
-
         <button onClick={generate} disabled={loading || extracting}
           className="w-full py-3 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2">
-          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating... (~15 sec)</> : uploadedFile ? "Improve Resume with AI ✨" : "Generate with AI ✨"}
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating... (~15 sec)</> : uploadedFile ? "Improve Resume with AI ✨" : "Generate Resume with AI ✨"}
         </button>
       </motion.div>
 
@@ -450,14 +681,15 @@ Be specific. Score based on formatting, keywords, quantified achievements, and A
 
       <div className="glass-card p-6 space-y-4">
         <h2 className="font-display text-xl font-semibold">Why Use an AI Resume Builder?</h2>
-        <p className="text-sm text-muted-foreground">Our AI resume builder helps you create ATS-optimized resumes that stand out. Upload your existing resume for AI-powered improvements, or start from scratch. Using the proven XYZ format for bullet points, your accomplishments are presented with maximum impact.</p>
+        <p className="text-sm text-muted-foreground">Our AI resume builder helps you create ATS-optimized resumes that stand out. Upload your existing resume for AI-powered improvements, or enter your details step-by-step. Using the proven XYZ format for bullet points, your accomplishments are presented with maximum impact.</p>
         <h2 className="font-display text-lg font-semibold">Features</h2>
         <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Structured experience entry with AI-enhanced bullet points</li>
           <li>Upload & improve existing resumes (PDF/Word)</li>
           <li>Impact-driven XYZ format bullet points</li>
           <li>ATS compatibility score with keyword analysis</li>
-          <li>Curated best resume templates</li>
-          <li>Tailored to your target role</li>
+          <li>40+ professional resume templates (8 free, 32 Pro)</li>
+          <li>Download as PDF in any template</li>
         </ul>
       </div>
     </div>
