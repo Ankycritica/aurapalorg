@@ -454,13 +454,13 @@ CRITICAL FORMATTING RULES:
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1 block">Job Title *</label>
-                  <input type="text" placeholder="e.g. Business Development Manager" value={exp.jobTitle}
+                  <input type="text" placeholder="e.g. Marketing Manager" value={exp.jobTitle}
                     onChange={(e) => updateExperience(exp.id, "jobTitle", e.target.value)}
                     className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1 block">Company *</label>
-                  <input type="text" placeholder="e.g. Advanced Design Solutions" value={exp.company}
+                  <input type="text" placeholder="e.g. Pinnacle Corp" value={exp.company}
                     onChange={(e) => updateExperience(exp.id, "company", e.target.value)}
                     className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
                 </div>
