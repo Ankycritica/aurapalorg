@@ -11,7 +11,7 @@ export function Footer() {
               <span className="font-display font-bold">AuraPal</span>
             </div>
             <p className="text-xs text-muted-foreground mb-3">Your AI-powered career engine.</p>
-            <p className="text-xs text-muted-foreground">© 2025 AuraPal. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">© 2026 AuraPal. All rights reserved.</p>
           </div>
           <div>
             <h4 className="text-sm font-semibold mb-3">Product</h4>
