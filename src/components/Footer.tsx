@@ -28,7 +28,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
               <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-              <li><a href="mailto:contact@aurapal.org" className="hover:text-foreground transition-colors">Contact</a></li>
+              <li><a href="mailto:aurapal.help@gmail.com" className="hover:text-foreground transition-colors">Contact</a></li>
             </ul>
           </div>
           <div>
