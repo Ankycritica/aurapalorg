@@ -11,7 +11,7 @@ export function Footer() {
               <span className="font-display font-bold">AuraPal</span>
             </div>
             <p className="text-xs text-muted-foreground mb-3">Your AI-powered career engine.</p>
-            <p className="text-xs text-muted-foreground">© 2025 AuraPal. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">© 2026 AuraPal. All rights reserved.</p>
           </div>
           <div>
             <h4 className="text-sm font-semibold mb-3">Product</h4>
@@ -28,7 +28,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
               <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-              <li><a href="mailto:contact@aurapal.org" className="hover:text-foreground transition-colors">Contact</a></li>
+              <li><a href="mailto:aurapal.help@gmail.com" className="hover:text-foreground transition-colors">Contact</a></li>
             </ul>
           </div>
           <div>
