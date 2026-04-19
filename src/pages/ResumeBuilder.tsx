@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { useUsage } from "@/hooks/useUsage";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
-import { ResumeTemplates } from "@/components/ResumeTemplates";
+import { ResumeEditor } from "@/components/ResumeEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -575,40 +575,33 @@ CRITICAL FORMATTING RULES:
         </button>
       </motion.div>
 
-      {/* Result panel */}
+      {/* Loading state (before result appears) */}
       <AnimatePresence>
-        {(result || loading) && (
+        {loading && !result && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="glass-card overflow-hidden" style={{ borderTop: "3px solid hsl(var(--primary))" }}>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 pb-0 sm:pb-0 gap-3">
-              <h2 className="font-display font-semibold text-lg">Your Results</h2>
-              {result && (
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
-                    {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied!" : "Copy"}
-                  </button>
-                  <button onClick={saveToHistory} disabled={saved} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all disabled:opacity-60">
-                    <Heart className={`h-4 w-4 ${saved ? "fill-primary text-primary" : ""}`} /> {saved ? "Saved ✓" : "Save"}
-                  </button>
-                  <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
-                    <RotateCcw className="h-4 w-4" /> Regen
-                  </button>
-                </div>
-              )}
+            className="glass-card overflow-hidden p-6" style={{ borderTop: "3px solid hsl(var(--primary))" }}>
+            <h2 className="font-display font-semibold text-lg mb-4">Generating your resume...</h2>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-3">~15 seconds. You'll be able to edit every line after.</p>
+              {[85, 70, 90, 60, 75].map((w, i) => (
+                <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />
+              ))}
             </div>
-            <div className="p-4 sm:p-6">
-              {loading && !result ? (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground mb-3">Generating your resume... (~15 sec)</p>
-                  {[85, 70, 90, 60, 75].map((w, i) => (
-                    <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />
-                  ))}
-                </div>
-              ) : (
-                <div className="prose prose-invert prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground">
-                  <ReactMarkdown>{result}</ReactMarkdown>
-                </div>
-              )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Streaming preview (while AI is still writing) */}
+      <AnimatePresence>
+        {loading && result && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="glass-card overflow-hidden p-6" style={{ borderTop: "3px solid hsl(var(--primary))" }}>
+            <div className="flex items-center gap-2 mb-3">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <h2 className="font-display font-semibold text-lg">Writing your resume...</h2>
+            </div>
+            <div className="prose prose-invert prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground">
+              <ReactMarkdown>{result}</ReactMarkdown>
             </div>
           </motion.div>
         )}
@@ -660,7 +653,10 @@ CRITICAL FORMATTING RULES:
         )}
       </AnimatePresence>
 
-      {result && !loading && <ResumeTemplates content={result} />}
+      {/* Live Editor (replaces old static result + templates) */}
+      {result && !loading && (
+        <ResumeEditor initialMarkdown={result} inputData={{ ...values, experiences, educations }} />
+      )}
 
       <AnimatePresence>
         {result && !loading && (
