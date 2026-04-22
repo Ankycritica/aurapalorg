@@ -17,6 +17,8 @@ import LinkedInRoaster from "@/pages/LinkedInRoaster";
 import ResumeRoast from "@/pages/ResumeRoast";
 import CoverLetter from "@/pages/CoverLetter";
 import InterviewPrep from "@/pages/InterviewPrep";
+import SalaryCheck from "@/pages/SalaryCheck";
+import StartupValidator from "@/pages/StartupValidator";
 import Settings from "@/pages/Settings";
 import Pricing from "@/pages/Pricing";
 import Auth from "@/pages/Auth";
