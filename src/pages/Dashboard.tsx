@@ -114,6 +114,11 @@ export default function Dashboard() {
               <motion.div key={tool.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.03, duration: 0.3 }}>
                 <Link to={tool.url} className="glass-card tool-card-hover p-5 block h-full group relative overflow-hidden" style={{ borderTop: `3px solid ${color}` }}>
                   <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full opacity-0 group-hover:opacity-30 blur-2xl transition-opacity duration-500" style={{ background: color }} />
+                  {(tool as any).badge && (
+                    <span className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: `${color}22`, color, border: `1px solid ${color}55` }}>
+                      {(tool as any).badge}
+                    </span>
+                  )}
                   <div className="h-10 w-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300" style={{ background: `${color}15` }}>
                     <tool.icon className="h-5 w-5" style={{ color }} />
                   </div>
