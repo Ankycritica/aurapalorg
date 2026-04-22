@@ -327,15 +327,48 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
           </AnimatePresence>
 
           <AnimatePresence>
+            {result && !loading && plan !== "premium" && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+                className="relative overflow-hidden rounded-xl p-5 sm:p-6 bg-gradient-to-br from-primary/10 via-card/40 to-accent/10 border border-primary/20">
+                <div className="absolute -top-12 -right-12 w-40 h-40 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">{plan === "free" ? "Free plan" : "Pro plan"}</p>
+                    <h3 className="font-display font-semibold text-base sm:text-lg text-foreground">
+                      Unlock {plan === "free" ? "20× more" : "unlimited"} AI generations
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {plan === "free"
+                        ? "Pro gives you 100/day, priority AI, and PDF exports — for less than a coffee a week."
+                        : "Premium removes all daily limits and unlocks priority support."}
+                    </p>
+                  </div>
+                  <Link to="/pricing"
+                    className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm hover:shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.6)] transition-all active:scale-[0.98]">
+                    Upgrade <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
             {result && !loading && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5">
-                <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-semibold text-foreground">🚀 Try next</p>
+                  <span className="text-xs text-muted-foreground">Recommended for you</span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {otherTools.map((tool) => (
-                    <Link key={tool.title} to={tool.url} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/60 transition-all duration-200 group">
-                      <span className="text-lg">{tool.emoji}</span>
-                      <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{tool.title}</span>
-                      <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+                    <Link key={tool.title} to={tool.url}
+                      className="group p-3.5 rounded-xl bg-secondary/30 hover:bg-secondary/60 border border-transparent hover:border-primary/30 transition-all duration-200 hover:-translate-y-0.5">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xl">{tool.emoji}</span>
+                        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{tool.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{tool.desc}</p>
                     </Link>
                   ))}
                 </div>
