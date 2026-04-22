@@ -157,7 +157,10 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
         }
       }
 
-      if (fullText) await saveGeneration(fullText);
+      if (fullText) {
+        await saveGeneration(fullText);
+        track("tool_used", { tool: toolSlug, plan, length: fullText.length });
+      }
     } catch {
       setError("Failed to connect. Please check your connection.");
     } finally {
