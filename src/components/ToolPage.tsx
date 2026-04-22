@@ -71,6 +71,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
   const [historyLoading, setHistoryLoading] = useState(false);
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
+  const { track } = useAnalytics();
 
   const otherTools = toolSuggestions.filter(t => t.title !== title).slice(0, 3);
 
