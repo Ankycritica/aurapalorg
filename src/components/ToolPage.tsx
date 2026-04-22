@@ -13,6 +13,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { attributionFooter } from "@/lib/referral";
 
 interface ToolField {
   id: string;
@@ -169,15 +170,15 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
   }, [values, fields, systemPrompt, buildUserPrompt, isLimitReached, trackUsage, toolSlug, saveGeneration]);
 
   const copyResult = () => {
-    navigator.clipboard.writeText(result);
+    navigator.clipboard.writeText(result + attributionFooter());
     setCopied(true);
-    toast.success("Copied to clipboard!");
+    toast.success("Copied with AuraPal attribution ✓");
     setTimeout(() => setCopied(false), 2000);
   };
 
   const downloadResult = (format: "txt" | "pdf") => {
     if (format === "txt") {
-      const blob = new Blob([result], { type: "text/plain" });
+      const blob = new Blob([result + attributionFooter()], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
