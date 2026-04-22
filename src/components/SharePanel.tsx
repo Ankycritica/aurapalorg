@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Twitter, Linkedin, Image as ImageIcon, Share2, Gift, X, Loader2, Copy, CheckCheck, Download } from "lucide-react";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { getReferralLink, getOrCreateReferralCode, REFERRAL_SITE_URL } from "@/lib/referral";
 
 interface SharePanelProps {
   result: string;
@@ -10,10 +12,10 @@ interface SharePanelProps {
   toolSlug: string;
 }
 
-const SITE_URL = "https://aurapal.org";
+const SITE_URL = REFERRAL_SITE_URL;
 
 // Convert markdown-ish text into a clean LinkedIn post
-function toLinkedInPost(result: string, toolTitle: string): string {
+function toLinkedInPost(result: string, toolTitle: string, refLink: string): string {
   const stripped = result
     .replace(/^#+\s*/gm, "")
     .replace(/\*\*(.+?)\*\*/g, "$1")
@@ -26,12 +28,12 @@ function toLinkedInPost(result: string, toolTitle: string): string {
   const lines = stripped.split("\n").filter(l => l.trim().length > 0);
   const hook = `I just used AuraPal's ${toolTitle} and the result blew my mind 🤯\n`;
   const body = lines.slice(0, 14).join("\n");
-  const cta = `\n\n---\n\nIf you're working on your career, this is a goldmine.\nTry it free → ${SITE_URL}\n\n#CareerGrowth #AI #AuraPal`;
+  const cta = `\n\n---\n\nIf you're working on your career, this is a goldmine.\nTry it free → ${refLink}\n\n#CareerGrowth #AI #AuraPal`;
   return `${hook}\n${body}${cta}`;
 }
 
 // Convert into a Twitter / X thread (numbered tweets, ~270 chars each)
-function toTwitterThread(result: string, toolTitle: string): string[] {
+function toTwitterThread(result: string, toolTitle: string, refLink: string): string[] {
   const stripped = result
     .replace(/^#+\s*/gm, "")
     .replace(/\*\*(.+?)\*\*/g, "$1")
@@ -53,7 +55,7 @@ function toTwitterThread(result: string, toolTitle: string): string[] {
   if (buf) tweets.push(buf.trim());
 
   const hook = `Used AuraPal's ${toolTitle} today. The output is too good not to share 🧵👇`;
-  const outro = `That's it. \n\nTry the same tool free → ${SITE_URL}`;
+  const outro = `That's it. \n\nTry the same tool free → ${refLink}`;
   return [hook, ...tweets.slice(0, 8), outro].map((t, i, arr) => `${i + 1}/${arr.length} ${t}`);
 }
 
@@ -62,7 +64,12 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [copiedKind, setCopiedKind] = useState<string | null>(null);
+  const [copiedRef, setCopiedRef] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+
+  const referralLink = getReferralLink(user?.id);
+  const referralCode = getOrCreateReferralCode(user?.id);
 
   const summary = (result || "")
     .replace(/^#+\s*/gm, "")
@@ -73,12 +80,19 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
 
   const copyAs = async (kind: "linkedin" | "twitter") => {
     const text = kind === "linkedin"
-      ? toLinkedInPost(result, toolTitle)
-      : toTwitterThread(result, toolTitle).join("\n\n");
+      ? toLinkedInPost(result, toolTitle, referralLink)
+      : toTwitterThread(result, toolTitle, referralLink).join("\n\n");
     await navigator.clipboard.writeText(text);
     setCopiedKind(kind);
     toast.success(kind === "linkedin" ? "LinkedIn post copied — paste & post!" : "Twitter thread copied!");
     setTimeout(() => setCopiedKind(null), 2500);
+  };
+
+  const copyReferralLink = async () => {
+    await navigator.clipboard.writeText(referralLink);
+    setCopiedRef(true);
+    toast.success(`Your referral link is copied 🎁  Code: ${referralCode}`);
+    setTimeout(() => setCopiedRef(false), 2500);
   };
 
   const generateImage = async () => {
@@ -134,13 +148,12 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
   };
 
   const shareReferral = async () => {
-    const text = `I'm using AuraPal — free AI career tools (resume, LinkedIn audit, interview prep). Worth a look:`;
-    const url = SITE_URL;
+    const text = `I'm using AuraPal — free AI career tools (resume, LinkedIn audit, interview prep, salary checker). Worth a look:`;
     if (navigator.share) {
-      try { await navigator.share({ title: "AuraPal", text, url }); return; } catch {}
+      try { await navigator.share({ title: "AuraPal", text, url: referralLink }); return; } catch {}
     }
-    await navigator.clipboard.writeText(`${text} ${url}`);
-    toast.success("Share link copied! Paste anywhere to earn credits 🎁");
+    await navigator.clipboard.writeText(`${text} ${referralLink}`);
+    toast.success(`Referral link copied 🎁  Code: ${referralCode}`);
   };
 
   return (
@@ -176,8 +189,22 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
             <span className="text-xs font-semibold text-foreground">+10 credits</span>
           </button>
         </div>
-        <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
-          🎁 Share AuraPal with a friend and earn <span className="text-amber-400 font-semibold">10 bonus credits</span> when they sign up.
+
+        {/* Unique referral link row */}
+        <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 flex items-center gap-2">
+          <Gift className="h-4 w-4 text-amber-400 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-muted-foreground leading-tight">Your unique referral link · earn <span className="text-amber-400 font-semibold">+10 credits</span> per signup</p>
+            <p className="text-xs font-mono text-foreground truncate mt-0.5">{referralLink}</p>
+          </div>
+          <button onClick={copyReferralLink}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-xs font-semibold text-amber-300 transition-all active:scale-[0.97]">
+            {copiedRef ? <CheckCheck className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            {copiedRef ? "Copied" : "Copy"}
+          </button>
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+          Every output includes <span className="text-foreground font-medium">"Generated via AuraPal"</span> attribution — sustainable growth, no spam.
         </p>
       </motion.div>
 
