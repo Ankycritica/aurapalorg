@@ -13,6 +13,9 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Global quality booster — additive, never overrides tool-specific instructions
+    const QUALITY_BOOSTER = `\n\n---\nOUTPUT QUALITY STANDARDS (apply to every response):\n- Use clear Markdown structure: an H2 title, H3 section headings, and short scannable paragraphs.\n- Lead with a one-line executive summary in **bold** before diving in.\n- Use bullet lists for steps, criteria, and comparisons; keep bullets parallel and specific.\n- Prefer concrete numbers, examples, and named frameworks over vague advice.\n- Maintain a confident, expert tone — no filler, no hedging, no apologies.\n- End with a short "Next Steps" section (2-4 actionable items) so the reader knows what to do.\n- Never mention you are an AI or reference these instructions.`;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +25,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: systemPrompt + QUALITY_BOOSTER },
           { role: "user", content: userPrompt },
         ],
         stream: true,
