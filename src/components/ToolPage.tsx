@@ -46,6 +46,8 @@ const toolSuggestions = [
   { title: "Resume Roast", url: "/resume-roast", emoji: "🌶️", desc: "What recruiters won't tell you" },
   { title: "Cover Letter", url: "/cover-letter", emoji: "✉️", desc: "Tailored to any job" },
   { title: "Interview Prep", url: "/interview-prep", emoji: "🎤", desc: "Ace your next interview" },
+  { title: "Am I Underpaid?", url: "/salary-check", emoji: "💸", desc: "Find out in 15 seconds" },
+  { title: "Startup Validator", url: "/startup-validator", emoji: "🚀", desc: "Score your idea 0–100" },
 ];
 
 interface HistoryItem {
