@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -7,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PublicRoute } from "@/components/PublicRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { captureReferralFromUrl } from "@/lib/referral";
 import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import ResumeBuilder from "@/pages/ResumeBuilder";
@@ -28,13 +30,21 @@ import NotFound from "@/pages/NotFound";
 import Admin from "@/pages/Admin";
 import About from "@/pages/About";
 import Blog from "@/pages/Blog";
+import Features from "@/pages/Features";
 import AiResumeRoast from "@/pages/seo/AiResumeRoast";
+import AiResumeRoastFree from "@/pages/seo/AiResumeRoastFree";
 import SalaryCheckerFree from "@/pages/seo/SalaryCheckerFree";
 import StartupIdeaValidator from "@/pages/seo/StartupIdeaValidator";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useEffect(() => {
+    // Capture ?ref=CODE from URL on first paint
+    captureReferralFromUrl();
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
@@ -47,8 +57,10 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/about" element={<About />} />
+            <Route path="/features" element={<Features />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/ai-resume-roast" element={<AiResumeRoast />} />
+            <Route path="/ai-resume-roast-free" element={<AiResumeRoastFree />} />
             <Route path="/salary-checker-free" element={<SalaryCheckerFree />} />
             <Route path="/startup-idea-validator" element={<StartupIdeaValidator />} />
             
