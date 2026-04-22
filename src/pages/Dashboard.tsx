@@ -68,20 +68,26 @@ export default function Dashboard() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="font-display text-3xl md:text-4xl font-bold">{greeting}, {displayName} 👋</h1>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold ring-1 ring-primary/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            Trusted by 10,000+ professionals
+          </span>
+        </div>
+        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{greeting}, {displayName} 👋</h1>
         <p className="text-muted-foreground mt-1">Here's your career growth snapshot. Pick a tool to get started.</p>
       </motion.div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
-            className="glass-card p-4 flex items-center justify-between">
-            <div>
+            className="glass-card p-4 flex items-center justify-between hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5">
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">{s.label}</p>
-              <p className="text-2xl font-display font-bold mt-1">{s.value}</p>
+              <p className="text-2xl font-display font-bold mt-1 tracking-tight">{s.value}</p>
               {s.label === "Used Today" && plan !== "premium" && (
                 <div className="w-full h-1.5 bg-secondary/50 rounded-full mt-2 overflow-hidden">
-                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.min(100, (usageCount / limit) * 100)}%` }} />
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, (usageCount / limit) * 100)}%` }} transition={{ duration: 0.7, ease: "easeOut" }} className="h-full bg-gradient-to-r from-primary to-accent rounded-full" />
                 </div>
               )}
             </div>
