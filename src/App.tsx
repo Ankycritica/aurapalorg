@@ -48,6 +48,9 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/about" element={<About />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/ai-resume-roast" element={<AiResumeRoast />} />
+            <Route path="/salary-checker-free" element={<SalaryCheckerFree />} />
+            <Route path="/startup-idea-validator" element={<StartupIdeaValidator />} />
             
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
