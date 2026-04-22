@@ -36,14 +36,14 @@ interface ToolPageProps {
 }
 
 const toolSuggestions = [
-  { title: "Resume Builder", url: "/resume-builder", emoji: "📄" },
-  { title: "SEO Article", url: "/seo-article-generator", emoji: "✍️" },
-  { title: "Business Plan", url: "/business-plan", emoji: "💼" },
-  { title: "Side Hustle", url: "/side-hustle-ideas", emoji: "💡" },
-  { title: "LinkedIn Roaster", url: "/linkedin-roaster", emoji: "🔥" },
-  { title: "Resume Roast", url: "/resume-roast", emoji: "🌶️" },
-  { title: "Cover Letter", url: "/cover-letter", emoji: "✉️" },
-  { title: "Interview Prep", url: "/interview-prep", emoji: "🎤" },
+  { title: "Resume Builder", url: "/resume-builder", emoji: "📄", desc: "Land more interviews" },
+  { title: "SEO Article", url: "/seo-article-generator", emoji: "✍️", desc: "Rank on Google" },
+  { title: "Business Plan", url: "/business-plan", emoji: "💼", desc: "Investor-ready in minutes" },
+  { title: "Side Hustle", url: "/side-hustle-ideas", emoji: "💡", desc: "Make extra income" },
+  { title: "LinkedIn Roaster", url: "/linkedin-roaster", emoji: "🔥", desc: "Brutal profile audit" },
+  { title: "Resume Roast", url: "/resume-roast", emoji: "🌶️", desc: "What recruiters won't tell you" },
+  { title: "Cover Letter", url: "/cover-letter", emoji: "✉️", desc: "Tailored to any job" },
+  { title: "Interview Prep", url: "/interview-prep", emoji: "🎤", desc: "Ace your next interview" },
 ];
 
 interface HistoryItem {
