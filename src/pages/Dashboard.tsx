@@ -68,20 +68,26 @@ export default function Dashboard() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="font-display text-3xl md:text-4xl font-bold">{greeting}, {displayName} 👋</h1>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold ring-1 ring-primary/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            Trusted by 10,000+ professionals
+          </span>
+        </div>
+        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{greeting}, {displayName} 👋</h1>
         <p className="text-muted-foreground mt-1">Here's your career growth snapshot. Pick a tool to get started.</p>
       </motion.div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
-            className="glass-card p-4 flex items-center justify-between">
-            <div>
+            className="glass-card p-4 flex items-center justify-between hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5">
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">{s.label}</p>
-              <p className="text-2xl font-display font-bold mt-1">{s.value}</p>
+              <p className="text-2xl font-display font-bold mt-1 tracking-tight">{s.value}</p>
               {s.label === "Used Today" && plan !== "premium" && (
                 <div className="w-full h-1.5 bg-secondary/50 rounded-full mt-2 overflow-hidden">
-                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.min(100, (usageCount / limit) * 100)}%` }} />
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, (usageCount / limit) * 100)}%` }} transition={{ duration: 0.7, ease: "easeOut" }} className="h-full bg-gradient-to-r from-primary to-accent rounded-full" />
                 </div>
               )}
             </div>
@@ -91,25 +97,51 @@ export default function Dashboard() {
       </div>
 
       <div>
-        <h2 className="font-display text-xl font-semibold mb-4">Your Tools</h2>
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <h2 className="font-display text-xl font-semibold tracking-tight">Your Tools</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">8 expert-grade AI tools, ready when you are</p>
+          </div>
+        </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {tools.map((tool, i) => {
             const color = toolColors[tool.title] || "#00C4EE";
             return (
               <motion.div key={tool.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.03, duration: 0.3 }}>
-                <Link to={tool.url} className="glass-card tool-card-hover p-5 block h-full" style={{ borderTop: `3px solid ${color}` }}>
-                  <div className="h-10 w-10 rounded-xl flex items-center justify-center mb-3" style={{ background: `${color}15` }}>
+                <Link to={tool.url} className="glass-card tool-card-hover p-5 block h-full group relative overflow-hidden" style={{ borderTop: `3px solid ${color}` }}>
+                  <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full opacity-0 group-hover:opacity-30 blur-2xl transition-opacity duration-500" style={{ background: color }} />
+                  <div className="h-10 w-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300" style={{ background: `${color}15` }}>
                     <tool.icon className="h-5 w-5" style={{ color }} />
                   </div>
                   <h3 className="font-display font-semibold text-foreground">{tool.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 mb-3">{tool.desc}</p>
-                  <span className="text-sm font-medium" style={{ color }}>Open Tool →</span>
+                  <p className="text-sm text-muted-foreground mt-1 mb-3 leading-relaxed">{tool.desc}</p>
+                  <span className="text-sm font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all" style={{ color }}>
+                    Open Tool <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                  </span>
                 </Link>
               </motion.div>
             );
           })}
         </div>
       </div>
+
+      {/* Trust strip */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+        className="glass-card p-5 sm:p-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          {[
+            { value: "10,000+", label: "Active users" },
+            { value: "250K+", label: "AI generations" },
+            { value: "4.9 / 5", label: "Avg rating" },
+            { value: "8 tools", label: "All in one place" },
+          ].map((s) => (
+            <div key={s.label}>
+              <p className="font-display text-xl sm:text-2xl font-bold gradient-text">{s.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </motion.div>
 
       <ProfileCompleteness />
 

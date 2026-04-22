@@ -36,14 +36,14 @@ interface ToolPageProps {
 }
 
 const toolSuggestions = [
-  { title: "Resume Builder", url: "/resume-builder", emoji: "📄" },
-  { title: "SEO Article", url: "/seo-article-generator", emoji: "✍️" },
-  { title: "Business Plan", url: "/business-plan", emoji: "💼" },
-  { title: "Side Hustle", url: "/side-hustle-ideas", emoji: "💡" },
-  { title: "LinkedIn Roaster", url: "/linkedin-roaster", emoji: "🔥" },
-  { title: "Resume Roast", url: "/resume-roast", emoji: "🌶️" },
-  { title: "Cover Letter", url: "/cover-letter", emoji: "✉️" },
-  { title: "Interview Prep", url: "/interview-prep", emoji: "🎤" },
+  { title: "Resume Builder", url: "/resume-builder", emoji: "📄", desc: "Land more interviews" },
+  { title: "SEO Article", url: "/seo-article-generator", emoji: "✍️", desc: "Rank on Google" },
+  { title: "Business Plan", url: "/business-plan", emoji: "💼", desc: "Investor-ready in minutes" },
+  { title: "Side Hustle", url: "/side-hustle-ideas", emoji: "💡", desc: "Make extra income" },
+  { title: "LinkedIn Roaster", url: "/linkedin-roaster", emoji: "🔥", desc: "Brutal profile audit" },
+  { title: "Resume Roast", url: "/resume-roast", emoji: "🌶️", desc: "What recruiters won't tell you" },
+  { title: "Cover Letter", url: "/cover-letter", emoji: "✉️", desc: "Tailored to any job" },
+  { title: "Interview Prep", url: "/interview-prep", emoji: "🎤", desc: "Ace your next interview" },
 ];
 
 interface HistoryItem {
@@ -186,16 +186,34 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ring-1 ring-primary/20 shadow-[0_0_24px_-8px_hsl(var(--primary)/0.4)]">
             <Icon className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="font-display text-2xl md:text-3xl font-bold">{title}</h1>
-            <p className="text-sm text-muted-foreground">{description}</p>
+            <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{title}</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
           </div>
-          {plan !== "premium" && (
-            <div className="text-xs text-muted-foreground bg-secondary/60 px-3 py-1.5 rounded-lg">
-              {remaining}/{limit} left
+          {plan !== "premium" && limit !== Infinity && (
+            <div className="w-full sm:w-52 shrink-0">
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="text-muted-foreground">Daily uses</span>
+                <span className={`font-semibold ${remaining <= 1 ? "text-destructive" : "text-foreground"}`}>
+                  {remaining} / {limit} left
+                </span>
+              </div>
+              <div className="h-1.5 w-full bg-secondary/60 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.max(4, (remaining / limit) * 100)}%` }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className={`h-full rounded-full ${remaining <= 1 ? "bg-destructive" : "bg-gradient-to-r from-primary to-accent"}`}
+                />
+              </div>
+            </div>
+          )}
+          {plan === "premium" && (
+            <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/15 to-accent/15 text-primary ring-1 ring-primary/30">
+              ✦ Unlimited
             </div>
           )}
         </div>
@@ -254,8 +272,9 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
             )}
 
             <button onClick={generate} disabled={loading}
-              className="w-full py-3 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2">
-              {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating... (~15 sec)</> : (generateLabel || "Generate with AI ✨")}
+              className="group relative w-full py-3 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.6)] transition-all duration-300 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2 overflow-hidden">
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating expert-grade output…</> : (generateLabel || "Generate with AI ✨")}
             </button>
           </motion.div>
 
@@ -308,15 +327,48 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
           </AnimatePresence>
 
           <AnimatePresence>
+            {result && !loading && plan !== "premium" && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+                className="relative overflow-hidden rounded-xl p-5 sm:p-6 bg-gradient-to-br from-primary/10 via-card/40 to-accent/10 border border-primary/20">
+                <div className="absolute -top-12 -right-12 w-40 h-40 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">{plan === "free" ? "Free plan" : "Pro plan"}</p>
+                    <h3 className="font-display font-semibold text-base sm:text-lg text-foreground">
+                      Unlock {plan === "free" ? "20× more" : "unlimited"} AI generations
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {plan === "free"
+                        ? "Pro gives you 100/day, priority AI, and PDF exports — for less than a coffee a week."
+                        : "Premium removes all daily limits and unlocks priority support."}
+                    </p>
+                  </div>
+                  <Link to="/pricing"
+                    className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm hover:shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.6)] transition-all active:scale-[0.98]">
+                    Upgrade <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
             {result && !loading && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5">
-                <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-semibold text-foreground">🚀 Try next</p>
+                  <span className="text-xs text-muted-foreground">Recommended for you</span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {otherTools.map((tool) => (
-                    <Link key={tool.title} to={tool.url} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/60 transition-all duration-200 group">
-                      <span className="text-lg">{tool.emoji}</span>
-                      <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{tool.title}</span>
-                      <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+                    <Link key={tool.title} to={tool.url}
+                      className="group p-3.5 rounded-xl bg-secondary/30 hover:bg-secondary/60 border border-transparent hover:border-primary/30 transition-all duration-200 hover:-translate-y-0.5">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xl">{tool.emoji}</span>
+                        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{tool.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{tool.desc}</p>
                     </Link>
                   ))}
                 </div>
