@@ -330,6 +330,12 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
           </AnimatePresence>
 
           <AnimatePresence>
+            {result && !loading && (
+              <SharePanel result={result} toolTitle={title} toolSlug={toolSlug} />
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
             {result && !loading && plan !== "premium" && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
                 className="relative overflow-hidden rounded-xl p-5 sm:p-6 bg-gradient-to-br from-primary/10 via-card/40 to-accent/10 border border-primary/20">
