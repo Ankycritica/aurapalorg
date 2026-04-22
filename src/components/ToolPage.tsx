@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, Trash2, Eye, Clock, Download, Heart } from "lucide-react";
+import { Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, Trash2, Eye, Clock, Download, Heart, Lock, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
 import { SharePanel } from "@/components/SharePanel";
 import { SocialProofBadge } from "@/components/SocialProofBadge";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
