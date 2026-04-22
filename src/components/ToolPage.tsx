@@ -7,6 +7,8 @@ import type { LucideIcon } from "lucide-react";
 import { useUsage } from "@/hooks/useUsage";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
+import { SharePanel } from "@/components/SharePanel";
+import { SocialProofBadge } from "@/components/SocialProofBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
