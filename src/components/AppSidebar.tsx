@@ -20,6 +20,8 @@ const tools = [
   { title: "Side Hustle", url: "/side-hustle-ideas", icon: Lightbulb },
   { title: "LinkedIn Roaster", url: "/linkedin-roaster", icon: MessageSquareWarning },
   { title: "Resume Roast", url: "/resume-roast", icon: FlameKindling },
+  { title: "Am I Underpaid?", url: "/salary-check", icon: DollarSign },
+  { title: "Startup Validator", url: "/startup-validator", icon: Rocket },
 ];
 
 interface AppSidebarProps {
