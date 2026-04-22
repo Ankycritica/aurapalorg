@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Twitter, Linkedin, Image as ImageIcon, Share2, Gift, X, Loader2, Copy, CheckCheck, Download } from "lucide-react";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { getReferralLink, getOrCreateReferralCode, REFERRAL_SITE_URL } from "@/lib/referral";
 
 interface SharePanelProps {
   result: string;
@@ -10,10 +12,10 @@ interface SharePanelProps {
   toolSlug: string;
 }
 
-const SITE_URL = "https://aurapal.org";
+const SITE_URL = REFERRAL_SITE_URL;
 
 // Convert markdown-ish text into a clean LinkedIn post
-function toLinkedInPost(result: string, toolTitle: string): string {
+function toLinkedInPost(result: string, toolTitle: string, refLink: string): string {
   const stripped = result
     .replace(/^#+\s*/gm, "")
     .replace(/\*\*(.+?)\*\*/g, "$1")
@@ -26,12 +28,12 @@ function toLinkedInPost(result: string, toolTitle: string): string {
   const lines = stripped.split("\n").filter(l => l.trim().length > 0);
   const hook = `I just used AuraPal's ${toolTitle} and the result blew my mind 🤯\n`;
   const body = lines.slice(0, 14).join("\n");
-  const cta = `\n\n---\n\nIf you're working on your career, this is a goldmine.\nTry it free → ${SITE_URL}\n\n#CareerGrowth #AI #AuraPal`;
+  const cta = `\n\n---\n\nIf you're working on your career, this is a goldmine.\nTry it free → ${refLink}\n\n#CareerGrowth #AI #AuraPal`;
   return `${hook}\n${body}${cta}`;
 }
 
 // Convert into a Twitter / X thread (numbered tweets, ~270 chars each)
-function toTwitterThread(result: string, toolTitle: string): string[] {
+function toTwitterThread(result: string, toolTitle: string, refLink: string): string[] {
   const stripped = result
     .replace(/^#+\s*/gm, "")
     .replace(/\*\*(.+?)\*\*/g, "$1")
@@ -53,7 +55,7 @@ function toTwitterThread(result: string, toolTitle: string): string[] {
   if (buf) tweets.push(buf.trim());
 
   const hook = `Used AuraPal's ${toolTitle} today. The output is too good not to share 🧵👇`;
-  const outro = `That's it. \n\nTry the same tool free → ${SITE_URL}`;
+  const outro = `That's it. \n\nTry the same tool free → ${refLink}`;
   return [hook, ...tweets.slice(0, 8), outro].map((t, i, arr) => `${i + 1}/${arr.length} ${t}`);
 }
 
@@ -62,7 +64,12 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [copiedKind, setCopiedKind] = useState<string | null>(null);
+  const [copiedRef, setCopiedRef] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+
+  const referralLink = getReferralLink(user?.id);
+  const referralCode = getOrCreateReferralCode(user?.id);
 
   const summary = (result || "")
     .replace(/^#+\s*/gm, "")
@@ -73,12 +80,19 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
 
   const copyAs = async (kind: "linkedin" | "twitter") => {
     const text = kind === "linkedin"
-      ? toLinkedInPost(result, toolTitle)
-      : toTwitterThread(result, toolTitle).join("\n\n");
+      ? toLinkedInPost(result, toolTitle, referralLink)
+      : toTwitterThread(result, toolTitle, referralLink).join("\n\n");
     await navigator.clipboard.writeText(text);
     setCopiedKind(kind);
     toast.success(kind === "linkedin" ? "LinkedIn post copied — paste & post!" : "Twitter thread copied!");
     setTimeout(() => setCopiedKind(null), 2500);
+  };
+
+  const copyReferralLink = async () => {
+    await navigator.clipboard.writeText(referralLink);
+    setCopiedRef(true);
+    toast.success(`Your referral link is copied 🎁  Code: ${referralCode}`);
+    setTimeout(() => setCopiedRef(false), 2500);
   };
 
   const generateImage = async () => {
