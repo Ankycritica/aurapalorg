@@ -28,6 +28,9 @@ import NotFound from "@/pages/NotFound";
 import Admin from "@/pages/Admin";
 import About from "@/pages/About";
 import Blog from "@/pages/Blog";
+import AiResumeRoast from "@/pages/seo/AiResumeRoast";
+import SalaryCheckerFree from "@/pages/seo/SalaryCheckerFree";
+import StartupIdeaValidator from "@/pages/seo/StartupIdeaValidator";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,9 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/about" element={<About />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/ai-resume-roast" element={<AiResumeRoast />} />
+            <Route path="/salary-checker-free" element={<SalaryCheckerFree />} />
+            <Route path="/startup-idea-validator" element={<StartupIdeaValidator />} />
             
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />

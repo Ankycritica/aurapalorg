@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, Trash2, Eye, Clock, Download, Heart } from "lucide-react";
+import { Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, Trash2, Eye, Clock, Download, Heart, Lock, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
 import { SharePanel } from "@/components/SharePanel";
 import { SocialProofBadge } from "@/components/SocialProofBadge";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -70,6 +71,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
   const [historyLoading, setHistoryLoading] = useState(false);
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
+  const { track } = useAnalytics();
 
   const otherTools = toolSuggestions.filter(t => t.title !== title).slice(0, 3);
 
@@ -155,7 +157,10 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
         }
       }
 
-      if (fullText) await saveGeneration(fullText);
+      if (fullText) {
+        await saveGeneration(fullText);
+        track("tool_used", { tool: toolSlug, plan, length: fullText.length });
+      }
     } catch {
       setError("Failed to connect. Please check your connection.");
     } finally {
@@ -299,7 +304,11 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
 
           {/* Result panel */}
           <AnimatePresence>
-            {result && (
+            {result && (() => {
+              // Paywall blur: free users see only ~60% of long results
+              const shouldBlur = plan === "free" && result.length > 800 && !loading;
+              const visibleResult = shouldBlur ? result.slice(0, Math.floor(result.length * 0.55)) : result;
+              return (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 className="glass-card overflow-hidden" style={{ borderTop: `3px solid ${borderColor}` }}>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 pb-0 sm:pb-0 gap-3">
@@ -316,19 +325,49 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                     </button>
                   </div>
                 </div>
-                <div className="p-4 sm:p-6">
+                <div className="relative p-4 sm:p-6">
                   <div className="prose prose-invert prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground">
-                    <ReactMarkdown>{result}</ReactMarkdown>
+                    <ReactMarkdown>{visibleResult}</ReactMarkdown>
                   </div>
+                  {shouldBlur && (
+                    <>
+                      {/* Blurred preview of remainder */}
+                      <div className="relative mt-2 select-none pointer-events-none" aria-hidden="true">
+                        <div className="prose prose-invert prose-sm max-w-none blur-md opacity-60 max-h-40 overflow-hidden">
+                          <ReactMarkdown>{result.slice(Math.floor(result.length * 0.55), Math.floor(result.length * 0.85))}</ReactMarkdown>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/80 to-card" />
+                      </div>
+                      {/* Unlock overlay */}
+                      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                        className="relative mt-4 rounded-xl p-5 bg-gradient-to-br from-primary/15 via-card/50 to-accent/15 border border-primary/30 text-center">
+                        <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent mb-3 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.6)]">
+                          <Lock className="h-5 w-5 text-primary-foreground" />
+                        </div>
+                        <h3 className="font-display font-bold text-base sm:text-lg text-foreground mb-1">Unlock the full result + deeper insights</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+                          You're seeing the preview. Upgrade to Pro to reveal the rest, get 100 daily generations, PDF exports, and priority AI.
+                        </p>
+                        <Link to="/pricing" onClick={() => track("tool_used", { action: "unlock_clicked", tool: toolSlug })}
+                          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.7)] transition-all active:scale-[0.98]">
+                          <Sparkles className="h-4 w-4" /> Upgrade Now — Unlock Full Result
+                        </Link>
+                        <p className="text-[11px] text-muted-foreground mt-3">7-day money-back guarantee · Cancel anytime</p>
+                      </motion.div>
+                    </>
+                  )}
                 </div>
-                <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-                  <button onClick={() => downloadResult("txt")}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-secondary/40 hover:bg-secondary/60 text-sm text-muted-foreground hover:text-foreground transition-all">
-                    <Download className="h-4 w-4" /> Download as TXT
-                  </button>
-                </div>
+                {!shouldBlur && (
+                  <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                    <button onClick={() => downloadResult("txt")}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-secondary/40 hover:bg-secondary/60 text-sm text-muted-foreground hover:text-foreground transition-all">
+                      <Download className="h-4 w-4" /> Download as TXT
+                    </button>
+                  </div>
+                )}
               </motion.div>
-            )}
+              );
+            })()}
           </AnimatePresence>
 
           <AnimatePresence>
@@ -354,7 +393,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                         : "Premium removes all daily limits and unlocks priority support."}
                     </p>
                   </div>
-                  <Link to="/pricing"
+                  <Link to="/pricing" onClick={() => track("tool_used", { action: "upgrade_card_clicked", tool: toolSlug })}
                     className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm hover:shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.6)] transition-all active:scale-[0.98]">
                     Upgrade <ArrowRight className="h-4 w-4" />
                   </Link>
