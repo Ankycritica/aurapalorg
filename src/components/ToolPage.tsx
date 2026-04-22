@@ -186,16 +186,34 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ring-1 ring-primary/20 shadow-[0_0_24px_-8px_hsl(var(--primary)/0.4)]">
             <Icon className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="font-display text-2xl md:text-3xl font-bold">{title}</h1>
-            <p className="text-sm text-muted-foreground">{description}</p>
+            <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{title}</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
           </div>
-          {plan !== "premium" && (
-            <div className="text-xs text-muted-foreground bg-secondary/60 px-3 py-1.5 rounded-lg">
-              {remaining}/{limit} left
+          {plan !== "premium" && limit !== Infinity && (
+            <div className="w-full sm:w-52 shrink-0">
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="text-muted-foreground">Daily uses</span>
+                <span className={`font-semibold ${remaining <= 1 ? "text-destructive" : "text-foreground"}`}>
+                  {remaining} / {limit} left
+                </span>
+              </div>
+              <div className="h-1.5 w-full bg-secondary/60 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.max(4, (remaining / limit) * 100)}%` }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className={`h-full rounded-full ${remaining <= 1 ? "bg-destructive" : "bg-gradient-to-r from-primary to-accent"}`}
+                />
+              </div>
+            </div>
+          )}
+          {plan === "premium" && (
+            <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/15 to-accent/15 text-primary ring-1 ring-primary/30">
+              ✦ Unlimited
             </div>
           )}
         </div>
