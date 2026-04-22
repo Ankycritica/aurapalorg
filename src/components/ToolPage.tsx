@@ -219,9 +219,10 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
             </div>
           )}
         </div>
+        <div className="mt-3">
+          <SocialProofBadge toolSlug={toolSlug} trending={["resume-roast", "linkedin-roaster", "salary-check", "startup-validator"].includes(toolSlug)} />
+        </div>
       </motion.div>
-
-      {/* Tabs */}
       <div className="flex gap-1 bg-secondary/30 p-1 rounded-lg w-fit">
         <button onClick={() => setActiveTab("generate")} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "generate" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
           Generate
