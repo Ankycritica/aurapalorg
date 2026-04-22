@@ -272,8 +272,9 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
             )}
 
             <button onClick={generate} disabled={loading}
-              className="w-full py-3 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2">
-              {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating... (~15 sec)</> : (generateLabel || "Generate with AI ✨")}
+              className="group relative w-full py-3 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.6)] transition-all duration-300 disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2 overflow-hidden">
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating expert-grade output…</> : (generateLabel || "Generate with AI ✨")}
             </button>
           </motion.div>
 
