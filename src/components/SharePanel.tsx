@@ -148,13 +148,12 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
   };
 
   const shareReferral = async () => {
-    const text = `I'm using AuraPal — free AI career tools (resume, LinkedIn audit, interview prep). Worth a look:`;
-    const url = SITE_URL;
+    const text = `I'm using AuraPal — free AI career tools (resume, LinkedIn audit, interview prep, salary checker). Worth a look:`;
     if (navigator.share) {
-      try { await navigator.share({ title: "AuraPal", text, url }); return; } catch {}
+      try { await navigator.share({ title: "AuraPal", text, url: referralLink }); return; } catch {}
     }
-    await navigator.clipboard.writeText(`${text} ${url}`);
-    toast.success("Share link copied! Paste anywhere to earn credits 🎁");
+    await navigator.clipboard.writeText(`${text} ${referralLink}`);
+    toast.success(`Referral link copied 🎁  Code: ${referralCode}`);
   };
 
   return (
@@ -190,8 +189,22 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
             <span className="text-xs font-semibold text-foreground">+10 credits</span>
           </button>
         </div>
-        <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
-          🎁 Share AuraPal with a friend and earn <span className="text-amber-400 font-semibold">10 bonus credits</span> when they sign up.
+
+        {/* Unique referral link row */}
+        <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 flex items-center gap-2">
+          <Gift className="h-4 w-4 text-amber-400 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-muted-foreground leading-tight">Your unique referral link · earn <span className="text-amber-400 font-semibold">+10 credits</span> per signup</p>
+            <p className="text-xs font-mono text-foreground truncate mt-0.5">{referralLink}</p>
+          </div>
+          <button onClick={copyReferralLink}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-xs font-semibold text-amber-300 transition-all active:scale-[0.97]">
+            {copiedRef ? <CheckCheck className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            {copiedRef ? "Copied" : "Copy"}
+          </button>
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+          Every output includes <span className="text-foreground font-medium">"Generated via AuraPal"</span> attribution — sustainable growth, no spam.
         </p>
       </motion.div>
 
