@@ -17,6 +17,8 @@ import LinkedInRoaster from "@/pages/LinkedInRoaster";
 import ResumeRoast from "@/pages/ResumeRoast";
 import CoverLetter from "@/pages/CoverLetter";
 import InterviewPrep from "@/pages/InterviewPrep";
+import SalaryCheck from "@/pages/SalaryCheck";
+import StartupValidator from "@/pages/StartupValidator";
 import Settings from "@/pages/Settings";
 import Pricing from "@/pages/Pricing";
 import Auth from "@/pages/Auth";
@@ -54,6 +56,8 @@ const App = () => (
               <Route path="/resume-roast" element={<ResumeRoast />} />
               <Route path="/cover-letter" element={<CoverLetter />} />
               <Route path="/interview-prep" element={<InterviewPrep />} />
+              <Route path="/salary-check" element={<SalaryCheck />} />
+              <Route path="/startup-validator" element={<StartupValidator />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/admin" element={<Admin />} />

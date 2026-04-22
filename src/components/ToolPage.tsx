@@ -7,6 +7,8 @@ import type { LucideIcon } from "lucide-react";
 import { useUsage } from "@/hooks/useUsage";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
+import { SharePanel } from "@/components/SharePanel";
+import { SocialProofBadge } from "@/components/SocialProofBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -44,6 +46,8 @@ const toolSuggestions = [
   { title: "Resume Roast", url: "/resume-roast", emoji: "🌶️", desc: "What recruiters won't tell you" },
   { title: "Cover Letter", url: "/cover-letter", emoji: "✉️", desc: "Tailored to any job" },
   { title: "Interview Prep", url: "/interview-prep", emoji: "🎤", desc: "Ace your next interview" },
+  { title: "Am I Underpaid?", url: "/salary-check", emoji: "💸", desc: "Find out in 15 seconds" },
+  { title: "Startup Validator", url: "/startup-validator", emoji: "🚀", desc: "Score your idea 0–100" },
 ];
 
 interface HistoryItem {
@@ -217,9 +221,10 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
             </div>
           )}
         </div>
+        <div className="mt-3">
+          <SocialProofBadge toolSlug={toolSlug} trending={["resume-roast", "linkedin-roaster", "salary-check", "startup-validator"].includes(toolSlug)} />
+        </div>
       </motion.div>
-
-      {/* Tabs */}
       <div className="flex gap-1 bg-secondary/30 p-1 rounded-lg w-fit">
         <button onClick={() => setActiveTab("generate")} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "generate" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
           Generate
@@ -323,6 +328,12 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                   </button>
                 </div>
               </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {result && !loading && (
+              <SharePanel result={result} toolTitle={title} toolSlug={toolSlug} />
             )}
           </AnimatePresence>
 

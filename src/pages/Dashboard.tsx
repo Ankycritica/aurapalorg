@@ -1,4 +1,4 @@
-import { FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Mail, MessageCircle } from "lucide-react";
+import { FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Mail, MessageCircle, DollarSign, Rocket } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +18,8 @@ const toolColors: Record<string, string> = {
   "Side Hustle": "#F5C842",
   "LinkedIn Roaster": "#F97066",
   "Resume Roast": "#FFA94D",
+  "Am I Underpaid?": "#22D3A0",
+  "Startup Validator": "#A78BFA",
 };
 
 const tools = [
@@ -27,8 +29,10 @@ const tools = [
   { title: "SEO Article Generator", desc: "Generate keyword-optimized blog posts.", icon: PenLine, url: "/seo-article-generator" },
   { title: "Business Plan", desc: "Turn any idea into an investor-ready plan.", icon: Briefcase, url: "/business-plan" },
   { title: "Side Hustle", desc: "Discover personalized income opportunities.", icon: Lightbulb, url: "/side-hustle-ideas" },
-  { title: "LinkedIn Roaster", desc: "Brutally honest LinkedIn profile feedback.", icon: MessageSquareWarning, url: "/linkedin-roaster" },
-  { title: "Resume Roast", desc: "Get your resume roasted with improvements.", icon: FlameKindling, url: "/resume-roast" },
+  { title: "LinkedIn Roaster", desc: "Brutally honest LinkedIn profile feedback.", icon: MessageSquareWarning, url: "/linkedin-roaster", badge: "🔥 Viral" },
+  { title: "Resume Roast", desc: "Get your resume roasted with improvements.", icon: FlameKindling, url: "/resume-roast", badge: "🔥 Viral" },
+  { title: "Am I Underpaid?", desc: "AI salary benchmark in 15 seconds. Brutally honest.", icon: DollarSign, url: "/salary-check", badge: "✨ New" },
+  { title: "Startup Validator", desc: "Get your startup idea scored 0–100 by AI.", icon: Rocket, url: "/startup-validator", badge: "✨ New" },
 ];
 
 interface RecentGen {
@@ -110,6 +114,11 @@ export default function Dashboard() {
               <motion.div key={tool.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.03, duration: 0.3 }}>
                 <Link to={tool.url} className="glass-card tool-card-hover p-5 block h-full group relative overflow-hidden" style={{ borderTop: `3px solid ${color}` }}>
                   <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full opacity-0 group-hover:opacity-30 blur-2xl transition-opacity duration-500" style={{ background: color }} />
+                  {(tool as any).badge && (
+                    <span className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: `${color}22`, color, border: `1px solid ${color}55` }}>
+                      {(tool as any).badge}
+                    </span>
+                  )}
                   <div className="h-10 w-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300" style={{ background: `${color}15` }}>
                     <tool.icon className="h-5 w-5" style={{ color }} />
                   </div>
