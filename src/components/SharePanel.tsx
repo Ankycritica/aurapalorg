@@ -5,67 +5,34 @@ import html2canvas from "html2canvas";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReferralLink, getOrCreateReferralCode, REFERRAL_SITE_URL } from "@/lib/referral";
+import { LinkedInShareModal } from "@/components/LinkedInShareModal";
+import { TwitterShareModal } from "@/components/TwitterShareModal";
+import { buildLinkedInPost, buildTwitterThread } from "@/lib/sharePrompts";
+import { parseSalaryData } from "@/components/SalaryBar";
 
 interface SharePanelProps {
   result: string;
   toolTitle: string;
   toolSlug: string;
+  inputs?: Record<string, string>;
 }
 
 const SITE_URL = REFERRAL_SITE_URL;
 
-// Convert markdown-ish text into a clean LinkedIn post
-function toLinkedInPost(result: string, toolTitle: string, refLink: string): string {
-  const stripped = result
-    .replace(/^#+\s*/gm, "")
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*/g, "$1")
-    .replace(/`(.+?)`/g, "$1")
-    .replace(/^>\s*/gm, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
-  const lines = stripped.split("\n").filter(l => l.trim().length > 0);
-  const hook = `I just used AuraPal's ${toolTitle} and the result blew my mind 🤯\n`;
-  const body = lines.slice(0, 14).join("\n");
-  const cta = `\n\n---\n\nIf you're working on your career, this is a goldmine.\nTry it free → ${refLink}\n\n#CareerGrowth #AI #AuraPal`;
-  return `${hook}\n${body}${cta}`;
+function fmtMoney(amount: number, symbol: string): string {
+  if (amount >= 1000) return `${symbol}${Math.round(amount / 1000)}K`;
+  return `${symbol}${Math.round(amount)}`;
 }
 
-// Convert into a Twitter / X thread (numbered tweets, ~270 chars each)
-function toTwitterThread(result: string, toolTitle: string, refLink: string): string[] {
-  const stripped = result
-    .replace(/^#+\s*/gm, "")
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*/g, "$1")
-    .replace(/`(.+?)`/g, "$1")
-    .trim();
-
-  const sentences = stripped.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
-  const tweets: string[] = [];
-  let buf = "";
-  for (const s of sentences) {
-    if ((buf + " " + s).length > 240) {
-      if (buf) tweets.push(buf.trim());
-      buf = s;
-    } else {
-      buf = buf ? `${buf} ${s}` : s;
-    }
-  }
-  if (buf) tweets.push(buf.trim());
-
-  const hook = `Used AuraPal's ${toolTitle} today. The output is too good not to share 🧵👇`;
-  const outro = `That's it. \n\nTry the same tool free → ${refLink}`;
-  return [hook, ...tweets.slice(0, 8), outro].map((t, i, arr) => `${i + 1}/${arr.length} ${t}`);
-}
-
-export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
+export function SharePanel({ result, toolTitle, toolSlug, inputs = {} }: SharePanelProps) {
   const [showImageModal, setShowImageModal] = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
-  const [copiedKind, setCopiedKind] = useState<string | null>(null);
   const [copiedRef, setCopiedRef] = useState(false);
+  const [showLinkedIn, setShowLinkedIn] = useState(false);
+  const [showTwitter, setShowTwitter] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const salaryCardRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
   const referralLink = getReferralLink(user?.id);
@@ -78,15 +45,11 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
     .trim()
     .slice(0, 480);
 
-  const copyAs = async (kind: "linkedin" | "twitter") => {
-    const text = kind === "linkedin"
-      ? toLinkedInPost(result, toolTitle, referralLink)
-      : toTwitterThread(result, toolTitle, referralLink).join("\n\n");
-    await navigator.clipboard.writeText(text);
-    setCopiedKind(kind);
-    toast.success(kind === "linkedin" ? "LinkedIn post copied — paste & post!" : "Twitter thread copied!");
-    setTimeout(() => setCopiedKind(null), 2500);
-  };
+  // Salary-specific data for branded card
+  const salaryData = toolSlug === "salary-check" ? parseSalaryData(result, inputs) : null;
+
+  const linkedInText = buildLinkedInPost({ toolSlug, toolTitle, result, inputs, refLink: referralLink });
+  const twitterTweets = buildTwitterThread({ toolSlug, toolTitle, result, inputs, refLink: referralLink });
 
   const copyReferralLink = async () => {
     await navigator.clipboard.writeText(referralLink);
@@ -99,18 +62,18 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
     setShowImageModal(true);
     setImageDataUrl(null);
     setGeneratingImage(true);
-    // wait one frame for the hidden card to mount
-    await new Promise(r => setTimeout(r, 50));
-    if (!cardRef.current) { setGeneratingImage(false); return; }
+    await new Promise(r => setTimeout(r, 60));
+    const target = salaryData ? salaryCardRef.current : cardRef.current;
+    if (!target) { setGeneratingImage(false); return; }
     try {
-      const canvas = await html2canvas(cardRef.current, {
+      const canvas = await html2canvas(target, {
         backgroundColor: "#0A0F1E",
         scale: 2,
         useCORS: true,
         logging: false,
       });
       setImageDataUrl(canvas.toDataURL("image/png"));
-    } catch (e) {
+    } catch {
       toast.error("Couldn't generate image. Try again.");
       setShowImageModal(false);
     } finally {
@@ -156,6 +119,10 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
     toast.success(`Referral link copied 🎁  Code: ${referralCode}`);
   };
 
+  // Salary card hero text
+  const salaryVerb = salaryData ? (salaryData.diffFromMedian < 0 ? "BELOW" : "ABOVE") : "";
+  const salaryEmoji = salaryData ? (salaryData.diffFromMedian < 0 ? "💸" : "🏆") : "";
+
   return (
     <>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
@@ -173,15 +140,15 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
             <ImageIcon className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
             <span className="text-xs font-semibold text-foreground">Share as image</span>
           </button>
-          <button onClick={() => copyAs("linkedin")}
+          <button onClick={() => setShowLinkedIn(true)}
             className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-secondary/40 hover:bg-secondary/70 border border-transparent hover:border-[#0A66C2]/40 transition-all duration-200 active:scale-[0.97]">
-            {copiedKind === "linkedin" ? <CheckCheck className="h-4 w-4 text-[#0A66C2]" /> : <Linkedin className="h-4 w-4 text-[#0A66C2] group-hover:scale-110 transition-transform" />}
-            <span className="text-xs font-semibold text-foreground">{copiedKind === "linkedin" ? "Copied!" : "LinkedIn post"}</span>
+            <Linkedin className="h-4 w-4 text-[#0A66C2] group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-semibold text-foreground">LinkedIn post</span>
           </button>
-          <button onClick={() => copyAs("twitter")}
+          <button onClick={() => setShowTwitter(true)}
             className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-secondary/40 hover:bg-secondary/70 border border-transparent hover:border-foreground/40 transition-all duration-200 active:scale-[0.97]">
-            {copiedKind === "twitter" ? <CheckCheck className="h-4 w-4 text-foreground" /> : <Twitter className="h-4 w-4 text-foreground group-hover:scale-110 transition-transform" />}
-            <span className="text-xs font-semibold text-foreground">{copiedKind === "twitter" ? "Copied!" : "Twitter thread"}</span>
+            <Twitter className="h-4 w-4 text-foreground group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-semibold text-foreground">Twitter thread</span>
           </button>
           <button onClick={shareReferral}
             className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 hover:from-amber-500/25 hover:to-orange-500/25 border border-amber-500/30 transition-all duration-200 active:scale-[0.97]">
@@ -208,8 +175,9 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
         </p>
       </motion.div>
 
-      {/* Hidden render target for image export */}
+      {/* Hidden render targets for image export */}
       <div className="fixed -left-[9999px] top-0 pointer-events-none" aria-hidden="true">
+        {/* Generic card */}
         <div ref={cardRef} style={{ width: 1080, padding: 64, background: "linear-gradient(135deg, #0A0F1E 0%, #131B36 50%, #0A0F1E 100%)", color: "#E5E7EB", fontFamily: "Inter, system-ui, sans-serif" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 40 }}>
             <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, hsl(173,80%,40%), hsl(262,83%,58%))", display: "flex", alignItems: "center", justifyContent: "center", color: "#0A0F1E", fontWeight: 800, fontSize: 28, fontFamily: "Space Grotesk, Inter, sans-serif" }}>A</div>
@@ -233,6 +201,59 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
             <div style={{ fontSize: 13, color: "#64748B", fontWeight: 500 }}>Free AI Career Engine · Try it yourself</div>
           </div>
         </div>
+
+        {/* Salary-specific score card */}
+        {salaryData && (() => {
+          const min = Math.min(salaryData.p25, salaryData.user) * 0.95;
+          const max = Math.max(salaryData.p90, salaryData.user) * 1.05;
+          const range = max - min;
+          const pct = (n: number) => Math.max(0, Math.min(100, ((n - min) / range) * 100));
+          const userPct = pct(salaryData.user);
+          const accent = salaryData.diffFromMedian < 0 ? "#F43F5E" : "#10B981";
+          return (
+            <div ref={salaryCardRef} style={{ width: 1080, padding: 64, background: "linear-gradient(135deg, #080C18 0%, #0F1830 50%, #080C18 100%)", color: "#E5E7EB", fontFamily: "Inter, system-ui, sans-serif" }}>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, hsl(173,80%,40%), hsl(262,83%,58%))", display: "flex", alignItems: "center", justifyContent: "center", color: "#0A0F1E", fontWeight: 800, fontSize: 24, fontFamily: "Space Grotesk, Inter, sans-serif" }}>A</div>
+                  <div style={{ fontFamily: "Space Grotesk, Inter, sans-serif", fontWeight: 700, fontSize: 22, color: "#fff" }}>AuraPal</div>
+                </div>
+                <div style={{ marginLeft: "auto", padding: "6px 14px", borderRadius: 999, background: "rgba(20,184,166,0.12)", border: "1px solid rgba(20,184,166,0.35)", fontSize: 12, fontWeight: 600, color: "hsl(173,80%,60%)" }}>Am I Underpaid?</div>
+              </div>
+
+              <div style={{ fontSize: 18, color: "#94A3B8", marginBottom: 12 }}>I'm earning</div>
+              <div style={{ fontFamily: "Space Grotesk, Inter, sans-serif", fontWeight: 800, fontSize: 84, lineHeight: 1, color: accent, letterSpacing: -2, marginBottom: 8 }}>
+                {fmtMoney(Math.abs(salaryData.diffFromMedian), salaryData.symbol)} {salaryVerb}
+              </div>
+              <div style={{ fontSize: 28, color: "#fff", fontWeight: 600, marginBottom: 6 }}>
+                market rate {salaryEmoji}
+              </div>
+              <div style={{ fontSize: 17, color: "#94A3B8", marginBottom: 36 }}>
+                {inputs.role || "My role"}{inputs.location ? ` · ${inputs.location}` : ""}{inputs.experience ? ` · ${inputs.experience}` : ""}
+              </div>
+
+              {/* Bar chart */}
+              <div style={{ position: "relative", marginBottom: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 12, fontWeight: 600, color: "#64748B" }}>
+                  <span>P25 {fmtMoney(salaryData.p25, salaryData.symbol)}</span>
+                  <span>P50 {fmtMoney(salaryData.p50, salaryData.symbol)}</span>
+                  <span>P75 {fmtMoney(salaryData.p75, salaryData.symbol)}</span>
+                  <span>P90 {fmtMoney(salaryData.p90, salaryData.symbol)}</span>
+                </div>
+                <div style={{ height: 14, borderRadius: 999, background: "linear-gradient(90deg, #10B981 0%, #FBBF24 60%, #FDE047 100%)", position: "relative" }}>
+                  <div style={{ position: "absolute", left: `${userPct}%`, top: -8, transform: "translateX(-50%)", width: 4, height: 30, background: accent, borderRadius: 2, boxShadow: `0 0 16px ${accent}` }} />
+                </div>
+                <div style={{ marginTop: 12, fontSize: 14, color: accent, fontWeight: 700 }}>
+                  ← You: {fmtMoney(salaryData.user, salaryData.symbol)} ({salaryData.percentile})
+                </div>
+              </div>
+
+              <div style={{ marginTop: 48, display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ fontSize: 18, color: "#fff", fontWeight: 600 }}>Find out if you're underpaid →</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: "hsl(173,80%,55%)", fontFamily: "Space Grotesk, Inter, sans-serif" }}>aurapal.org</div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Image preview modal */}
@@ -275,6 +296,18 @@ export function SharePanel({ result, toolTitle, toolSlug }: SharePanelProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <LinkedInShareModal
+        open={showLinkedIn}
+        onClose={() => setShowLinkedIn(false)}
+        initialText={linkedInText}
+        shareUrl={referralLink}
+      />
+      <TwitterShareModal
+        open={showTwitter}
+        onClose={() => setShowTwitter(false)}
+        tweets={twitterTweets}
+      />
     </>
   );
 }
