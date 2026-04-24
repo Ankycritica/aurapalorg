@@ -385,7 +385,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
 
           <AnimatePresence>
             {result && !loading && (
-              <SharePanel result={result} toolTitle={title} toolSlug={toolSlug} />
+              <SharePanel result={result} toolTitle={title} toolSlug={toolSlug} inputs={values} />
             )}
           </AnimatePresence>
 
