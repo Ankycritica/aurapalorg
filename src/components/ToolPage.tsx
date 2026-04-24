@@ -308,66 +308,76 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
           {/* Result panel */}
           <AnimatePresence>
             {result && (() => {
-              // Paywall blur: free users see only ~60% of long results
+              // Paywall blur: free users see ~40% clearly, then a gradient blur fade
               const shouldBlur = plan === "free" && result.length > 800 && !loading;
-              const visibleResult = shouldBlur ? result.slice(0, Math.floor(result.length * 0.55)) : result;
+              const splitIdx = Math.floor(result.length * 0.4);
+              const visibleResult = shouldBlur ? result.slice(0, splitIdx) : result;
+              const blurredRemainder = shouldBlur ? result.slice(splitIdx) : "";
+              const salaryDiff = toolSlug === "salary-check"
+                ? (() => { const sd = parseSalaryData(result, values); return sd ? { symbol: sd.symbol, diff: sd.diffFromMedian, status: sd.status } : null; })()
+                : null;
               return (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="glass-card overflow-hidden" style={{ borderTop: `3px solid ${borderColor}` }}>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 pb-0 sm:pb-0 gap-3">
-                  <h2 className="font-display font-semibold text-lg">Your Results</h2>
-                  <div className="flex flex-wrap gap-2">
-                    <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
-                      {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied!" : "Copy"}
-                    </button>
-                    <button onClick={saveToHistory} disabled={saved} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 disabled:opacity-60">
-                      <Heart className={`h-4 w-4 ${saved ? "fill-primary text-primary" : ""}`} /> {saved ? "Saved ✓" : "Save"}
-                    </button>
-                    <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
-                      <RotateCcw className="h-4 w-4" /> Regen
-                    </button>
+                className="space-y-4">
+                {/* Verdict header (salary + roasts + startup validator) */}
+                <VerdictHeader toolSlug={toolSlug} result={result} inputs={values} salaryDiff={salaryDiff} />
+
+                {/* Visual salary bar widget */}
+                {toolSlug === "salary-check" && <SalaryBar result={result} inputs={values} />}
+
+                <div className="glass-card overflow-hidden" style={{ borderTop: `3px solid ${borderColor}` }}>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 pb-0 sm:pb-0 gap-3">
+                    <h2 className="font-display font-semibold text-lg">Your Results</h2>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                        {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied!" : "Copy"}
+                      </button>
+                      <button onClick={saveToHistory} disabled={saved} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 disabled:opacity-60">
+                        <Heart className={`h-4 w-4 ${saved ? "fill-primary text-primary" : ""}`} /> {saved ? "Saved ✓" : "Save"}
+                      </button>
+                      <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                        <RotateCcw className="h-4 w-4" /> Regen
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="relative p-4 sm:p-6">
-                  <div className="prose prose-invert prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground">
-                    <ReactMarkdown>{visibleResult}</ReactMarkdown>
+                  <div className="relative p-4 sm:p-6">
+                    <div className="result-content max-w-none">
+                      <ReactMarkdown>{visibleResult}</ReactMarkdown>
+                    </div>
+                    {shouldBlur && (
+                      <>
+                        {/* Gradient blur fade — clean → blurred FOMO */}
+                        <div className="result-content max-w-none paywall-blur-gradient max-h-72 overflow-hidden mt-2" aria-hidden="true">
+                          <ReactMarkdown>{blurredRemainder}</ReactMarkdown>
+                        </div>
+                        {/* Unlock overlay */}
+                        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                          className="relative mt-4 rounded-xl p-5 bg-gradient-to-br from-primary/15 via-card/50 to-accent/15 border border-primary/30 text-center">
+                          <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent mb-3 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.6)]">
+                            <Lock className="h-5 w-5 text-primary-foreground" />
+                          </div>
+                          <h3 className="font-display font-bold text-base sm:text-lg text-foreground mb-1">Unlock the full result + deeper insights</h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+                            You're seeing the preview. Upgrade to Pro to reveal the rest, get 100 daily generations, PDF exports, and priority AI.
+                          </p>
+                          <Link to="/pricing" onClick={() => track("tool_used", { action: "unlock_clicked", tool: toolSlug })}
+                            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.7)] transition-all active:scale-[0.98]">
+                            <Sparkles className="h-4 w-4" /> Upgrade Now — Unlock Full Result
+                          </Link>
+                          <p className="text-[11px] text-muted-foreground mt-3">7-day money-back guarantee · Cancel anytime</p>
+                        </motion.div>
+                      </>
+                    )}
                   </div>
-                  {shouldBlur && (
-                    <>
-                      {/* Blurred preview of remainder */}
-                      <div className="relative mt-2 select-none pointer-events-none" aria-hidden="true">
-                        <div className="prose prose-invert prose-sm max-w-none blur-md opacity-60 max-h-40 overflow-hidden">
-                          <ReactMarkdown>{result.slice(Math.floor(result.length * 0.55), Math.floor(result.length * 0.85))}</ReactMarkdown>
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/80 to-card" />
-                      </div>
-                      {/* Unlock overlay */}
-                      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                        className="relative mt-4 rounded-xl p-5 bg-gradient-to-br from-primary/15 via-card/50 to-accent/15 border border-primary/30 text-center">
-                        <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent mb-3 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.6)]">
-                          <Lock className="h-5 w-5 text-primary-foreground" />
-                        </div>
-                        <h3 className="font-display font-bold text-base sm:text-lg text-foreground mb-1">Unlock the full result + deeper insights</h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-                          You're seeing the preview. Upgrade to Pro to reveal the rest, get 100 daily generations, PDF exports, and priority AI.
-                        </p>
-                        <Link to="/pricing" onClick={() => track("tool_used", { action: "unlock_clicked", tool: toolSlug })}
-                          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.7)] transition-all active:scale-[0.98]">
-                          <Sparkles className="h-4 w-4" /> Upgrade Now — Unlock Full Result
-                        </Link>
-                        <p className="text-[11px] text-muted-foreground mt-3">7-day money-back guarantee · Cancel anytime</p>
-                      </motion.div>
-                    </>
+                  {!shouldBlur && (
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                      <button onClick={() => downloadResult("txt")}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-secondary/40 hover:bg-secondary/60 text-sm text-muted-foreground hover:text-foreground transition-all">
+                        <Download className="h-4 w-4" /> Download as TXT
+                      </button>
+                    </div>
                   )}
                 </div>
-                {!shouldBlur && (
-                  <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-                    <button onClick={() => downloadResult("txt")}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-secondary/40 hover:bg-secondary/60 text-sm text-muted-foreground hover:text-foreground transition-all">
-                      <Download className="h-4 w-4" /> Download as TXT
-                    </button>
-                  </div>
-                )}
               </motion.div>
               );
             })()}
