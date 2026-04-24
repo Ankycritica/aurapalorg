@@ -26,17 +26,12 @@ const tools = [
 
 interface AppSidebarProps {
   onNavigate?: () => void;
+  mobile?: boolean;
 }
 
-export function AppSidebar({ onNavigate }: AppSidebarProps) {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
-  const { profile, user } = useAuth();
-  const isPaid = profile?.plan === "pro" || profile?.plan === "premium";
-  const isAdmin = user?.email === ADMIN_EMAIL;
-
+function SidebarInner({ collapsed, onNavigate, isAdmin, isPaid }: { collapsed: boolean; onNavigate?: () => void; isAdmin: boolean; isPaid: boolean }) {
   return (
-    <Sidebar collapsible="icon">
+    <>
       <SidebarContent>
         <div className="p-4 flex items-center gap-3">
           <img src="/logo.png" alt="AuraPal" className="h-9 w-9 rounded-xl object-contain shrink-0" />
@@ -114,6 +109,35 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           </div>
         )}
       </SidebarFooter>
+    </>
+  );
+}
+
+export function AppSidebar({ onNavigate, mobile = false }: AppSidebarProps) {
+  const { profile, user } = useAuth();
+  const isPaid = profile?.plan === "pro" || profile?.plan === "premium";
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
+  // Mobile: render inside the parent Sheet — no nested Sidebar wrapper
+  if (mobile) {
+    return (
+      <div className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground">
+        <SidebarInner collapsed={false} onNavigate={onNavigate} isAdmin={isAdmin} isPaid={isPaid} />
+      </div>
+    );
+  }
+
+  return (
+    <SidebarWithContext onNavigate={onNavigate} isAdmin={isAdmin} isPaid={isPaid} />
+  );
+}
+
+function SidebarWithContext({ onNavigate, isAdmin, isPaid }: { onNavigate?: () => void; isAdmin: boolean; isPaid: boolean }) {
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarInner collapsed={collapsed} onNavigate={onNavigate} isAdmin={isAdmin} isPaid={isPaid} />
     </Sidebar>
   );
 }
