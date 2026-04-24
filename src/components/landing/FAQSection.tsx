@@ -1,8 +1,8 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const faqs = [
-  { q: "Is AuraPal really free to use?", a: "Yes! The free plan gives you 5 AI generations per day across all 8 tools. No credit card required." },
-  { q: "What AI models power AuraPal?", a: "We use state-of-the-art language models to deliver professional-quality content for resumes, cover letters, interview prep, and more." },
+  { q: "Is AuraPal really free to use?", a: "Yes! The free plan gives you 5 AI generations per day across all 10 tools. No credit card required." },
+  { q: "What AI models power AuraPal?", a: "AuraPal is powered by Claude AI, made by Anthropic — one of the world's leading AI safety companies. Claude is trusted by millions of professionals for its accuracy, nuance, and quality of output." },
   { q: "Can I cancel my subscription anytime?", a: "Absolutely. You can cancel your Pro or Premium subscription at any time from your account settings. No questions asked." },
   { q: "Is my data safe?", a: "Your data is encrypted at rest and in transit. We never share your personal information with third parties." },
   { q: "What formats can I export to?", a: "Pro and Premium users can export resumes and cover letters to PDF. All users can copy content to clipboard." },
