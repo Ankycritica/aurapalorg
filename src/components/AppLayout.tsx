@@ -34,8 +34,8 @@ export function AppLayout() {
         {/* Mobile sidebar in Sheet */}
         {isMobile && (
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetContent side="left" className="p-0 w-[280px]">
-              <AppSidebar onNavigate={handleNavigate} />
+            <SheetContent side="left" className="p-0 w-[280px] bg-sidebar border-sidebar-border">
+              <AppSidebar onNavigate={handleNavigate} mobile />
             </SheetContent>
           </Sheet>
         )}
