@@ -63,6 +63,14 @@ export function HeroSection() {
                 </div>
               </div>
             </motion.div>
+
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+              className="flex items-center gap-2 mt-3">
+              <span className="text-xs text-muted-foreground">Powered by</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                Claude AI · Anthropic
+              </span>
+            </motion.div>
           </div>
 
           {/* Right — animated dashboard mockup */}
