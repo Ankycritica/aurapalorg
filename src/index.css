@@ -103,4 +103,116 @@
     @apply -translate-y-1;
     box-shadow: var(--shadow-glow);
   }
+
+  /* Structured AI result content — applied to ReactMarkdown output */
+  .result-content h1,
+  .result-content h2 {
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 22px 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+  }
+  .result-content h1:first-child,
+  .result-content h2:first-child { margin-top: 0; }
+  .result-content h3 {
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 16px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+  }
+  .result-content p {
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 10px;
+  }
+  .result-content strong {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+  }
+  .result-content em {
+    color: hsl(var(--foreground) / 0.9);
+  }
+  .result-content ul,
+  .result-content ol {
+    padding-left: 0;
+    list-style: none;
+    margin: 8px 0 14px;
+  }
+  .result-content ol { counter-reset: item; }
+  .result-content li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: hsl(var(--muted-foreground));
+    padding: 9px 12px 9px 14px;
+    background: hsl(var(--secondary) / 0.45);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border-left: 3px solid hsl(var(--primary) / 0.55);
+  }
+  .result-content ol li {
+    counter-increment: item;
+    position: relative;
+    padding-left: 36px;
+  }
+  .result-content ol li::before {
+    content: counter(item);
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    background: hsl(var(--primary) / 0.18);
+    color: hsl(var(--primary));
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .result-content blockquote {
+    border-left: 3px solid hsl(var(--primary));
+    padding: 12px 16px;
+    background: hsl(var(--primary) / 0.07);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    margin: 14px 0;
+    color: hsl(var(--foreground) / 0.9);
+  }
+  .result-content code {
+    background: hsl(var(--secondary) / 0.7);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: hsl(var(--primary));
+  }
+  .result-content hr {
+    border: 0;
+    height: 1px;
+    background: hsl(var(--border) / 0.4);
+    margin: 18px 0;
+  }
+  .result-content a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Gradient blur for paywall — clean → blurred fade */
+  .paywall-blur-gradient {
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 35%, hsl(0 0% 0% / 0.4) 60%, transparent 95%);
+    mask-image: linear-gradient(to bottom, black 0%, black 35%, hsl(0 0% 0% / 0.4) 60%, transparent 95%);
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+  }
 }
