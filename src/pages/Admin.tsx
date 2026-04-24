@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
   Users, BarChart3, DollarSign, Activity, Loader2, TrendingUp, TrendingDown,
   Monitor, Globe, Smartphone, Eye, Filter, ArrowUpRight, ArrowDownRight,
-  CreditCard, AlertTriangle, Percent,
+  CreditCard, AlertTriangle, Percent, Crown,
 } from "lucide-react";
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
@@ -389,35 +390,113 @@ function FunnelTab({ funnelSteps }: { funnelSteps: any[] }) {
 }
 
 function UsersTab({ users }: { users: any[] }) {
+  const [email, setEmail] = useState("");
+  const [plan, setPlan] = useState<"free" | "pro" | "premium">("premium");
+  const [busy, setBusy] = useState(false);
+  const [rowBusy, setRowBusy] = useState<string | null>(null);
+  const [localUsers, setLocalUsers] = useState(users);
+
+  useEffect(() => setLocalUsers(users), [users]);
+
+  const setUserPlan = async (targetEmail: string, newPlan: string, rowKey?: string) => {
+    if (rowKey) setRowBusy(rowKey); else setBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-set-plan", {
+        body: { email: targetEmail, plan: newPlan },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast.success(`${targetEmail} → ${newPlan}`);
+      setLocalUsers((prev) =>
+        prev.map((u) => (u.email?.toLowerCase() === targetEmail.toLowerCase() ? { ...u, plan: newPlan } : u))
+      );
+      if (!rowKey) setEmail("");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update plan");
+    } finally {
+      if (rowKey) setRowBusy(null); else setBusy(false);
+    }
+  };
+
   return (
-    <div className="glass-card overflow-hidden rounded-xl">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border/50">
-              <th className="text-left p-3 text-muted-foreground font-medium">User</th>
-              <th className="text-left p-3 text-muted-foreground font-medium">Email</th>
-              <th className="text-left p-3 text-muted-foreground font-medium">Plan</th>
-              <th className="text-left p-3 text-muted-foreground font-medium">Joined</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(users || []).map((u: any) => (
-              <tr key={u.user_id} className="border-b border-border/30 last:border-0 hover:bg-secondary/30 transition-colors">
-                <td className="p-3 font-medium">{u.display_name || "—"}</td>
-                <td className="p-3 text-muted-foreground text-xs">{u.email || "—"}</td>
-                <td className="p-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                    u.plan === "premium" ? "bg-accent/10 text-accent" :
-                    u.plan === "pro" ? "bg-primary/10 text-primary" :
-                    "bg-secondary text-muted-foreground"
-                  }`}>{u.plan}</span>
-                </td>
-                <td className="p-3 text-muted-foreground text-xs">{new Date(u.created_at).toLocaleDateString()}</td>
+    <div className="space-y-4">
+      <div className="glass-card p-5 rounded-xl">
+        <div className="flex items-center gap-2 mb-3">
+          <Crown className="h-4 w-4 text-primary" />
+          <h3 className="font-display font-semibold text-sm">Grant / Revoke Plan</h3>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="email"
+            placeholder="user@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+          <select
+            value={plan}
+            onChange={(e) => setPlan(e.target.value as any)}
+            className="px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm"
+          >
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="premium">Premium</option>
+          </select>
+          <button
+            onClick={() => email && setUserPlan(email.trim(), plan)}
+            disabled={busy || !email}
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground disabled:opacity-50"
+          >
+            {busy ? "Saving…" : "Apply"}
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          The user must have signed up at least once. You can also change a plan inline in the table below.
+        </p>
+      </div>
+
+      <div className="glass-card overflow-hidden rounded-xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/50">
+                <th className="text-left p-3 text-muted-foreground font-medium">User</th>
+                <th className="text-left p-3 text-muted-foreground font-medium">Email</th>
+                <th className="text-left p-3 text-muted-foreground font-medium">Plan</th>
+                <th className="text-left p-3 text-muted-foreground font-medium">Joined</th>
+                <th className="text-left p-3 text-muted-foreground font-medium">Set Plan</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(localUsers || []).map((u: any) => (
+                <tr key={u.user_id} className="border-b border-border/30 last:border-0 hover:bg-secondary/30 transition-colors">
+                  <td className="p-3 font-medium">{u.display_name || "—"}</td>
+                  <td className="p-3 text-muted-foreground text-xs">{u.email || "—"}</td>
+                  <td className="p-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      u.plan === "premium" ? "bg-accent/10 text-accent" :
+                      u.plan === "pro" ? "bg-primary/10 text-primary" :
+                      "bg-secondary text-muted-foreground"
+                    }`}>{u.plan}</span>
+                  </td>
+                  <td className="p-3 text-muted-foreground text-xs">{new Date(u.created_at).toLocaleDateString()}</td>
+                  <td className="p-3">
+                    <select
+                      value={u.plan}
+                      disabled={!u.email || rowBusy === u.user_id}
+                      onChange={(e) => u.email && setUserPlan(u.email, e.target.value, u.user_id)}
+                      className="px-2 py-1 rounded-md bg-secondary/50 border border-border/50 text-xs"
+                    >
+                      <option value="free">Free</option>
+                      <option value="pro">Pro</option>
+                      <option value="premium">Premium</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

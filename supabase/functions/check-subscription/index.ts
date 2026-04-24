@@ -12,6 +12,8 @@ const PRODUCT_TO_PLAN: Record<string, string> = {
   "prod_UJ963RL5LJEYrq": "premium",
 };
 
+const ADMIN_EMAILS = new Set(["dongare.ankit29@gmail.com"]);
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -55,12 +57,30 @@ serve(async (req) => {
       });
     }
 
+    // Admin override — always premium, never downgrade
+    if (ADMIN_EMAILS.has(email.toLowerCase())) {
+      await supabaseAdmin.from("profiles").update({ plan: "premium" }).eq("user_id", userId);
+      return new Response(JSON.stringify({ subscribed: true, plan: "premium", admin: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Respect manually-granted plans (admin-set-plan). If no Stripe customer exists,
+    // don't reset a plan that an admin explicitly set.
+    const { data: currentProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("plan, stripe_customer_id")
+      .eq("user_id", userId)
+      .single();
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email, limit: 1 });
 
     if (customers.data.length === 0) {
-      await supabaseAdmin.from("profiles").update({ plan: "free", stripe_customer_id: null, stripe_subscription_id: null }).eq("user_id", userId);
-      return new Response(JSON.stringify({ subscribed: false, plan: "free" }), {
+      // No Stripe customer — keep manually-granted plan, otherwise free
+      const keepPlan = currentProfile?.plan && currentProfile.plan !== "free" ? currentProfile.plan : "free";
+      await supabaseAdmin.from("profiles").update({ plan: keepPlan, stripe_customer_id: null, stripe_subscription_id: null }).eq("user_id", userId);
+      return new Response(JSON.stringify({ subscribed: keepPlan !== "free", plan: keepPlan }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -69,8 +89,9 @@ serve(async (req) => {
     const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
 
     if (subscriptions.data.length === 0) {
-      await supabaseAdmin.from("profiles").update({ plan: "free", stripe_customer_id: customerId, stripe_subscription_id: null }).eq("user_id", userId);
-      return new Response(JSON.stringify({ subscribed: false, plan: "free" }), {
+      const keepPlan = currentProfile?.plan && currentProfile.plan !== "free" ? currentProfile.plan : "free";
+      await supabaseAdmin.from("profiles").update({ plan: keepPlan, stripe_customer_id: customerId, stripe_subscription_id: null }).eq("user_id", userId);
+      return new Response(JSON.stringify({ subscribed: keepPlan !== "free", plan: keepPlan }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
