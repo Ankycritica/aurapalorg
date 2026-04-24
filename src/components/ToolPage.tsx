@@ -9,6 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
 import { SharePanel } from "@/components/SharePanel";
 import { SocialProofBadge } from "@/components/SocialProofBadge";
+import { VerdictHeader } from "@/components/VerdictHeader";
+import { SalaryBar, parseSalaryData } from "@/components/SalaryBar";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
