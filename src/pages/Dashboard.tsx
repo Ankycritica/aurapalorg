@@ -73,10 +73,10 @@ export default function Dashboard() {
     <div className="max-w-6xl mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold ring-1 ring-primary/20">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            Trusted by 10,000+ professionals
-          </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold ring-1 ring-primary/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              Trusted by 2,500+ professionals
+            </span>
         </div>
         <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{greeting}, {displayName} 👋</h1>
         <p className="text-muted-foreground mt-1">Here's your career growth snapshot. Pick a tool to get started.</p>
@@ -104,7 +104,7 @@ export default function Dashboard() {
         <div className="flex items-end justify-between mb-4">
           <div>
             <h2 className="font-display text-xl font-semibold tracking-tight">Your Tools</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">8 expert-grade AI tools, ready when you are</p>
+            <p className="text-xs text-muted-foreground mt-0.5">10 expert-grade AI tools, ready when you are</p>
           </div>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -139,10 +139,10 @@ export default function Dashboard() {
         className="glass-card p-5 sm:p-6">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           {[
-            { value: "10,000+", label: "Active users" },
+            { value: "2,500+", label: "Active users" },
             { value: "250K+", label: "AI generations" },
             { value: "4.9 / 5", label: "Avg rating" },
-            { value: "8 tools", label: "All in one place" },
+            { value: "10 tools", label: "All in one place" },
           ].map((s) => (
             <div key={s.label}>
               <p className="font-display text-xl sm:text-2xl font-bold gradient-text">{s.value}</p>

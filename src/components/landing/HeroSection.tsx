@@ -57,7 +57,7 @@ export function HeroSection() {
                 ))}
               </div>
               <div className="text-sm">
-                <span className="text-foreground font-medium">1,200+ professionals</span>
+                <span className="text-foreground font-medium">2,500+ professionals</span>
                 <div className="flex gap-0.5 mt-0.5">
                   {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-yellow-500 text-yellow-500" />)}
                 </div>
