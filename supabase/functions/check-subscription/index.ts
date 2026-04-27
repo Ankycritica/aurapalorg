@@ -69,7 +69,7 @@ serve(async (req) => {
     // don't reset a plan that an admin explicitly set.
     const { data: currentProfile } = await supabaseAdmin
       .from("profiles")
-      .select("plan, stripe_customer_id")
+      .select("plan, stripe_customer_id, grace_until")
       .eq("user_id", userId)
       .single();
 
@@ -77,39 +77,93 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email, limit: 1 });
 
     if (customers.data.length === 0) {
-      // No Stripe customer — keep manually-granted plan, otherwise free
       const keepPlan = currentProfile?.plan && currentProfile.plan !== "free" ? currentProfile.plan : "free";
-      await supabaseAdmin.from("profiles").update({ plan: keepPlan, stripe_customer_id: null, stripe_subscription_id: null }).eq("user_id", userId);
+      await supabaseAdmin.from("profiles").update({
+        plan: keepPlan,
+        stripe_customer_id: null,
+        stripe_subscription_id: null,
+        subscription_status: null,
+      }).eq("user_id", userId);
       return new Response(JSON.stringify({ subscribed: keepPlan !== "free", plan: keepPlan }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const customerId = customers.data[0].id;
-    const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
+    // Look at any non-canceled subscription (trialing, active, past_due, unpaid)
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      status: "all",
+      limit: 5,
+    });
+    const sub = subscriptions.data.find(s =>
+      ["trialing", "active", "past_due", "unpaid"].includes(s.status)
+    );
 
-    if (subscriptions.data.length === 0) {
-      const keepPlan = currentProfile?.plan && currentProfile.plan !== "free" ? currentProfile.plan : "free";
-      await supabaseAdmin.from("profiles").update({ plan: keepPlan, stripe_customer_id: customerId, stripe_subscription_id: null }).eq("user_id", userId);
+    if (!sub) {
+      // No live subscription. Apply grace period if recently past_due.
+      const grace = currentProfile?.grace_until ? new Date(currentProfile.grace_until) : null;
+      const inGrace = grace && grace.getTime() > Date.now();
+      const keepPlan = inGrace
+        ? currentProfile!.plan
+        : (currentProfile?.plan && currentProfile.plan !== "free" && currentProfile.plan !== "trialing" ? currentProfile.plan : "free");
+      await supabaseAdmin.from("profiles").update({
+        plan: keepPlan,
+        stripe_customer_id: customerId,
+        stripe_subscription_id: null,
+        subscription_status: "canceled",
+      }).eq("user_id", userId);
       return new Response(JSON.stringify({ subscribed: keepPlan !== "free", plan: keepPlan }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const sub = subscriptions.data[0];
     const productId = sub.items.data[0].price.product as string;
-    const plan = PRODUCT_TO_PLAN[productId] || "pro";
+    const paidPlan = PRODUCT_TO_PLAN[productId] || "pro";
+
+    let plan: string = paidPlan;
+    let graceUntil: string | null = null;
+    let trialStart: string | null = null;
+    let trialEnd: string | null = null;
+
+    if (sub.status === "trialing") {
+      plan = "trialing";
+      trialStart = sub.trial_start ? new Date(sub.trial_start * 1000).toISOString() : null;
+      trialEnd = sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null;
+    } else if (sub.status === "active") {
+      plan = paidPlan;
+    } else if (sub.status === "past_due" || sub.status === "unpaid") {
+      // 3-day grace from now (or keep existing grace if already set and not yet over)
+      const existingGrace = currentProfile?.grace_until ? new Date(currentProfile.grace_until) : null;
+      if (existingGrace && existingGrace.getTime() > Date.now()) {
+        plan = paidPlan;
+        graceUntil = existingGrace.toISOString();
+      } else if (!existingGrace) {
+        plan = paidPlan;
+        graceUntil = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+      } else {
+        // grace expired -> downgrade
+        plan = "free";
+      }
+    }
 
     await supabaseAdmin.from("profiles").update({
       plan,
       stripe_customer_id: customerId,
       stripe_subscription_id: sub.id,
+      subscription_status: sub.status,
+      trial_start: trialStart,
+      trial_end: trialEnd,
+      grace_until: graceUntil,
     }).eq("user_id", userId);
 
     return new Response(JSON.stringify({
-      subscribed: true,
+      subscribed: plan !== "free",
       plan,
-      subscription_end: new Date(sub.current_period_end * 1000).toISOString(),
+      status: sub.status,
+      trial_end: trialEnd,
+      grace_until: graceUntil,
+      subscription_end: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
