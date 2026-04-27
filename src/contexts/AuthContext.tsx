@@ -2,13 +2,17 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
-type Plan = "free" | "pro" | "premium";
+type Plan = "free" | "trialing" | "pro" | "premium";
 
 interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   plan: Plan;
   email: string | null;
+  trial_start: string | null;
+  trial_end: string | null;
+  grace_until: string | null;
+  subscription_status: string | null;
 }
 
 interface AuthContextValue {
@@ -32,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("display_name, avatar_url, plan, email")
+      .select("display_name, avatar_url, plan, email, trial_start, trial_end, grace_until, subscription_status")
       .eq("user_id", userId)
       .single();
     if (data) setProfile(data as Profile);
