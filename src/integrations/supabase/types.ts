@@ -83,10 +83,15 @@ export type Database = {
           created_at: string
           display_name: string | null
           email: string | null
+          grace_until: string | null
           id: string
+          lifetime_credits_used: number
           plan: Database["public"]["Enums"]["app_plan"]
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          subscription_status: string | null
+          trial_end: string | null
+          trial_start: string | null
           updated_at: string
           user_id: string
         }
@@ -95,10 +100,15 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          grace_until?: string | null
           id?: string
+          lifetime_credits_used?: number
           plan?: Database["public"]["Enums"]["app_plan"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
           updated_at?: string
           user_id: string
         }
@@ -107,10 +117,15 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          grace_until?: string | null
           id?: string
+          lifetime_credits_used?: number
           plan?: Database["public"]["Enums"]["app_plan"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -146,13 +161,14 @@ export type Database = {
     }
     Functions: {
       get_daily_usage: { Args: { p_user_id: string }; Returns: number }
+      get_lifetime_usage: { Args: { p_user_id: string }; Returns: number }
       get_user_plan: {
         Args: { p_user_id: string }
         Returns: Database["public"]["Enums"]["app_plan"]
       }
     }
     Enums: {
-      app_plan: "free" | "pro" | "premium"
+      app_plan: "free" | "pro" | "premium" | "trialing"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -280,7 +296,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_plan: ["free", "pro", "premium"],
+      app_plan: ["free", "pro", "premium", "trialing"],
     },
   },
 } as const
