@@ -27,9 +27,16 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated");
 
-    const { plan } = await req.json();
+    const { plan, coupon } = await req.json();
     const tier = TIERS[plan];
     if (!tier) throw new Error("Invalid plan");
+
+    // Validate coupon if provided (only allow known promo codes)
+    const ALLOWED_COUPONS = new Set(["AURAPAL10"]);
+    let validCoupon: string | null = null;
+    if (coupon && typeof coupon === "string" && ALLOWED_COUPONS.has(coupon.toUpperCase())) {
+      validCoupon = coupon.toUpperCase();
+    }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
     
@@ -44,10 +51,13 @@ serve(async (req) => {
       line_items: [{ price: tier.price_id, quantity: 1 }],
       mode: "subscription",
       payment_method_collection: "always",
+      ...(validCoupon ? { discounts: [{ coupon: validCoupon }] } : { allow_promotion_codes: true }),
       subscription_data: {
         trial_period_days: 7,
         trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+        metadata: validCoupon ? { coupon_applied: validCoupon } : {},
       },
+      metadata: validCoupon ? { coupon_applied: validCoupon } : {},
       success_url: `${origin}/settings?checkout=success`,
       cancel_url: `${origin}/pricing?checkout=cancelled`,
     });

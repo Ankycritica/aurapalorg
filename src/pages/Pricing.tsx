@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Check, Crown, Zap, Sparkles, Shield, Clock, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { CouponModal } from "@/components/CouponModal";
 
 const plans = [
   {
@@ -79,6 +80,51 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { track } = useAnalytics();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [couponPlan, setCouponPlan] = useState<"pro" | "premium">("pro");
+  const [couponTrigger, setCouponTrigger] = useState<"exit_intent" | "checkout_cancelled" | "trial_ended">("exit_intent");
+  const shownRef = useRef(false);
+
+  const showCoupon = (plan: "pro" | "premium", trigger: "exit_intent" | "checkout_cancelled" | "trial_ended") => {
+    if (shownRef.current) return;
+    if (sessionStorage.getItem("aurapal_coupon_shown") === "1") return;
+    if (profile?.plan === "pro" || profile?.plan === "premium" || profile?.plan === "trialing") return;
+    shownRef.current = true;
+    sessionStorage.setItem("aurapal_coupon_shown", "1");
+    setCouponPlan(plan);
+    setCouponTrigger(trigger);
+    setCouponOpen(true);
+    track("coupon_shown", { trigger, plan });
+  };
+
+  // Trigger 1: checkout cancelled (URL param from Stripe cancel_url)
+  useEffect(() => {
+    if (searchParams.get("checkout") === "cancelled") {
+      showCoupon("pro", "checkout_cancelled");
+      searchParams.delete("checkout");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Trigger 2: trial ended without conversion
+  useEffect(() => {
+    if (profile?.plan === "free" && profile?.trial_end && new Date(profile.trial_end) < new Date()) {
+      showCoupon("pro", "trial_ended");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.plan, profile?.trial_end]);
+
+  // Trigger 3: exit intent (mouse leaves viewport top)
+  useEffect(() => {
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0) showCoupon("pro", "exit_intent");
+    };
+    document.addEventListener("mouseleave", handleMouseLeave);
+    return () => document.removeEventListener("mouseleave", handleMouseLeave);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.plan]);
 
   const handleUpgrade = async (tier: string) => {
     if (!user) {
@@ -212,6 +258,13 @@ export default function Pricing() {
           </div>
         </div>
       </motion.div>
+
+      <CouponModal
+        open={couponOpen}
+        onClose={() => setCouponOpen(false)}
+        trigger={couponTrigger}
+        defaultPlan={couponPlan}
+      />
     </div>
   );
 }
