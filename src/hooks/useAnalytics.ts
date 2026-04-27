@@ -11,7 +11,10 @@ type EventName =
   | "subscription_canceled"
   | "resume_uploaded"
   | "resume_generated"
-  | "tool_used";
+  | "tool_used"
+  | "coupon_shown"
+  | "coupon_used"
+  | "conversion_with_coupon";
 
 function getDeviceType(): string {
   const ua = navigator.userAgent;
