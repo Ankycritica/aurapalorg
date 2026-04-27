@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet } from "react-router-dom";
 import { UsageBadge } from "@/components/UsageBadge";
+import { TrialBanner } from "@/components/TrialBanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Footer } from "@/components/Footer";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -75,6 +76,7 @@ export function AppLayout() {
             </div>
           </header>
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+            <div className="max-w-6xl mx-auto mb-4"><TrialBanner /></div>
             <Outlet />
           </main>
           <Footer />

@@ -208,7 +208,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
           {plan !== "premium" && limit !== Infinity && (
             <div className="w-full sm:w-52 shrink-0">
               <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="text-muted-foreground">Daily uses</span>
+                <span className="text-muted-foreground">{plan === "free" ? "Free credits" : "Today's uses"}</span>
                 <span className={`font-semibold ${remaining <= 1 ? "text-destructive" : "text-foreground"}`}>
                   {remaining} / {limit} left
                 </span>
