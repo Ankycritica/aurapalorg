@@ -72,7 +72,7 @@ export default function Settings() {
             style={{ width: `${limit === Infinity ? 5 : Math.min(100, (usageCount / limit) * 100)}%` }}
           />
         </div>
-        {(plan === "pro" || plan === "premium") && (
+        {(plan === "pro" || plan === "premium" || plan === "trialing") && (
           <button
             onClick={handleManageSubscription}
             className="mt-2 w-full py-2.5 rounded-lg text-sm font-medium border border-border/50 hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2"
