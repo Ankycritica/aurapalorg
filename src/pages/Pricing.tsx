@@ -42,10 +42,10 @@ const plans = [
       "Export to PDF / DOCX",
       "40+ premium resume templates",
     ],
-    cta: "Upgrade to Pro",
+    cta: "Start 7-day Free Trial",
     tier: "pro" as const,
     popular: true,
-    badge: "🔥 Most Popular — Save 34%",
+    badge: "🔥 Most Popular — 7-day free trial",
   },
   {
     name: "Premium",
@@ -61,15 +61,15 @@ const plans = [
       "Early access to new tools",
       "Commercial use license",
     ],
-    cta: "Go Premium",
+    cta: "Start 7-day Free Trial",
     tier: "premium" as const,
     popular: false,
-    badge: "✨ Best Value",
+    badge: "✨ Best Value — 7-day free trial",
   },
 ];
 
 const trustItems = [
-  { icon: Shield, text: "7-day money-back guarantee" },
+  { icon: Shield, text: "7-day free trial · No charge today" },
   { icon: Clock, text: "Cancel anytime, instantly" },
   { icon: TrendingUp, text: "Trusted by 10,000+ professionals" },
 ];
@@ -173,8 +173,8 @@ export default function Pricing() {
               >
                 {isCurrent ? "Current Plan" : loadingTier === plan.tier ? "Loading..." : plan.cta}
               </button>
-              {plan.tier === "pro" && !isCurrent && (
-                <p className="text-[11px] text-center text-muted-foreground mt-2">No card needed for trial · Cancel in 1 click</p>
+              {(plan.tier === "pro" || plan.tier === "premium") && !isCurrent && (
+                <p className="text-[11px] text-center text-muted-foreground mt-2">No charge today · Cancel anytime · Card required</p>
               )}
             </motion.div>
           );
