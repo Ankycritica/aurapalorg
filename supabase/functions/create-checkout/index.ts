@@ -27,9 +27,16 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated");
 
-    const { plan } = await req.json();
+    const { plan, coupon } = await req.json();
     const tier = TIERS[plan];
     if (!tier) throw new Error("Invalid plan");
+
+    // Validate coupon if provided (only allow known promo codes)
+    const ALLOWED_COUPONS = new Set(["AURAPAL10"]);
+    let validCoupon: string | null = null;
+    if (coupon && typeof coupon === "string" && ALLOWED_COUPONS.has(coupon.toUpperCase())) {
+      validCoupon = coupon.toUpperCase();
+    }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
     
