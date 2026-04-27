@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Check, Crown, Zap, Sparkles, Shield, Clock, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { CouponModal } from "@/components/CouponModal";
 
 const plans = [
   {
