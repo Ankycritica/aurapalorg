@@ -356,15 +356,16 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                           <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent mb-3 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.6)]">
                             <Lock className="h-5 w-5 text-primary-foreground" />
                           </div>
-                          <h3 className="font-display font-bold text-base sm:text-lg text-foreground mb-1">Unlock the full result + deeper insights</h3>
+                          <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/20 text-primary mb-2">7-day free trial</span>
+                          <h3 className="font-display font-bold text-base sm:text-lg text-foreground mb-1">Unlock the full result + unlimited AI tools</h3>
                           <p className="text-xs sm:text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-                            You're seeing the preview. Upgrade to Pro to reveal the rest, get 100 daily generations, PDF exports, and priority AI.
+                            You're seeing a preview. Start your free trial to reveal the rest, get 100 daily generations, PDF exports, and priority AI. <span className="text-foreground font-semibold">No charge today.</span>
                           </p>
-                          <Link to="/pricing" onClick={() => track("tool_used", { action: "unlock_clicked", tool: toolSlug })}
+                          <button onClick={() => { track("tool_used", { action: "unlock_clicked", tool: toolSlug }); setShowPaywall(true); }}
                             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.7)] transition-all active:scale-[0.98]">
-                            <Sparkles className="h-4 w-4" /> Upgrade Now — Unlock Full Result
-                          </Link>
-                          <p className="text-[11px] text-muted-foreground mt-3">7-day money-back guarantee · Cancel anytime</p>
+                            <Sparkles className="h-4 w-4" /> Start Free Trial
+                          </button>
+                          <p className="text-[11px] text-muted-foreground mt-3">No charge today · Cancel anytime · Card required</p>
                         </motion.div>
                       </>
                     )}
