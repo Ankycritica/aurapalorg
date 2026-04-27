@@ -43,6 +43,11 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: tier.price_id, quantity: 1 }],
       mode: "subscription",
+      payment_method_collection: "always",
+      subscription_data: {
+        trial_period_days: 7,
+        trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+      },
       success_url: `${origin}/settings?checkout=success`,
       cancel_url: `${origin}/pricing?checkout=cancelled`,
     });
