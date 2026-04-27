@@ -258,6 +258,13 @@ export default function Pricing() {
           </div>
         </div>
       </motion.div>
+
+      <CouponModal
+        open={couponOpen}
+        onClose={() => setCouponOpen(false)}
+        trigger={couponTrigger}
+        defaultPlan={couponPlan}
+      />
     </div>
   );
 }
