@@ -35,6 +35,7 @@ import AiResumeRoast from "@/pages/seo/AiResumeRoast";
 import AiResumeRoastFree from "@/pages/seo/AiResumeRoastFree";
 import SalaryCheckerFree from "@/pages/seo/SalaryCheckerFree";
 import StartupIdeaValidator from "@/pages/seo/StartupIdeaValidator";
+import AuraAgent from "@/pages/AuraAgent";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => {
             
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/agent" element={<AuraAgent />} />
               <Route path="/resume-builder" element={<ResumeBuilder />} />
               <Route path="/seo-article-generator" element={<SeoArticleGenerator />} />
               <Route path="/business-plan" element={<BusinessPlan />} />

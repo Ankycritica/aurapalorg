@@ -14,7 +14,9 @@ type EventName =
   | "tool_used"
   | "coupon_shown"
   | "coupon_used"
-  | "conversion_with_coupon";
+  | "conversion_with_coupon"
+  | "agent_run"
+  | "agent_share";
 
 function getDeviceType(): string {
   const ua = navigator.userAgent;
