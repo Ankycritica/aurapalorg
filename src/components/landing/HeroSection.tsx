@@ -27,26 +27,26 @@ export function HeroSection() {
           <div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
               <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs font-medium text-primary">AI-Powered Career Engine</span>
+              <span className="text-xs font-medium text-primary">Aura Agent — your AI Career OS</span>
             </motion.div>
 
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
               className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
-              Land Your Dream Job<br />
-              with <span className="gradient-text">AI on Your Side</span>
+              Your AI Career Agent.<br />
+              <span className="gradient-text">Not a tool.</span>
             </motion.h1>
 
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
               className="text-muted-foreground text-lg mt-6 max-w-lg leading-relaxed">
-              Build resumes, prep for interviews, generate cover letters, and grow your income — all powered by AI.
+              It doesn't help you. It gets you hired. One prompt → resume fixes, LinkedIn rewrite, interview prep, and a 7-day action plan.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex flex-col sm:flex-row gap-3 mt-8">
               <Link to="/auth" className="px-8 py-3.5 rounded-xl font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all text-sm inline-flex items-center gap-2 justify-center">
-                Get started free <ArrowRight className="h-4 w-4" />
+                Run Aura Agent free <ArrowRight className="h-4 w-4" />
               </Link>
               <a href="#features" className="px-8 py-3.5 rounded-xl font-semibold border border-border/50 text-foreground hover:bg-secondary/50 transition-all text-sm text-center">
-                See how it works
+                See what it does
               </a>
             </motion.div>
 
@@ -57,7 +57,7 @@ export function HeroSection() {
                 ))}
               </div>
               <div className="text-sm">
-                <span className="text-foreground font-medium">2,500+ professionals</span>
+                <span className="text-foreground font-medium">2,500+ professionals hired faster</span>
                 <div className="flex gap-0.5 mt-0.5">
                   {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-yellow-500 text-yellow-500" />)}
                 </div>
