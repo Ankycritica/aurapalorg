@@ -162,45 +162,45 @@ export default function Dashboard() {
         </div>
       </motion.section>
 
-      {/* FOCUS CARD — Start here */}
+      {/* AURA AGENT — Primary feature card */}
       <motion.section
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05, duration: 0.5 }}
       >
         <Link
-          to="/resume-roast"
-          className="group relative block overflow-hidden rounded-2xl border border-orange-500/20 bg-gradient-to-br from-orange-500/[0.08] via-card/60 to-card/40 backdrop-blur-xl p-6 sm:p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-500/40"
-          style={{ boxShadow: "0 10px 40px -10px hsl(25 95% 55% / 0.15)" }}
+          to="/agent"
+          className="group relative block overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/[0.10] via-card/60 to-card/40 backdrop-blur-xl p-6 sm:p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50"
+          style={{ boxShadow: "0 10px 40px -10px hsl(173 80% 40% / 0.20)" }}
         >
-          <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full opacity-30 group-hover:opacity-50 blur-3xl transition-opacity duration-500" style={{ background: "hsl(25 95% 55%)" }} />
-          {/* Shimmer */}
+          <div className="absolute -top-16 -right-16 h-56 w-56 rounded-full opacity-30 group-hover:opacity-50 blur-3xl transition-opacity duration-500" style={{ background: "hsl(173 80% 40%)" }} />
+          <div className="absolute -bottom-20 -left-10 h-44 w-44 rounded-full opacity-20 blur-3xl" style={{ background: "hsl(262 83% 58%)" }} />
           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" style={{
             background: "linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.06) 50%, transparent 70%)",
           }} />
 
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5">
-            <div className="h-14 w-14 rounded-2xl flex items-center justify-center shrink-0 ring-1 ring-orange-500/30" style={{ background: "linear-gradient(135deg, hsl(25 95% 55% / 0.25), hsl(25 95% 55% / 0.05))" }}>
-              <FlameKindling className="h-7 w-7 text-orange-400" />
+            <div className="h-14 w-14 rounded-2xl flex items-center justify-center shrink-0 ring-1 ring-primary/40" style={{ background: "linear-gradient(135deg, hsl(173 80% 40% / 0.30), hsl(262 83% 58% / 0.10))" }}>
+              <Sparkles className="h-7 w-7 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 ring-1 ring-orange-500/30">
-                  Start here
-                </span>
+              <div className="flex flex-wrap items-center gap-2 mb-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary ring-1 ring-primary/30">
-                  Most popular
+                  ✨ New — Aura Agent
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 ring-1 ring-orange-500/30">
+                  Beta
                 </span>
               </div>
               <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight">
-                Fix your resume in <span className="text-orange-400">30 seconds</span>
+                Tell Aura your goal — <span className="gradient-text">get a full plan</span>
               </h2>
               <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                Get a brutally honest AI roast + actionable fixes that get you interviews. Used by 2,500+ pros this month.
+                One prompt. Resume fixes, LinkedIn rewrite, interview prep & a 7-day action plan. Your AI career agent — not a tool.
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-400 text-background font-semibold text-sm shadow-lg shadow-orange-500/25 group-hover:shadow-orange-500/40 transition-all">
-              Roast my resume <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 group-hover:shadow-primary/40 transition-all">
+              Run Aura Agent <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </div>
         </Link>
