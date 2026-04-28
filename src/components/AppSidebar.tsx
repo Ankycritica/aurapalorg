@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Settings, Crown, CreditCard, Mail, MessageCircle, ShieldCheck, DollarSign, Rocket,
+  LayoutDashboard, FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Settings, Crown, CreditCard, Mail, MessageCircle, ShieldCheck, DollarSign, Rocket, Sparkles,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,6 +12,7 @@ import {
 
 const tools = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Aura Agent", url: "/agent", icon: Sparkles, highlight: true },
   { title: "Resume Builder", url: "/resume-builder", icon: FileText },
   { title: "Cover Letter", url: "/cover-letter", icon: Mail },
   { title: "Interview Prep", url: "/interview-prep", icon: MessageCircle },
@@ -50,9 +51,9 @@ function SidebarInner({ collapsed, onNavigate, isAdmin, isPaid }: { collapsed: b
               {tools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === "/dashboard"} className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
-                      <item.icon className="h-4 w-4 mr-2 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                    <NavLink to={item.url} end={item.url === "/dashboard"} className={`hover:bg-sidebar-accent/50 transition-colors duration-200 ${(item as any).highlight ? "text-primary font-semibold" : ""}`} activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
+                      <item.icon className={`h-4 w-4 mr-2 shrink-0 ${(item as any).highlight ? "text-primary" : ""}`} />
+                      {!collapsed && <span>{item.title}{(item as any).highlight && <span className="ml-1.5 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary ring-1 ring-primary/30">New</span>}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
