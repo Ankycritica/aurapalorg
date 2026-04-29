@@ -141,6 +141,19 @@ export default function Dashboard() {
           backgroundSize: "44px 44px",
         }} />
 
+        {/* Floating particles */}
+        <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[...Array(6)].map((_, i) => (
+            <motion.span
+              key={i}
+              className="absolute h-1.5 w-1.5 rounded-full bg-primary/40"
+              style={{ left: `${10 + i * 15}%`, top: `${20 + (i % 3) * 25}%` }}
+              animate={{ y: [0, -18, 0], opacity: [0.2, 0.7, 0.2] }}
+              transition={{ duration: 4 + i * 0.6, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
+            />
+          ))}
+        </div>
+
         <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -153,12 +166,29 @@ export default function Dashboard() {
               </span>
             </div>
             <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1]">
-              You're <span className="gradient-text">3 steps away</span><br className="hidden sm:block" />
+              You're <span className="gradient-text-animated">3 steps away</span><br className="hidden sm:block" />
               from your next opportunity 🚀
             </h1>
             <p className="text-muted-foreground text-base sm:text-lg mt-3 max-w-xl leading-relaxed">
               Fix your resume, benchmark your salary, and unlock career growth — instantly with AI.
             </p>
+
+            {/* Rotating social proof */}
+            <div className="mt-4 h-6 relative overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={proofIdx}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute inset-0 flex items-center text-xs sm:text-sm text-muted-foreground"
+                >
+                  <span className="mr-2 text-base">{socialProofs[proofIdx].icon}</span>
+                  <span className="font-medium">{socialProofs[proofIdx].text}</span>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Quick action chips */}
@@ -213,8 +243,10 @@ export default function Dashboard() {
                 One prompt. Resume fixes, LinkedIn rewrite, interview prep & a 7-day action plan. Your AI career agent — not a tool.
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 group-hover:shadow-primary/40 transition-all">
-              Run Aura Agent <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            <div className="relative inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/30 group-hover:shadow-primary/60 transition-all overflow-hidden whitespace-nowrap animate-pulse-glow">
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" style={{ background: "linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.35) 50%, transparent 70%)" }} />
+              <span className="relative">Fix my career in 30 seconds ⚡</span>
+              <ArrowRight className="relative h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </div>
         </Link>
