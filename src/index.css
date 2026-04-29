@@ -77,6 +77,27 @@
     background-image: var(--gradient-primary);
   }
 
+  .gradient-text-animated {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(110deg, hsl(173 80% 45%), hsl(262 83% 65%), hsl(330 80% 65%), hsl(173 80% 45%));
+    background-size: 300% 100%;
+    animation: gradient-shift 6s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(173 80% 40% / 0.4), 0 10px 40px -10px hsl(173 80% 40% / 0.5); }
+    50% { box-shadow: 0 0 0 8px hsl(173 80% 40% / 0), 0 14px 50px -8px hsl(173 80% 40% / 0.7); }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2.4s ease-in-out infinite;
+  }
+
   .gradient-border {
     position: relative;
   }

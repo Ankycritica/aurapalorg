@@ -1,6 +1,6 @@
 import { FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Mail, MessageCircle, DollarSign, Rocket, Sparkles, ArrowRight, Zap, Trophy, Target } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUsage } from "@/hooks/useUsage";
 import { useEffect, useState } from "react";
@@ -60,8 +60,17 @@ export default function Dashboard() {
   const { usageCount, remaining, limit, plan } = useUsage();
   const [recentGens, setRecentGens] = useState<RecentGen[]>([]);
   const [livePeople, setLivePeople] = useState(() => Math.floor(Math.random() * 80) + 120);
+  const [proofIdx, setProofIdx] = useState(0);
   const { track } = useAnalytics();
   const hour = new Date().getHours();
+
+  const socialProofs = [
+    { icon: "🔥", text: "Someone improved their resume score from 45 → 82" },
+    { icon: "💼", text: "User just got 3 interview calls after using this" },
+    { icon: "🚀", text: "120+ people used Aura Agent in the last hour" },
+    { icon: "⭐", text: "“Got hired in 2 weeks after running Aura Agent”" },
+    { icon: "💸", text: "Salary check revealed user was underpaid by $18K" },
+  ];
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const displayName = profile?.display_name || "there";
 
@@ -73,6 +82,11 @@ export default function Dashboard() {
     const id = setInterval(() => {
       setLivePeople((p) => Math.max(95, Math.min(240, p + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 4))));
     }, 3500);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setProofIdx((i) => (i + 1) % socialProofs.length), 5000);
     return () => clearInterval(id);
   }, []);
 
@@ -127,6 +141,19 @@ export default function Dashboard() {
           backgroundSize: "44px 44px",
         }} />
 
+        {/* Floating particles */}
+        <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[...Array(6)].map((_, i) => (
+            <motion.span
+              key={i}
+              className="absolute h-1.5 w-1.5 rounded-full bg-primary/40"
+              style={{ left: `${10 + i * 15}%`, top: `${20 + (i % 3) * 25}%` }}
+              animate={{ y: [0, -18, 0], opacity: [0.2, 0.7, 0.2] }}
+              transition={{ duration: 4 + i * 0.6, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
+            />
+          ))}
+        </div>
+
         <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -139,12 +166,29 @@ export default function Dashboard() {
               </span>
             </div>
             <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1]">
-              You're <span className="gradient-text">3 steps away</span><br className="hidden sm:block" />
+              You're <span className="gradient-text-animated">3 steps away</span><br className="hidden sm:block" />
               from your next opportunity 🚀
             </h1>
             <p className="text-muted-foreground text-base sm:text-lg mt-3 max-w-xl leading-relaxed">
               Fix your resume, benchmark your salary, and unlock career growth — instantly with AI.
             </p>
+
+            {/* Rotating social proof */}
+            <div className="mt-4 h-6 relative overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={proofIdx}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute inset-0 flex items-center text-xs sm:text-sm text-muted-foreground"
+                >
+                  <span className="mr-2 text-base">{socialProofs[proofIdx].icon}</span>
+                  <span className="font-medium">{socialProofs[proofIdx].text}</span>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Quick action chips */}
@@ -199,11 +243,84 @@ export default function Dashboard() {
                 One prompt. Resume fixes, LinkedIn rewrite, interview prep & a 7-day action plan. Your AI career agent — not a tool.
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 group-hover:shadow-primary/40 transition-all">
-              Run Aura Agent <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            <div className="relative inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/30 group-hover:shadow-primary/60 transition-all overflow-hidden whitespace-nowrap animate-pulse-glow">
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" style={{ background: "linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.35) 50%, transparent 70%)" }} />
+              <span className="relative">Fix my career in 30 seconds ⚡</span>
+              <ArrowRight className="relative h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </div>
         </Link>
+      </motion.section>
+
+      {/* BEFORE vs AFTER preview */}
+      <motion.section
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.5 }}
+        className="relative"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight">See the <span className="gradient-text-animated">transformation</span></h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">30-second resume glow-up. Real before & after.</p>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold ring-1 ring-primary/30">
+            ⚡ 30 seconds transformation
+          </span>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4 relative">
+          {/* BEFORE */}
+          <motion.div whileHover={{ y: -4 }} className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-card/50 backdrop-blur-xl p-5 transition-all duration-300 hover:border-red-500/40" style={{ boxShadow: "0 4px 20px -8px hsl(0 84% 60% / 0.2)" }}>
+            <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full opacity-20 blur-2xl" style={{ background: "hsl(0 84% 60%)" }} />
+            <div className="flex items-center justify-between mb-3 relative">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 ring-1 ring-red-500/30">Before</span>
+              <span className="text-xs text-red-400 font-semibold">Score: 42/100</span>
+            </div>
+            <div className="space-y-2 text-xs sm:text-[13px] text-muted-foreground font-mono leading-relaxed relative">
+              <p className="line-through opacity-70">• Responsible for managing tasks</p>
+              <p className="line-through opacity-70">• Worked on various projects with team</p>
+              <p className="line-through opacity-70">• Helped improve company processes</p>
+              <p className="line-through opacity-70">• Did data analysis and reports</p>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-1.5 relative">
+              <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400">Vague</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400">No metrics</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400">Passive</span>
+            </div>
+          </motion.div>
+
+          {/* Arrow divider */}
+          <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent items-center justify-center shadow-lg shadow-primary/40 ring-4 ring-background">
+            <ArrowRight className="h-5 w-5 text-primary-foreground" />
+          </div>
+
+          {/* AFTER */}
+          <motion.div whileHover={{ y: -4 }} className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.08] via-card/60 to-card/40 backdrop-blur-xl p-5 transition-all duration-300 hover:border-primary/60" style={{ boxShadow: "0 4px 20px -8px hsl(173 80% 40% / 0.3)" }}>
+            <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full opacity-30 blur-2xl" style={{ background: "hsl(173 80% 40%)" }} />
+            <div className="flex items-center justify-between mb-3 relative">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary ring-1 ring-primary/30">After ✨</span>
+              <span className="text-xs text-primary font-semibold">Score: 91/100</span>
+            </div>
+            <div className="space-y-2 text-xs sm:text-[13px] text-foreground font-mono leading-relaxed relative">
+              <p>• Led 5 cross-functional projects, <span className="text-primary font-semibold">cutting cycle time by 38%</span></p>
+              <p>• Shipped data pipeline serving <span className="text-primary font-semibold">2M+ daily events</span></p>
+              <p>• Drove process redesign, <span className="text-primary font-semibold">saving $120K/year</span></p>
+              <p>• Built dashboards used by <span className="text-primary font-semibold">40+ stakeholders weekly</span></p>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-1.5 relative">
+              <span className="text-[10px] px-2 py-0.5 rounded bg-primary/10 text-primary">Quantified</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-primary/10 text-primary">Action verbs</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-primary/10 text-primary">ATS-ready</span>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="mt-4 text-center">
+          <Link to="/agent" className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary hover:gap-2.5 transition-all">
+            Get your transformation <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </motion.section>
 
       {/* STATS */}
