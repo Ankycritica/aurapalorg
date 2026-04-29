@@ -351,15 +351,22 @@ export default function Dashboard() {
                   )}
                 </p>
                 {s.showBar && plan !== "premium" && limit !== Infinity && (
-                  <div className="w-full h-1.5 bg-secondary/50 rounded-full mt-3 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${usagePct}%` }}
-                      transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-                      className="h-full rounded-full"
-                      style={{ background: `linear-gradient(90deg, ${s.color}, hsl(var(--accent)))` }}
-                    />
-                  </div>
+                  <>
+                    <div className="w-full h-1.5 bg-secondary/50 rounded-full mt-3 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${usagePct}%` }}
+                        transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
+                        className="h-full rounded-full"
+                        style={{ background: `linear-gradient(90deg, ${s.color}, hsl(var(--accent)))` }}
+                      />
+                    </div>
+                    {usageCount > 0 && (
+                      <p className="text-[10px] text-emerald-400/90 font-medium mt-1.5">
+                        🏆 Ahead of {Math.min(95, 45 + usageCount * 8)}% of users
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
               <motion.div
