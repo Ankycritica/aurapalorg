@@ -60,8 +60,17 @@ export default function Dashboard() {
   const { usageCount, remaining, limit, plan } = useUsage();
   const [recentGens, setRecentGens] = useState<RecentGen[]>([]);
   const [livePeople, setLivePeople] = useState(() => Math.floor(Math.random() * 80) + 120);
+  const [proofIdx, setProofIdx] = useState(0);
   const { track } = useAnalytics();
   const hour = new Date().getHours();
+
+  const socialProofs = [
+    { icon: "🔥", text: "Someone improved their resume score from 45 → 82" },
+    { icon: "💼", text: "User just got 3 interview calls after using this" },
+    { icon: "🚀", text: "120+ people used Aura Agent in the last hour" },
+    { icon: "⭐", text: "“Got hired in 2 weeks after running Aura Agent”" },
+    { icon: "💸", text: "Salary check revealed user was underpaid by $18K" },
+  ];
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const displayName = profile?.display_name || "there";
 
