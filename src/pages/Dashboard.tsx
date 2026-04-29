@@ -1,6 +1,6 @@
 import { FileText, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, Mail, MessageCircle, DollarSign, Rocket, Sparkles, ArrowRight, Zap, Trophy, Target } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUsage } from "@/hooks/useUsage";
 import { useEffect, useState } from "react";
@@ -82,6 +82,11 @@ export default function Dashboard() {
     const id = setInterval(() => {
       setLivePeople((p) => Math.max(95, Math.min(240, p + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 4))));
     }, 3500);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setProofIdx((i) => (i + 1) % socialProofs.length), 5000);
     return () => clearInterval(id);
   }, []);
 
