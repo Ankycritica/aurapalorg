@@ -496,9 +496,33 @@ HARD RULES:
             onChange={(e) => setValues(v => ({ ...v, keywords: e.target.value }))}
             className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
         </div>
+        <div>
+          <label className="text-sm font-medium text-foreground mb-1.5 block">Writing Tone</label>
+          <div className="grid grid-cols-3 gap-2">
+            {([
+              { id: "professional", label: "Professional", emoji: "💼", desc: "Polished, confident" },
+              { id: "aggressive", label: "Aggressive", emoji: "🔥", desc: "Bold, high-impact" },
+              { id: "concise", label: "Concise", emoji: "⚡", desc: "ATS-dense, no fluff" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setTone(opt.id)}
+                className={`p-3 rounded-lg border text-left transition-all ${
+                  tone === opt.id
+                    ? "border-primary bg-primary/10 shadow-[0_0_18px_-4px_hsl(var(--primary)/0.5)]"
+                    : "border-border/50 bg-secondary/30 hover:border-primary/40 hover:bg-secondary/50"
+                }`}
+              >
+                <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <span>{opt.emoji}</span> {opt.label}
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">{opt.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
       </motion.div>
-
-      {/* Work Experience - Structured */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
         className="glass-card p-6 space-y-4">
         <div className="flex items-center justify-between">
