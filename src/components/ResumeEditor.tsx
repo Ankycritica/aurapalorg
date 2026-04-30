@@ -863,6 +863,71 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
     </button>
   );
 
+  /* ───────── Smart Suggestions ───────── */
+
+  const fetchSuggestions = useCallback(async () => {
+    setShowSuggestions(true);
+    if (suggestions.length || suggestionsLoading) return;
+    setSuggestionsLoading(true);
+    try {
+      const md = resumeToMarkdown(data);
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        body: JSON.stringify({
+          systemPrompt: `You are a brutal, helpful resume reviewer. Return ONLY valid JSON (no markdown), shape:
+{"suggestions":[{"title":"<short fix>","detail":"<1-2 sentences why and how>","severity":"high|medium|low"}]}
+Give 5-7 specific, non-generic suggestions. Focus on weak verbs, missing metrics, vague claims, ATS keyword gaps${targetRole ? ` for "${targetRole}"` : ""}, and bullet structure.`,
+          userPrompt: `Review this resume and produce suggestions:\n\n${md}`,
+        }),
+      });
+      if (!resp.ok || !resp.body) { setSuggestionsLoading(false); return; }
+      const reader = resp.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "", txt = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i: number;
+        while ((i = buf.indexOf("\n")) !== -1) {
+          let l = buf.slice(0, i); buf = buf.slice(i + 1);
+          if (l.endsWith("\r")) l = l.slice(0, -1);
+          if (!l.startsWith("data: ")) continue;
+          const j = l.slice(6).trim();
+          if (j === "[DONE]") break;
+          try { const p = JSON.parse(j); const c = p.choices?.[0]?.delta?.content; if (c) txt += c; } catch {}
+        }
+      }
+      const cleaned = txt.replace(/```json\s*/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(cleaned);
+      if (Array.isArray(parsed?.suggestions)) setSuggestions(parsed.suggestions);
+    } catch {
+      toast.error("Could not load suggestions");
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  }, [data, suggestions.length, suggestionsLoading, targetRole]);
+
+  /* ───────── Before/After diff helpers ───────── */
+
+  const tokenize = (s: string) => new Set(
+    s.toLowerCase().replace(/[^a-z0-9%$\s]/g, " ").split(/\s+/).filter(w => w.length > 3)
+  );
+  const diffWords = useMemo(() => {
+    if (!originalMarkdown) return { removed: [] as string[], added: [] as string[] };
+    const o = tokenize(originalMarkdown);
+    const n = tokenize(resumeToMarkdown(data));
+    const removed: string[] = [];
+    const added: string[] = [];
+    o.forEach(w => { if (!n.has(w)) removed.push(w); });
+    n.forEach(w => { if (!o.has(w)) added.push(w); });
+    return { removed: removed.slice(0, 30), added: added.slice(0, 30) };
+  }, [originalMarkdown, data]);
+
+  const scoreDelta = (improvedScore ?? 0) - (originalScore ?? 0);
+  const hasBeforeAfter = !!originalMarkdown;
+
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
       {/* Toolbar */}
