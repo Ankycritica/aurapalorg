@@ -582,6 +582,9 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
   const [selected, setSelected] = useState("modern");
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<{ title: string; detail: string; severity: "high" | "medium" | "low" }[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved">("idle");
   const [showTemplates, setShowTemplates] = useState(false);
   const [showSmartControls, setShowSmartControls] = useState(true);
