@@ -764,20 +764,19 @@ HARD RULES:
         />
       )}
       {result && !loading && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5">
-            <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {otherTools.map((tool) => (
-                <Link key={tool.title} to={tool.url} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/60 transition-all duration-200 group">
-                  <span className="text-lg">{tool.emoji}</span>
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{tool.title}</span>
-                  <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5">
+          <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {otherTools.map((tool) => (
+              <Link key={tool.title} to={tool.url} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/60 transition-all duration-200 group">
+                <span className="text-lg">{tool.emoji}</span>
+                <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{tool.title}</span>
+                <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       <div className="glass-card p-6 space-y-4">
         <h2 className="font-display text-xl font-semibold">Why Use an AI Resume Builder?</h2>
