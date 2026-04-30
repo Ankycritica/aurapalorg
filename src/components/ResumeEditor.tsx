@@ -521,12 +521,17 @@ const themes: Record<string, ThemeProps> = {
 interface ResumeEditorProps {
   initialMarkdown: string;
   inputData: any;
+  targetRole?: string;
+  originalMarkdown?: string;
+  originalScore?: number | null;
+  improvedScore?: number | null;
 }
 
-export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) {
+export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalMarkdown, originalScore, improvedScore }: ResumeEditorProps) {
   const [data, setData] = useState<ResumeData>(() => parseMarkdownToResume(initialMarkdown));
   const [selected, setSelected] = useState("modern");
-  const [busyKey, setRewritingKey] = useState<string | null>(null);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved">("idle");
   const [showTemplates, setShowTemplates] = useState(false);
   const [showSmartControls, setShowSmartControls] = useState(true);
