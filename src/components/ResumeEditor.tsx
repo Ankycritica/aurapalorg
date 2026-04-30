@@ -891,7 +891,7 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
           className={`border border-border/30 rounded-lg overflow-hidden bg-white transition-all duration-300 ${densityClass} ${focusEmphasisClass}`}
           style={{ boxShadow: "0 0 0 1px hsl(var(--primary) / 0.15), 0 25px 50px -15px rgba(0,0,0,0.6), 0 0 60px -20px hsl(var(--primary) / 0.25)" }}
         >
-          <ThemedTemplate data={displayData} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} theme={theme} />
+          <ThemedTemplate data={data} viewSections={displayData.sections} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} theme={theme} />
         </motion.div>
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
           💡 Hover any line for AI rewrite or delete. Use Controls above to toggle sections, change density, or set focus.
