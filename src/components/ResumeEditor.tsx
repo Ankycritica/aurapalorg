@@ -404,11 +404,55 @@ interface ThemeProps {
   sidebar?: boolean;
 }
 
+/* Sortable wrapper for an entire section */
+function SortableSection({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.55 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style} className="relative group/section">
+      <button
+        {...attributes}
+        {...listeners}
+        title="Drag section"
+        aria-label="Drag section"
+        className="absolute -left-5 top-1 opacity-0 group-hover/section:opacity-60 hover:!opacity-100 cursor-grab active:cursor-grabbing p-0.5 rounded text-gray-400 print:hidden"
+      >
+        <GripVertical className="h-3.5 w-3.5" />
+      </button>
+      {children}
+    </div>
+  );
+}
+
 function ThemedTemplate({ data, update, onAiAction, busyKey, theme, viewSections }: TemplateProps & { theme: ThemeProps; viewSections?: ResumeSection[] }) {
   const updateName = (v: string) => update({ ...data, name: v });
   const updateContact = (v: string) => update({ ...data, contact: v.split(/\s*[|•·]\s*/).map(s => s.trim()).filter(Boolean) });
 
   const sections = viewSections ?? data.sections;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const sectionIds = sections.map(s => `section::${s.id}`);
+  const handleSectionDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const from = sectionIds.indexOf(active.id as string);
+    const to = sectionIds.indexOf(over.id as string);
+    if (from < 0 || to < 0) return;
+    // Reorder against the FULL data.sections, not the filtered view, by id
+    const movedId = sections[from].id;
+    const targetId = sections[to].id;
+    const fullFrom = data.sections.findIndex(s => s.id === movedId);
+    const fullTo = data.sections.findIndex(s => s.id === targetId);
+    if (fullFrom < 0 || fullTo < 0) return;
+    update({ ...data, sections: arrayMove(data.sections, fullFrom, fullTo) });
+  };
   const fontClass = theme.serif ? "font-serif" : "font-sans";
   const headerStyle = theme.headerBg ? { backgroundColor: theme.headerBg, color: "white" } : {};
 
