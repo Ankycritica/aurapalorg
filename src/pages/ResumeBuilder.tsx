@@ -90,6 +90,10 @@ export default function ResumeBuilder() {
   const [extracting, setExtracting] = useState(false);
   const [atsScore, setAtsScore] = useState<ATSScore | null>(null);
   const [atsLoading, setAtsLoading] = useState(false);
+  const [tone, setTone] = useState<"professional" | "aggressive" | "concise">("professional");
+  const [originalMarkdown, setOriginalMarkdown] = useState<string>("");
+  const [originalScore, setOriginalScore] = useState<number | null>(null);
+  const [loadingStage, setLoadingStage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
