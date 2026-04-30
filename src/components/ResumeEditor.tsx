@@ -196,63 +196,147 @@ function Editable({ value, onChange, className = "", multiline = false, placehol
 interface TemplateProps {
   data: ResumeData;
   update: (next: ResumeData) => void;
-  onAiRewrite: (sectionId: string, itemIdx: number) => void;
-  rewritingKey: string | null;
+  onAiAction: (sectionId: string, itemIdx: number, action: "rewrite" | "improve" | "expand") => void;
+  busyKey: string | null;
 }
 
-function SectionItems({ section, sIdx, update, data, onAiRewrite, rewritingKey }: {
+/* Sortable wrapper for a single bullet within a section */
+function SortableBullet({
+  id,
+  section,
+  idx,
+  data,
+  update,
+  onAiAction,
+  busyKey,
+}: {
+  id: string;
+  section: ResumeSection;
+  idx: number;
+  data: ResumeData;
+  update: (n: ResumeData) => void;
+  onAiAction: (sectionId: string, itemIdx: number, action: "rewrite" | "improve" | "expand") => void;
+  busyKey: string | null;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  const item = section.items[idx];
+  const key = `${section.id}-${idx}`;
+  const isBusy = busyKey?.startsWith(key);
+
+  const updateItem = (v: string) => {
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.map((it, j) => j === idx ? v : it) } : s) });
+  };
+  const removeItem = () => {
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.filter((_, j) => j !== idx) } : s) });
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="group/item flex items-start gap-1 relative">
+      <button
+        {...attributes}
+        {...listeners}
+        className="opacity-0 group-hover/item:opacity-60 hover:!opacity-100 cursor-grab active:cursor-grabbing p-0.5 rounded text-gray-400 print:hidden mt-0.5"
+        title="Drag to reorder"
+        aria-label="Drag bullet"
+      >
+        <GripVertical className="h-3 w-3" />
+      </button>
+      <div className="flex-1">
+        <Editable
+          value={item}
+          onChange={updateItem}
+          placeholder="Click to add..."
+          className="text-inherit"
+        />
+      </div>
+      <div className="opacity-0 group-hover/item:opacity-100 transition-opacity flex gap-0.5 shrink-0 print:hidden">
+        <button
+          onClick={() => onAiAction(section.id, idx, "improve")}
+          disabled={isBusy || !item?.trim()}
+          title="✨ Improve (add metric, sharpen verb)"
+          className="p-1 rounded hover:bg-emerald-100 text-emerald-600 disabled:opacity-30"
+        >
+          {busyKey === `${key}-improve` ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+        </button>
+        <button
+          onClick={() => onAiAction(section.id, idx, "rewrite")}
+          disabled={isBusy || !item?.trim()}
+          title="🔁 Rewrite in XYZ format"
+          className="p-1 rounded hover:bg-purple-100 text-purple-600 disabled:opacity-30"
+        >
+          {busyKey === `${key}-rewrite` ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+        </button>
+        <button
+          onClick={() => onAiAction(section.id, idx, "expand")}
+          disabled={isBusy || !item?.trim()}
+          title="➕ Expand into 2-3 bullets"
+          className="p-1 rounded hover:bg-blue-100 text-blue-600 disabled:opacity-30"
+        >
+          {busyKey === `${key}-expand` ? <Loader2 className="h-3 w-3 animate-spin" /> : <Expand className="h-3 w-3" />}
+        </button>
+        <button
+          onClick={removeItem}
+          title="❌ Delete"
+          className="p-1 rounded hover:bg-red-100 text-red-500"
+        >
+          <Trash2 className="h-3 w-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SectionItems({ section, sIdx, update, data, onAiAction, busyKey }: {
   section: ResumeSection;
   sIdx: number;
   data: ResumeData;
   update: (n: ResumeData) => void;
-  onAiRewrite: (sectionId: string, itemIdx: number) => void;
-  rewritingKey: string | null;
+  onAiAction: (sectionId: string, itemIdx: number, action: "rewrite" | "improve" | "expand") => void;
+  busyKey: string | null;
 }) {
-  const updateItem = (idx: number, v: string) => {
-    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.map((it, j) => j === idx ? v : it) } : s) });
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const ids = section.items.map((_, i) => `${section.id}::${i}`);
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const from = ids.indexOf(active.id as string);
+    const to = ids.indexOf(over.id as string);
+    if (from < 0 || to < 0) return;
+    const next = arrayMove(section.items, from, to);
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: next } : s) });
   };
-  const removeItem = (idx: number) => {
-    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.filter((_, j) => j !== idx) } : s) });
-  };
+
   const addItem = () => {
     update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: [...s.items, ""] } : s) });
   };
 
   return (
     <div className="space-y-1">
-      {section.items.map((item, idx) => {
-        const key = `${section.id}-${idx}`;
-        const isRewriting = rewritingKey === key;
-        return (
-          <div key={idx} className="group/item flex items-start gap-1 relative">
-            <div className="flex-1">
-              <Editable
-                value={item}
-                onChange={(v) => updateItem(idx, v)}
-                placeholder="Click to add..."
-                className="text-inherit"
-              />
-            </div>
-            <div className="opacity-0 group-hover/item:opacity-100 transition-opacity flex gap-0.5 shrink-0 print:hidden">
-              <button
-                onClick={() => onAiRewrite(section.id, idx)}
-                disabled={isRewriting || !item.trim()}
-                title="Rewrite with AI"
-                className="p-1 rounded hover:bg-purple-100 text-purple-600 disabled:opacity-30"
-              >
-                {isRewriting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-              </button>
-              <button
-                onClick={() => removeItem(idx)}
-                title="Remove"
-                className="p-1 rounded hover:bg-red-100 text-red-500"
-              >
-                <Trash2 className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
-        );
-      })}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+          {section.items.map((_, idx) => (
+            <SortableBullet
+              key={`${section.id}::${idx}`}
+              id={`${section.id}::${idx}`}
+              section={section}
+              idx={idx}
+              data={data}
+              update={update}
+              onAiAction={onAiAction}
+              busyKey={busyKey}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
       <button
         onClick={addItem}
         className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-blue-600 hover:text-blue-800 flex items-center gap-1 mt-1 print:hidden"
