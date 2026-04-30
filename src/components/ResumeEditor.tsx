@@ -602,7 +602,7 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
     const original = section.items[itemIdx];
     if (!original?.trim()) return;
     const key = `${sectionId}-${itemIdx}`;
-    setRewritingKey(key);
+    setBusyKey(key);
     try {
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
@@ -652,7 +652,7 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
     } catch {
       toast.error("AI rewrite failed");
     } finally {
-      setRewritingKey(null);
+      setBusyKey(null);
     }
   }, [data, update]);
 
