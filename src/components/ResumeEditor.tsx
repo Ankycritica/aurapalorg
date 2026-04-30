@@ -303,10 +303,11 @@ interface ThemeProps {
   sidebar?: boolean;
 }
 
-function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme }: TemplateProps & { theme: ThemeProps }) {
+function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSections }: TemplateProps & { theme: ThemeProps; viewSections?: ResumeSection[] }) {
   const updateName = (v: string) => update({ ...data, name: v });
   const updateContact = (v: string) => update({ ...data, contact: v.split(/\s*[|•·]\s*/).map(s => s.trim()).filter(Boolean) });
 
+  const sections = viewSections ?? data.sections;
   const fontClass = theme.serif ? "font-serif" : "font-sans";
   const headerStyle = theme.headerBg ? { backgroundColor: theme.headerBg, color: "white" } : {};
 
@@ -318,8 +319,8 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme }: Temp
             <Editable value={data.name} onChange={updateName} className="text-lg font-bold tracking-tight" placeholder="Your Name" />
             <Editable value={data.contact.join(" | ")} onChange={updateContact} className="text-slate-400 text-[10px] mt-2" placeholder="Contact" />
           </div>
-          {data.sections.filter((_, i) => i % 3 === 0).map((sec) => {
-            const sIdx = data.sections.indexOf(sec);
+          {sections.filter((_, i) => i % 3 === 0).map((sec) => {
+            const sIdx = sections.indexOf(sec);
             return (
               <div key={sec.id}>
                 <h2 className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300 mb-1.5">
@@ -331,8 +332,8 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme }: Temp
           })}
         </div>
         <div className="flex-1 px-6 py-7 space-y-5">
-          {data.sections.filter((_, i) => i % 3 !== 0).map((sec) => {
-            const sIdx = data.sections.indexOf(sec);
+          {sections.filter((_, i) => i % 3 !== 0).map((sec) => {
+            const sIdx = sections.indexOf(sec);
             return (
               <div key={sec.id}>
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-800 border-b border-gray-200 pb-1 mb-2">
@@ -373,7 +374,7 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme }: Temp
         )}
       </div>
       <div className="px-8 py-5 space-y-5">
-        {data.sections.map((sec, sIdx) => (
+        {sections.map((sec, sIdx) => (
           <div key={sec.id}>
             <h2 className={`text-[11px] font-bold uppercase tracking-[0.12em] mb-2`} style={{ color: theme.accent, ...headingBorder }}>
               <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
