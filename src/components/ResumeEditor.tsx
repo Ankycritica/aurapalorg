@@ -518,17 +518,23 @@ function ThemedTemplate({ data, update, onAiAction, busyKey, theme, viewSections
           <div className="mt-2 h-1 w-16 rounded-full" style={{ backgroundColor: theme.accent }} />
         )}
       </div>
-      <div className="px-8 py-5 space-y-5">
-        {sections.map((sec, sIdx) => (
-          <div key={sec.id}>
-            <h2 className={`text-[11px] font-bold uppercase tracking-[0.12em] mb-2`} style={{ color: theme.accent, ...headingBorder }}>
-              <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
-            </h2>
-            <div className="text-gray-700">
-              <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiAction={onAiAction} busyKey={busyKey} />
-            </div>
-          </div>
-        ))}
+      <div className="px-8 py-5">
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
+          <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
+            {sections.map((sec, sIdx) => (
+              <SortableSection key={sec.id} id={`section::${sec.id}`}>
+                <div className="mb-5">
+                  <h2 className={`text-[11px] font-bold uppercase tracking-[0.12em] mb-2`} style={{ color: theme.accent, ...headingBorder }}>
+                    <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
+                  </h2>
+                  <div className="text-gray-700">
+                    <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiAction={onAiAction} busyKey={busyKey} />
+                  </div>
+                </div>
+              </SortableSection>
+            ))}
+          </SortableContext>
+        </DndContext>
       </div>
     </div>
   );
