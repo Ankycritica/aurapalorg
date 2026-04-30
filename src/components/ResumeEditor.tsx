@@ -579,7 +579,9 @@ interface ResumeEditorProps {
 
 export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalMarkdown, originalScore, improvedScore }: ResumeEditorProps) {
   const [data, setData] = useState<ResumeData>(() => parseMarkdownToResume(initialMarkdown));
-  const [selected, setSelected] = useState("modern");
+  const [selected, setSelected] = useState<string>(() => {
+    try { return localStorage.getItem("aurapal:selectedTemplate") || "modern"; } catch { return "modern"; }
+  });
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
