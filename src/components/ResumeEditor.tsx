@@ -578,15 +578,114 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
     toast.success("Saved to history ✓");
   };
 
+  /* ───────── Smart controls: derived view data ───────── */
+
+  const focusKeywords: Record<typeof focus, string[]> = {
+    none: [],
+    experience: ["experience", "work", "employment", "professional"],
+    skills: ["skill", "tools", "tech", "stack", "competenc"],
+    leadership: ["leadership", "management", "leading", "led ", "managed", "directed"],
+  };
+
+  const sectionMatchesFocus = (heading: string) => {
+    if (focus === "none") return false;
+    const h = heading.toLowerCase();
+    return focusKeywords[focus].some(k => h.includes(k));
+  };
+
+  const displayData = useMemo<ResumeData>(() => {
+    let sections = data.sections.filter(s => !hiddenSections[s.id]);
+
+    // Focus mode → push matching sections to top
+    if (focus !== "none") {
+      const match = sections.filter(s => sectionMatchesFocus(s.heading));
+      const rest = sections.filter(s => !sectionMatchesFocus(s.heading));
+      sections = [...match, ...rest];
+    }
+
+    // Density → trim/expand visible bullets per section
+    if (density === "compact") {
+      sections = sections.map(s => ({ ...s, items: s.items.slice(0, Math.max(2, Math.ceil(s.items.length * 0.6))) }));
+    }
+    // "balanced" = unchanged; "detailed" = unchanged (full content shown)
+
+    return { ...data, sections };
+  }, [data, hiddenSections, focus, density]);
+
+  const densityClass =
+    density === "compact" ? "[&_p]:!my-0 [&_div]:!leading-snug text-[11.5px]"
+    : density === "detailed" ? "[&_p]:my-1.5 leading-loose text-[13.5px]"
+    : "";
+
+  const focusEmphasisClass = focus !== "none" ? "[&_strong]:text-black [&_strong]:font-bold" : "";
+
+  /* ───────── Export helpers ───────── */
+
+  const buildPlainText = (d: ResumeData) => {
+    const out: string[] = [];
+    out.push((d.name || "").toUpperCase());
+    if (d.contact.length) out.push(d.contact.filter(Boolean).join(" | "));
+    out.push("");
+    for (const s of d.sections) {
+      out.push(s.heading.toUpperCase());
+      out.push("-".repeat(Math.min(40, s.heading.length + 4)));
+      for (const it of s.items) if (it.trim()) out.push(`• ${it}`);
+      out.push("");
+    }
+    return out.join("\n").trim();
+  };
+
+  const copyPlainText = async () => {
+    try {
+      await navigator.clipboard.writeText(buildPlainText(displayData));
+      toast.success("Copied as plain text ✓");
+    } catch {
+      toast.error("Could not copy");
+    }
+  };
+
+  const downloadTxt = () => {
+    const blob = new Blob([buildPlainText(displayData)], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${data.name || "resume"}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Downloaded .txt ✓");
+  };
+
   const freeList = allTemplates.filter(t => !t.pro);
   const proList = allTemplates.filter(t => t.pro);
+
+  /* ───────── Smart-controls UI bits ───────── */
+
+  const styleOptions: { id: string; label: string }[] = [
+    { id: "minimal", label: "ATS Minimal (default)" },
+    { id: "tech", label: "Modern Tech" },
+    { id: "executive", label: "Executive Clean" },
+    { id: "creative", label: "Creative Edge" },
+    { id: "compact", label: "Compact One-Page" },
+    { id: "modern", label: "Modern" },
+    { id: "classic", label: "Classic" },
+    { id: "bold", label: "Bold" },
+  ];
+
+  const SegBtn = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) => (
+    <button onClick={onClick}
+      className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+        active ? "bg-primary text-primary-foreground shadow-[0_0_12px_-2px_hsl(var(--primary)/0.6)]" : "text-muted-foreground hover:text-foreground"
+      }`}>
+      {children}
+    </button>
+  );
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
       {/* Toolbar */}
       <div className="glass-card p-4 flex flex-wrap items-center justify-between gap-3 sticky top-2 z-20">
         <div className="flex items-center gap-2 flex-wrap">
-          <h2 className="font-display font-semibold text-base">✏️ Resume Editor</h2>
+          <h2 className="font-display font-semibold text-base">✏️ Smart Resume Editor</h2>
           <span className="text-[10px] text-muted-foreground bg-secondary/60 px-2 py-1 rounded-full">
             Click any text to edit
           </span>
@@ -599,14 +698,26 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
             <span className="text-[10px] text-green-500 flex items-center gap-1">✓ Saved</span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <button onClick={() => setShowSmartControls(s => !s)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm text-foreground hover:bg-secondary transition-all">
+            <Settings2 className="h-4 w-4" /> Controls
+          </button>
           <button onClick={() => setShowTemplates(s => !s)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm text-foreground hover:bg-secondary transition-all">
-            <Eye className="h-4 w-4" /> {showTemplates ? "Hide" : "Show"} Templates
+            <Eye className="h-4 w-4" /> {showTemplates ? "Hide" : "All"} Templates
           </button>
           <button onClick={addSection}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-all">
             <Plus className="h-3.5 w-3.5" /> Section
+          </button>
+          <button onClick={copyPlainText}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm text-foreground hover:bg-secondary transition-all">
+            <Copy className="h-4 w-4" /> Copy
+          </button>
+          <button onClick={downloadTxt}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm text-foreground hover:bg-secondary transition-all">
+            <FileText className="h-4 w-4" /> .txt
           </button>
           <button onClick={manualSave}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm text-foreground hover:bg-secondary transition-all">
@@ -621,7 +732,105 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
         </div>
       </div>
 
-      {/* Templates */}
+      {/* Smart Controls Panel */}
+      <AnimatePresence initial={false}>
+        {showSmartControls && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
+            <div className="glass-card p-5 grid grid-cols-1 lg:grid-cols-4 gap-5">
+              {/* Style dropdown */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <Layers className="h-3 w-3" /> Resume Style
+                </label>
+                <select
+                  value={selected}
+                  onChange={(e) => setSelected(e.target.value)}
+                  className="w-full bg-secondary/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                >
+                  <optgroup label="Curated">
+                    {styleOptions.map(o => (
+                      <option key={o.id} value={o.id}>{o.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Pro Templates">
+                    {proList.map(t => (
+                      <option key={t.id} value={t.id}>{t.name} {!isPro ? "🔒" : ""}</option>
+                    ))}
+                  </optgroup>
+                </select>
+                <p className="text-[10px] text-muted-foreground">Switches instantly. Content preserved.</p>
+              </div>
+
+              {/* Density */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Resume Length
+                </label>
+                <div className="flex gap-1 bg-secondary/40 p-1 rounded-lg border border-border/50">
+                  <SegBtn active={density === "compact"} onClick={() => setDensity("compact")}>Compact</SegBtn>
+                  <SegBtn active={density === "balanced"} onClick={() => setDensity("balanced")}>Balanced</SegBtn>
+                  <SegBtn active={density === "detailed"} onClick={() => setDensity("detailed")}>Detailed</SegBtn>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  {density === "compact" ? "Tighter spacing, fewer bullets" : density === "detailed" ? "Expanded spacing, all bullets" : "Default balanced layout"}
+                </p>
+              </div>
+
+              {/* Focus */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <Target className="h-3 w-3" /> Focus Area
+                </label>
+                <div className="flex gap-1 bg-secondary/40 p-1 rounded-lg border border-border/50 flex-wrap">
+                  <SegBtn active={focus === "none"} onClick={() => setFocus("none")}>None</SegBtn>
+                  <SegBtn active={focus === "experience"} onClick={() => setFocus("experience")}>Experience</SegBtn>
+                  <SegBtn active={focus === "skills"} onClick={() => setFocus("skills")}>Skills</SegBtn>
+                  <SegBtn active={focus === "leadership"} onClick={() => setFocus("leadership")}>Leadership</SegBtn>
+                </div>
+                <p className="text-[10px] text-muted-foreground">Reorders sections + bolds key metrics.</p>
+              </div>
+
+              {/* Section toggles */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Sections
+                </label>
+                <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
+                  {data.sections.map(sec => {
+                    const visible = !hiddenSections[sec.id];
+                    return (
+                      <label key={sec.id} className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-md bg-secondary/40 hover:bg-secondary/60 transition-colors cursor-pointer">
+                        <span className="text-xs text-foreground truncate flex-1">{sec.heading || "Untitled"}</span>
+                        <button
+                          type="button"
+                          onClick={() => setHiddenSections(h => ({ ...h, [sec.id]: visible }))}
+                          aria-label={`Toggle ${sec.heading}`}
+                          className={`relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors ${
+                            visible ? "bg-primary" : "bg-muted"
+                          }`}
+                        >
+                          <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${visible ? "translate-x-3.5" : "translate-x-0.5"}`} />
+                        </button>
+                      </label>
+                    );
+                  })}
+                  {!data.sections.length && (
+                    <p className="text-[10px] text-muted-foreground italic">No sections yet</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Templates (full grid — kept) */}
       {showTemplates && (
         <div className="glass-card p-4 space-y-3">
           <div>
@@ -661,7 +870,7 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
         </div>
       )}
 
-      {/* Preview */}
+      {/* Preview — paper-style container */}
       <div className="relative">
         {isLocked && (
           <div className="absolute inset-0 z-30 bg-background/85 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center gap-3 p-6">
@@ -674,11 +883,19 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
             </button>
           </div>
         )}
-        <div id="resume-editor-preview" className="border border-border/30 rounded-lg overflow-hidden shadow-2xl bg-white">
-          <ThemedTemplate data={data} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} theme={theme} />
-        </div>
+        <motion.div
+          key={`${selected}-${density}-${focus}`}
+          initial={{ opacity: 0.4, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          id="resume-editor-preview"
+          className={`border border-border/30 rounded-lg overflow-hidden bg-white transition-all duration-300 ${densityClass} ${focusEmphasisClass}`}
+          style={{ boxShadow: "0 0 0 1px hsl(var(--primary) / 0.15), 0 25px 50px -15px rgba(0,0,0,0.6), 0 0 60px -20px hsl(var(--primary) / 0.25)" }}
+        >
+          <ThemedTemplate data={displayData} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} theme={theme} />
+        </motion.div>
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
-          💡 Hover over any line to see edit, AI rewrite, or delete options. Sections can be reordered with arrows.
+          💡 Hover any line for AI rewrite or delete. Use Controls above to toggle sections, change density, or set focus.
         </p>
       </div>
     </motion.div>
