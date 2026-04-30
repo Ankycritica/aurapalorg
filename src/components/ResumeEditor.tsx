@@ -192,16 +192,13 @@ function SectionItems({ section, sIdx, update, data, onAiRewrite, rewritingKey }
   rewritingKey: string | null;
 }) {
   const updateItem = (idx: number, v: string) => {
-    const next = { ...data, sections: data.sections.map((s, i) => i === sIdx ? { ...s, items: s.items.map((it, j) => j === idx ? v : it) } : s) };
-    update(next);
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.map((it, j) => j === idx ? v : it) } : s) });
   };
   const removeItem = (idx: number) => {
-    const next = { ...data, sections: data.sections.map((s, i) => i === sIdx ? { ...s, items: s.items.filter((_, j) => j !== idx) } : s) };
-    update(next);
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.filter((_, j) => j !== idx) } : s) });
   };
   const addItem = () => {
-    const next = { ...data, sections: data.sections.map((s, i) => i === sIdx ? { ...s, items: [...s.items, ""] } : s) };
-    update(next);
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: [...s.items, ""] } : s) });
   };
 
   return (
@@ -255,33 +252,34 @@ function SectionHeader({ section, sIdx, data, update }: {
   data: ResumeData;
   update: (n: ResumeData) => void;
 }) {
+  const realIdx = data.sections.findIndex(s => s.id === section.id);
   const moveUp = () => {
-    if (sIdx === 0) return;
+    if (realIdx <= 0) return;
     const next = [...data.sections];
-    [next[sIdx - 1], next[sIdx]] = [next[sIdx], next[sIdx - 1]];
+    [next[realIdx - 1], next[realIdx]] = [next[realIdx], next[realIdx - 1]];
     update({ ...data, sections: next });
   };
   const moveDown = () => {
-    if (sIdx === data.sections.length - 1) return;
+    if (realIdx === -1 || realIdx === data.sections.length - 1) return;
     const next = [...data.sections];
-    [next[sIdx + 1], next[sIdx]] = [next[sIdx], next[sIdx + 1]];
+    [next[realIdx + 1], next[realIdx]] = [next[realIdx], next[realIdx + 1]];
     update({ ...data, sections: next });
   };
   const remove = () => {
-    update({ ...data, sections: data.sections.filter((_, i) => i !== sIdx) });
+    update({ ...data, sections: data.sections.filter(s => s.id !== section.id) });
   };
   const updateHeading = (v: string) => {
-    update({ ...data, sections: data.sections.map((s, i) => i === sIdx ? { ...s, heading: v } : s) });
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, heading: v } : s) });
   };
 
   return (
     <div className="flex items-center gap-1.5 group/sec">
       <Editable value={section.heading} onChange={updateHeading} className="flex-1" placeholder="Section heading" />
       <div className="opacity-0 group-hover/sec:opacity-100 transition-opacity flex gap-0.5 shrink-0 print:hidden">
-        <button onClick={moveUp} title="Move up" className="p-1 rounded hover:bg-gray-200 text-gray-600 disabled:opacity-30" disabled={sIdx === 0}>
+        <button onClick={moveUp} title="Move up" className="p-1 rounded hover:bg-gray-200 text-gray-600 disabled:opacity-30" disabled={realIdx <= 0}>
           <ArrowUp className="h-3 w-3" />
         </button>
-        <button onClick={moveDown} title="Move down" className="p-1 rounded hover:bg-gray-200 text-gray-600 disabled:opacity-30" disabled={sIdx === data.sections.length - 1}>
+        <button onClick={moveDown} title="Move down" className="p-1 rounded hover:bg-gray-200 text-gray-600 disabled:opacity-30" disabled={realIdx === data.sections.length - 1}>
           <ArrowDown className="h-3 w-3" />
         </button>
         <button onClick={remove} title="Remove section" className="p-1 rounded hover:bg-red-100 text-red-500">
