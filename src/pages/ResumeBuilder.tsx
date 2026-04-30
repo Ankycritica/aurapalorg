@@ -383,7 +383,7 @@ HARD RULES:
     } finally {
       setLoading(false);
     }
-  }, [values, experiences, educations, extractedText, isLimitReached, trackUsage, uploadedFile, user]);
+  }, [values, experiences, educations, extractedText, isLimitReached, trackUsage, uploadedFile, user, tone]);
 
   const copyResult = () => {
     navigator.clipboard.writeText(result);
