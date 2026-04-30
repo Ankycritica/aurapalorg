@@ -428,7 +428,11 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
   const [selected, setSelected] = useState("modern");
   const [rewritingKey, setRewritingKey] = useState<string | null>(null);
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved">("idle");
-  const [showTemplates, setShowTemplates] = useState(true);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showSmartControls, setShowSmartControls] = useState(true);
+  const [hiddenSections, setHiddenSections] = useState<Record<string, boolean>>({});
+  const [density, setDensity] = useState<"compact" | "balanced" | "detailed">("balanced");
+  const [focus, setFocus] = useState<"none" | "experience" | "skills" | "leadership">("none");
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const isPro = profile?.plan === "pro" || profile?.plan === "premium";
