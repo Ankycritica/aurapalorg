@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { motion } from "framer-motion";
-import { Download, Lock, Crown, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Loader2, Save, Eye } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Download, Lock, Crown, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Loader2, Save, Eye, Copy, FileText, Settings2, Target, Layers } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
