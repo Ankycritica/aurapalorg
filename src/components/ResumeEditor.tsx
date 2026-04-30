@@ -1159,6 +1159,163 @@ Give 5-7 specific, non-generic suggestions. Focus on weak verbs, missing metrics
           💡 Hover any line for AI rewrite or delete. Use Controls above to toggle sections, change density, or set focus.
         </p>
       </div>
+
+      {/* Before/After Modal */}
+      <AnimatePresence>
+        {showBeforeAfter && hasBeforeAfter && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowBeforeAfter(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 28 }}
+              className="bg-card border border-border rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-5 border-b border-border flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <GitCompare className="h-5 w-5 text-primary" />
+                  <div>
+                    <h3 className="font-display font-bold text-lg">30-Second Transformation</h3>
+                    <p className="text-xs text-muted-foreground">See exactly what changed and why it lands interviews.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {originalScore !== null && originalScore !== undefined && improvedScore !== null && improvedScore !== undefined && (
+                    <div className="flex items-center gap-2 bg-secondary/40 px-3 py-1.5 rounded-lg">
+                      <span className="text-xs text-muted-foreground">ATS Score:</span>
+                      <span className="text-sm font-bold text-red-400">{originalScore}</span>
+                      <ArrowDown className="h-3 w-3 text-muted-foreground rotate-[-90deg]" />
+                      <span className="text-sm font-bold text-emerald-400">{improvedScore}</span>
+                      {scoreDelta > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300">+{scoreDelta}</span>
+                      )}
+                    </div>
+                  )}
+                  <button onClick={() => setShowBeforeAfter(false)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-0 flex-1 overflow-hidden">
+                <div className="overflow-y-auto p-5 border-r border-border bg-red-500/5">
+                  <div className="flex items-center gap-2 mb-3 sticky top-0 bg-card/95 backdrop-blur py-1 -mx-5 px-5 z-10">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-500/20 text-red-400">Before</span>
+                    <span className="text-xs text-muted-foreground">Your original</span>
+                  </div>
+                  <pre className="whitespace-pre-wrap text-xs text-muted-foreground font-mono leading-relaxed">{originalMarkdown}</pre>
+                  {diffWords.removed.length > 0 && (
+                    <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                      <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider mb-1.5">Weak phrases removed</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {diffWords.removed.map((w, i) => (
+                          <span key={i} className="text-[10px] line-through text-red-300/80 bg-red-500/10 px-1.5 py-0.5 rounded">{w}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="overflow-y-auto p-5 bg-emerald-500/5">
+                  <div className="flex items-center gap-2 mb-3 sticky top-0 bg-card/95 backdrop-blur py-1 -mx-5 px-5 z-10">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">After</span>
+                    <span className="text-xs text-muted-foreground">AI-optimized • XYZ format</span>
+                  </div>
+                  <pre className="whitespace-pre-wrap text-xs text-foreground font-mono leading-relaxed">{resumeToMarkdown(data)}</pre>
+                  {diffWords.added.length > 0 && (
+                    <div className="mt-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                      <p className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-1.5">Impact words added</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {diffWords.added.map((w, i) => (
+                          <span key={i} className="text-[10px] text-emerald-300 bg-emerald-500/10 px-1.5 py-0.5 rounded font-semibold">+{w}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Smart Suggestions Side Panel */}
+      <AnimatePresence>
+        {showSuggestions && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowSuggestions(false)}
+            />
+            <motion.aside
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              className="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-[440px] bg-card border-l border-border shadow-2xl flex flex-col"
+            >
+              <div className="p-5 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-amber-400" />
+                  <h3 className="font-display font-bold text-lg">Smart Suggestions</h3>
+                </div>
+                <button onClick={() => setShowSuggestions(false)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-5 space-y-3">
+                {suggestionsLoading && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin text-amber-400" /> Analyzing your resume...
+                    </div>
+                    {[80, 65, 90, 70].map((w, i) => (
+                      <div key={i} className="space-y-1.5">
+                        <div className="h-3 rounded bg-secondary/50 animate-pulse" style={{ width: `${w}%` }} />
+                        <div className="h-2 rounded bg-secondary/30 animate-pulse w-full" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {!suggestionsLoading && suggestions.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No suggestions yet. Try regenerating.</p>
+                )}
+                {suggestions.map((s, i) => {
+                  const sevColor =
+                    s.severity === "high" ? "border-red-500/40 bg-red-500/10 text-red-400"
+                    : s.severity === "medium" ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                    : "border-emerald-500/40 bg-emerald-500/10 text-emerald-400";
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
+                      className="p-4 rounded-xl bg-secondary/30 border border-border/50 hover:border-primary/40 hover:shadow-[0_0_20px_-8px_hsl(var(--primary)/0.4)] transition-all"
+                    >
+                      <div className="flex items-start gap-2 mb-1.5">
+                        <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${sevColor}`}>
+                          {s.severity}
+                        </span>
+                        <h4 className="font-semibold text-sm text-foreground flex-1">{s.title}</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{s.detail}</p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+              <div className="p-4 border-t border-border">
+                <button
+                  onClick={() => { setSuggestions([]); fetchSuggestions(); }}
+                  disabled={suggestionsLoading}
+                  className="w-full py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {suggestionsLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                  Re-analyze
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
