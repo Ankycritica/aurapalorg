@@ -229,10 +229,16 @@ export default function ResumeBuilder() {
     if (isLimitReached) { setShowPaywall(true); return; }
 
     setError(""); setLoading(true); setResult(""); setSaved(false); setAtsScore(null);
+    setOriginalMarkdown(""); setOriginalScore(null);
 
     try {
       const tracked = await trackUsage("resume-builder");
       if (!tracked) { setShowPaywall(true); setLoading(false); return; }
+
+      // Capture original (uploaded) for Before/After diff
+      if (extractedText) {
+        setOriginalMarkdown(extractedText);
+      }
 
       const contactInfo = [
         values.fullName,
@@ -246,25 +252,49 @@ export default function ResumeBuilder() {
       const experienceText = buildExperienceText();
       const educationText = buildEducationText();
 
-      const systemPrompt = `You are an expert resume writer. Create a professional, ATS-optimized resume in clean markdown format.
+      const toneInstruction = tone === "aggressive"
+        ? "TONE: Aggressive — bold, high-impact, recruiter-stopping language. Lead every bullet with a power verb (Spearheaded, Engineered, Pioneered, Catalyzed, Architected). Quantify aggressively. Use '$' and '%' liberally."
+        : tone === "concise"
+        ? "TONE: Concise — ATS-optimized, dense keywords, max 18 words per bullet, no fluff. Drop articles when possible."
+        : "TONE: Professional — confident, polished, results-focused. Strong verbs without hyperbole.";
 
-CRITICAL FORMATTING RULES:
-1. Start with the candidate's name as # heading, then contact info on one line separated by |
-2. Add a 2-3 sentence professional summary under ## Professional Summary
-3. List each job under ## Professional Experience with this EXACT format:
-   ### Job Title | Company Name
-   **Location** | **Start Date – End Date**
-   - Achievement bullet using XYZ format: "Accomplished [X] as measured by [Y], by doing [Z]"
-   - Each bullet starts with a strong action verb and includes metrics/numbers
-4. ## Education section
-5. ## Skills section with comma-separated skills grouped by category
-6. Use the candidate's EXACT contact details provided. Never use placeholders like [Name] or [Email].
-7. Every bullet point MUST have quantifiable results (%, $, numbers).
-8. Keep it to 1-2 pages worth of content.`;
+      setLoadingStage("Analyzing your background...");
+
+      const systemPrompt = `You are a top-tier resume writer who has placed candidates at FAANG, McKinsey, and unicorn startups. Output a complete, ATS-optimized resume in clean Markdown.
+
+${toneInstruction}
+
+STRUCTURE (use EXACTLY in this order):
+1. # ${values.fullName || "Candidate Name"}
+2. Contact line under name (no heading) — pipe-separated.
+3. ## Executive Summary
+   - 3-4 sentence punchy summary tailored to "${values.role}". Lead with years of experience + domain + 1 standout achievement with metric. NO generic phrases like "passionate" or "results-driven".
+4. ## Professional Experience
+   For each role:
+   ### Job Title | Company
+   **Location** | **Start – End**
+   - 3-5 bullets. EVERY bullet uses Google XYZ format: "Accomplished [X] as measured by [Y], by doing [Z]". Example: "Increased qualified pipeline by 47% ($2.4M ARR) by launching an AI lead-scoring model across 3 SDR teams."
+   - EVERY bullet starts with a strong action verb (NEVER: "Responsible for", "Worked on", "Helped with").
+   - EVERY bullet contains a metric (%, $, #, time saved, scale). If user didn't provide one, intelligently infer a reasonable one based on the role/company size.
+5. ## Skills
+   Group by category. Format: **Category:** skill1, skill2, skill3
+   Categories: Technical, Tools & Platforms, Leadership, Domain Expertise.
+   PRIORITIZE keywords for "${values.role}" role.
+6. ## Education
+7. ## Certifications (only if relevant)
+
+HARD RULES:
+- Use the candidate's EXACT contact info — never placeholders.
+- Tailor every section to the target role: ${values.role}.
+- Inject these keywords naturally where credible: ${values.keywords || "(infer from role)"}
+- No first-person pronouns. No buzzword soup ("synergy", "leverage", "go-getter").
+- Total length: 1-2 pages of dense, scannable content.`;
 
       const userPrompt = hasUpload && !hasExperience
-        ? `Improve this resume for a ${values.role} role. Use these exact contact details at the top: ${contactInfo}\n\nKey Skills: ${values.keywords || "Not specified"}\n\nExisting resume content:\n${extractedText}\n\nEducation:\n${educationText || "Include from existing resume"}`
-        : `Create a professional resume for a ${values.role} role.\n\nContact: ${contactInfo}\n\nWork Experience:\n${experienceText}\n\nEducation:\n${educationText}\n\nKey Skills: ${values.keywords || "Not specified"}\n\n${hasUpload ? `Additional context from uploaded resume:\n${extractedText}` : ""}`;
+        ? `Rewrite and dramatically improve this resume for a "${values.role}" role.\n\nUse these exact contact details: ${contactInfo}\nKey skills to emphasize: ${values.keywords || "(extract from resume)"}\n\nORIGINAL RESUME:\n${extractedText}\n\nEducation (if provided):\n${educationText || "(use from resume)"}\n\nApply XYZ format to every bullet, add inferred metrics where missing, and rewrite weak language.`
+        : `Create a premium resume for a "${values.role}" role.\n\nContact: ${contactInfo}\n\nWork Experience:\n${experienceText}\n\nEducation:\n${educationText}\n\nKey Skills: ${values.keywords || "(infer from role)"}\n\n${hasUpload ? `Additional context from uploaded resume:\n${extractedText}` : ""}`;
+
+      setLoadingStage("Applying recruiter logic & XYZ format...");
 
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
@@ -295,12 +325,50 @@ CRITICAL FORMATTING RULES:
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
-            if (content) { fullText += content; setResult(fullText); }
+            if (content) { fullText += content; setResult(fullText); setLoadingStage("Improving bullet points..."); }
           } catch {}
         }
       }
 
-      if (fullText) runAtsScore(fullText);
+      setLoadingStage("");
+      if (fullText) {
+        runAtsScore(fullText);
+        // Score original separately for diff view if we had an upload
+        if (extractedText) {
+          (async () => {
+            try {
+              const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+                body: JSON.stringify({
+                  systemPrompt: `You are an ATS scorer. Reply ONLY with a single number 0-100 representing ATS quality. No words.`,
+                  userPrompt: `Score this resume for a ${values.role} role:\n\n${extractedText}`,
+                }),
+              });
+              if (!r.ok || !r.body) return;
+              const rd = r.body.getReader();
+              const dec = new TextDecoder();
+              let buf = "", txt = "";
+              while (true) {
+                const { done, value } = await rd.read();
+                if (done) break;
+                buf += dec.decode(value, { stream: true });
+                let i: number;
+                while ((i = buf.indexOf("\n")) !== -1) {
+                  let l = buf.slice(0, i); buf = buf.slice(i + 1);
+                  if (l.endsWith("\r")) l = l.slice(0, -1);
+                  if (!l.startsWith("data: ")) continue;
+                  const j = l.slice(6).trim();
+                  if (j === "[DONE]") break;
+                  try { const p = JSON.parse(j); const c = p.choices?.[0]?.delta?.content; if (c) txt += c; } catch {}
+                }
+              }
+              const num = parseInt(txt.replace(/\D/g, "").slice(0, 3), 10);
+              if (!isNaN(num) && num >= 0 && num <= 100) setOriginalScore(num);
+            } catch {}
+          })();
+        }
+      }
 
       if (user && fullText) {
         await supabase.from("generations").insert({
