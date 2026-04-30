@@ -596,26 +596,38 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
     });
   };
 
-  const onAiAction = useCallback(async (sectionId: string, itemIdx: number) => {
+  const onAiAction = useCallback(async (sectionId: string, itemIdx: number, action: "rewrite" | "improve" | "expand" = "rewrite") => {
     const section = data.sections.find(s => s.id === sectionId);
     if (!section) return;
     const original = section.items[itemIdx];
     if (!original?.trim()) return;
-    const key = `${sectionId}-${itemIdx}`;
+    const key = `${sectionId}-${itemIdx}-${action}`;
     setBusyKey(key);
+
+    const roleCtx = targetRole ? ` for a "${targetRole}" role` : "";
+    const prompts: Record<typeof action, { sys: string; user: string }> = {
+      rewrite: {
+        sys: "You are a top resume writer. Rewrite the bullet using Google XYZ format: 'Accomplished [X] as measured by [Y], by doing [Z]'. Strong action verb start, quantified metric (%, $, #), under 25 words. Reply with ONLY the rewritten bullet — no quotes, no preamble.",
+        user: `Section: ${section.heading}${roleCtx}\n\nRewrite:\n${original}`,
+      },
+      improve: {
+        sys: "You are a recruiter-grade resume editor. Lightly improve the bullet: stronger action verb, add a credible inferred metric if missing, tighten language. Keep the same core meaning. Reply with ONLY the improved bullet — no quotes, no preamble.",
+        user: `Section: ${section.heading}${roleCtx}\n\nImprove:\n${original}`,
+      },
+      expand: {
+        sys: "You are an expert resume writer. Expand this single bullet into 2-3 specific, metric-rich bullets in XYZ format. Each on its own line, no leading dashes, no numbering, no preamble. Each under 25 words.",
+        user: `Section: ${section.heading}${roleCtx}\n\nExpand:\n${original}`,
+      },
+    };
+
     try {
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({
-          systemPrompt: "You are a resume writing expert. Rewrite the bullet point using the XYZ format: 'Accomplished [X] as measured by [Y], by doing [Z]'. Use a strong action verb, include quantifiable metrics (%, $, numbers), and keep it under 25 words. Reply with ONLY the rewritten bullet, no quotes, no preamble.",
-          userPrompt: `Section: ${section.heading}\n\nRewrite this bullet point to be more impactful:\n${original}`,
-        }),
+        body: JSON.stringify({ systemPrompt: prompts[action].sys, userPrompt: prompts[action].user }),
       });
-      if (!resp.ok || !resp.body) {
-        toast.error("AI rewrite failed");
-        return;
-      }
+      if (!resp.ok || !resp.body) { toast.error("AI action failed"); return; }
+
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "", fullText = "";
@@ -623,10 +635,10 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        let idx: number;
-        while ((idx = buffer.indexOf("\n")) !== -1) {
-          let line = buffer.slice(0, idx);
-          buffer = buffer.slice(idx + 1);
+        let i: number;
+        while ((i = buffer.indexOf("\n")) !== -1) {
+          let line = buffer.slice(0, i);
+          buffer = buffer.slice(i + 1);
           if (line.endsWith("\r")) line = line.slice(0, -1);
           if (!line.startsWith("data: ")) continue;
           const jsonStr = line.slice(6).trim();
@@ -639,7 +651,20 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
         }
       }
       const cleaned = fullText.replace(/^[ "'\-•*\s]+|[ "'\s]+$/g, "").trim();
-      if (cleaned) {
+      if (!cleaned) return;
+
+      if (action === "expand") {
+        const newBullets = cleaned.split("\n").map(l => l.replace(/^[\-*•\d.)\s]+/, "").trim()).filter(Boolean);
+        if (!newBullets.length) return;
+        const next = {
+          ...data,
+          sections: data.sections.map(s => s.id === sectionId
+            ? { ...s, items: s.items.flatMap((it, j) => j === itemIdx ? newBullets : [it]) }
+            : s),
+        };
+        update(next);
+        toast.success(`Expanded into ${newBullets.length} bullets ✨`);
+      } else {
         const next = {
           ...data,
           sections: data.sections.map(s => s.id === sectionId
@@ -647,14 +672,14 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
             : s),
         };
         update(next);
-        toast.success("Bullet rewritten ✨");
+        toast.success(action === "improve" ? "Bullet improved ✨" : "Bullet rewritten ✨");
       }
     } catch {
-      toast.error("AI rewrite failed");
+      toast.error("AI action failed");
     } finally {
       setBusyKey(null);
     }
-  }, [data, update]);
+  }, [data, update, targetRole]);
 
   const downloadPDF = async () => {
     if (isLocked) { navigate("/pricing"); return; }
