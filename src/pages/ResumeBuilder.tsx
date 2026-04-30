@@ -90,6 +90,10 @@ export default function ResumeBuilder() {
   const [extracting, setExtracting] = useState(false);
   const [atsScore, setAtsScore] = useState<ATSScore | null>(null);
   const [atsLoading, setAtsLoading] = useState(false);
+  const [tone, setTone] = useState<"professional" | "aggressive" | "concise">("professional");
+  const [originalMarkdown, setOriginalMarkdown] = useState<string>("");
+  const [originalScore, setOriginalScore] = useState<number | null>(null);
+  const [loadingStage, setLoadingStage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
@@ -225,10 +229,16 @@ export default function ResumeBuilder() {
     if (isLimitReached) { setShowPaywall(true); return; }
 
     setError(""); setLoading(true); setResult(""); setSaved(false); setAtsScore(null);
+    setOriginalMarkdown(""); setOriginalScore(null);
 
     try {
       const tracked = await trackUsage("resume-builder");
       if (!tracked) { setShowPaywall(true); setLoading(false); return; }
+
+      // Capture original (uploaded) for Before/After diff
+      if (extractedText) {
+        setOriginalMarkdown(extractedText);
+      }
 
       const contactInfo = [
         values.fullName,
@@ -242,25 +252,49 @@ export default function ResumeBuilder() {
       const experienceText = buildExperienceText();
       const educationText = buildEducationText();
 
-      const systemPrompt = `You are an expert resume writer. Create a professional, ATS-optimized resume in clean markdown format.
+      const toneInstruction = tone === "aggressive"
+        ? "TONE: Aggressive — bold, high-impact, recruiter-stopping language. Lead every bullet with a power verb (Spearheaded, Engineered, Pioneered, Catalyzed, Architected). Quantify aggressively. Use '$' and '%' liberally."
+        : tone === "concise"
+        ? "TONE: Concise — ATS-optimized, dense keywords, max 18 words per bullet, no fluff. Drop articles when possible."
+        : "TONE: Professional — confident, polished, results-focused. Strong verbs without hyperbole.";
 
-CRITICAL FORMATTING RULES:
-1. Start with the candidate's name as # heading, then contact info on one line separated by |
-2. Add a 2-3 sentence professional summary under ## Professional Summary
-3. List each job under ## Professional Experience with this EXACT format:
-   ### Job Title | Company Name
-   **Location** | **Start Date – End Date**
-   - Achievement bullet using XYZ format: "Accomplished [X] as measured by [Y], by doing [Z]"
-   - Each bullet starts with a strong action verb and includes metrics/numbers
-4. ## Education section
-5. ## Skills section with comma-separated skills grouped by category
-6. Use the candidate's EXACT contact details provided. Never use placeholders like [Name] or [Email].
-7. Every bullet point MUST have quantifiable results (%, $, numbers).
-8. Keep it to 1-2 pages worth of content.`;
+      setLoadingStage("Analyzing your background...");
+
+      const systemPrompt = `You are a top-tier resume writer who has placed candidates at FAANG, McKinsey, and unicorn startups. Output a complete, ATS-optimized resume in clean Markdown.
+
+${toneInstruction}
+
+STRUCTURE (use EXACTLY in this order):
+1. # ${values.fullName || "Candidate Name"}
+2. Contact line under name (no heading) — pipe-separated.
+3. ## Executive Summary
+   - 3-4 sentence punchy summary tailored to "${values.role}". Lead with years of experience + domain + 1 standout achievement with metric. NO generic phrases like "passionate" or "results-driven".
+4. ## Professional Experience
+   For each role:
+   ### Job Title | Company
+   **Location** | **Start – End**
+   - 3-5 bullets. EVERY bullet uses Google XYZ format: "Accomplished [X] as measured by [Y], by doing [Z]". Example: "Increased qualified pipeline by 47% ($2.4M ARR) by launching an AI lead-scoring model across 3 SDR teams."
+   - EVERY bullet starts with a strong action verb (NEVER: "Responsible for", "Worked on", "Helped with").
+   - EVERY bullet contains a metric (%, $, #, time saved, scale). If user didn't provide one, intelligently infer a reasonable one based on the role/company size.
+5. ## Skills
+   Group by category. Format: **Category:** skill1, skill2, skill3
+   Categories: Technical, Tools & Platforms, Leadership, Domain Expertise.
+   PRIORITIZE keywords for "${values.role}" role.
+6. ## Education
+7. ## Certifications (only if relevant)
+
+HARD RULES:
+- Use the candidate's EXACT contact info — never placeholders.
+- Tailor every section to the target role: ${values.role}.
+- Inject these keywords naturally where credible: ${values.keywords || "(infer from role)"}
+- No first-person pronouns. No buzzword soup ("synergy", "leverage", "go-getter").
+- Total length: 1-2 pages of dense, scannable content.`;
 
       const userPrompt = hasUpload && !hasExperience
-        ? `Improve this resume for a ${values.role} role. Use these exact contact details at the top: ${contactInfo}\n\nKey Skills: ${values.keywords || "Not specified"}\n\nExisting resume content:\n${extractedText}\n\nEducation:\n${educationText || "Include from existing resume"}`
-        : `Create a professional resume for a ${values.role} role.\n\nContact: ${contactInfo}\n\nWork Experience:\n${experienceText}\n\nEducation:\n${educationText}\n\nKey Skills: ${values.keywords || "Not specified"}\n\n${hasUpload ? `Additional context from uploaded resume:\n${extractedText}` : ""}`;
+        ? `Rewrite and dramatically improve this resume for a "${values.role}" role.\n\nUse these exact contact details: ${contactInfo}\nKey skills to emphasize: ${values.keywords || "(extract from resume)"}\n\nORIGINAL RESUME:\n${extractedText}\n\nEducation (if provided):\n${educationText || "(use from resume)"}\n\nApply XYZ format to every bullet, add inferred metrics where missing, and rewrite weak language.`
+        : `Create a premium resume for a "${values.role}" role.\n\nContact: ${contactInfo}\n\nWork Experience:\n${experienceText}\n\nEducation:\n${educationText}\n\nKey Skills: ${values.keywords || "(infer from role)"}\n\n${hasUpload ? `Additional context from uploaded resume:\n${extractedText}` : ""}`;
+
+      setLoadingStage("Applying recruiter logic & XYZ format...");
 
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
@@ -291,12 +325,50 @@ CRITICAL FORMATTING RULES:
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
-            if (content) { fullText += content; setResult(fullText); }
+            if (content) { fullText += content; setResult(fullText); setLoadingStage("Improving bullet points..."); }
           } catch {}
         }
       }
 
-      if (fullText) runAtsScore(fullText);
+      setLoadingStage("");
+      if (fullText) {
+        runAtsScore(fullText);
+        // Score original separately for diff view if we had an upload
+        if (extractedText) {
+          (async () => {
+            try {
+              const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+                body: JSON.stringify({
+                  systemPrompt: `You are an ATS scorer. Reply ONLY with a single number 0-100 representing ATS quality. No words.`,
+                  userPrompt: `Score this resume for a ${values.role} role:\n\n${extractedText}`,
+                }),
+              });
+              if (!r.ok || !r.body) return;
+              const rd = r.body.getReader();
+              const dec = new TextDecoder();
+              let buf = "", txt = "";
+              while (true) {
+                const { done, value } = await rd.read();
+                if (done) break;
+                buf += dec.decode(value, { stream: true });
+                let i: number;
+                while ((i = buf.indexOf("\n")) !== -1) {
+                  let l = buf.slice(0, i); buf = buf.slice(i + 1);
+                  if (l.endsWith("\r")) l = l.slice(0, -1);
+                  if (!l.startsWith("data: ")) continue;
+                  const j = l.slice(6).trim();
+                  if (j === "[DONE]") break;
+                  try { const p = JSON.parse(j); const c = p.choices?.[0]?.delta?.content; if (c) txt += c; } catch {}
+                }
+              }
+              const num = parseInt(txt.replace(/\D/g, "").slice(0, 3), 10);
+              if (!isNaN(num) && num >= 0 && num <= 100) setOriginalScore(num);
+            } catch {}
+          })();
+        }
+      }
 
       if (user && fullText) {
         await supabase.from("generations").insert({
@@ -311,7 +383,7 @@ CRITICAL FORMATTING RULES:
     } finally {
       setLoading(false);
     }
-  }, [values, experiences, educations, extractedText, isLimitReached, trackUsage, uploadedFile, user]);
+  }, [values, experiences, educations, extractedText, isLimitReached, trackUsage, uploadedFile, user, tone]);
 
   const copyResult = () => {
     navigator.clipboard.writeText(result);
@@ -424,9 +496,33 @@ CRITICAL FORMATTING RULES:
             onChange={(e) => setValues(v => ({ ...v, keywords: e.target.value }))}
             className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
         </div>
+        <div>
+          <label className="text-sm font-medium text-foreground mb-1.5 block">Writing Tone</label>
+          <div className="grid grid-cols-3 gap-2">
+            {([
+              { id: "professional", label: "Professional", emoji: "💼", desc: "Polished, confident" },
+              { id: "aggressive", label: "Aggressive", emoji: "🔥", desc: "Bold, high-impact" },
+              { id: "concise", label: "Concise", emoji: "⚡", desc: "ATS-dense, no fluff" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setTone(opt.id)}
+                className={`p-3 rounded-lg border text-left transition-all ${
+                  tone === opt.id
+                    ? "border-primary bg-primary/10 shadow-[0_0_18px_-4px_hsl(var(--primary)/0.5)]"
+                    : "border-border/50 bg-secondary/30 hover:border-primary/40 hover:bg-secondary/50"
+                }`}
+              >
+                <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <span>{opt.emoji}</span> {opt.label}
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">{opt.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
       </motion.div>
-
-      {/* Work Experience - Structured */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
         className="glass-card p-6 space-y-4">
         <div className="flex items-center justify-between">
@@ -580,9 +676,12 @@ CRITICAL FORMATTING RULES:
         {loading && !result && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="glass-card overflow-hidden p-6" style={{ borderTop: "3px solid hsl(var(--primary))" }}>
-            <h2 className="font-display font-semibold text-lg mb-4">Generating your resume...</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <h2 className="font-display font-semibold text-lg">{loadingStage || "Analyzing your background..."}</h2>
+            </div>
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground mb-3">~15 seconds. You'll be able to edit every line after.</p>
+              <p className="text-sm text-muted-foreground mb-3">~15 seconds. Every line will be editable when ready.</p>
               {[85, 70, 90, 60, 75].map((w, i) => (
                 <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />
               ))}
@@ -655,25 +754,29 @@ CRITICAL FORMATTING RULES:
 
       {/* Live Editor (replaces old static result + templates) */}
       {result && !loading && (
-        <ResumeEditor initialMarkdown={result} inputData={{ ...values, experiences, educations }} />
+        <ResumeEditor
+          initialMarkdown={result}
+          inputData={{ ...values, experiences, educations, tone }}
+          targetRole={values.role || ""}
+          originalMarkdown={originalMarkdown}
+          originalScore={originalScore}
+          improvedScore={atsScore?.score ?? null}
+        />
       )}
-
-      <AnimatePresence>
-        {result && !loading && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5">
-            <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {otherTools.map((tool) => (
-                <Link key={tool.title} to={tool.url} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/60 transition-all duration-200 group">
-                  <span className="text-lg">{tool.emoji}</span>
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{tool.title}</span>
-                  <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {result && !loading && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5">
+          <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {otherTools.map((tool) => (
+              <Link key={tool.title} to={tool.url} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/60 transition-all duration-200 group">
+                <span className="text-lg">{tool.emoji}</span>
+                <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{tool.title}</span>
+                <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       <div className="glass-card p-6 space-y-4">
         <h2 className="font-display text-xl font-semibold">Why Use an AI Resume Builder?</h2>

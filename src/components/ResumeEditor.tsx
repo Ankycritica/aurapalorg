@@ -1,10 +1,27 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Lock, Crown, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Loader2, Save, Eye, Copy, FileText, Settings2, Target, Layers } from "lucide-react";
+import { Download, Lock, Crown, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Loader2, Save, Eye, Copy, FileText, Settings2, Target, Layers, Wand2, Expand, GripVertical, Lightbulb, GitCompare, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 /* ───────── Types ───────── */
 
@@ -179,63 +196,147 @@ function Editable({ value, onChange, className = "", multiline = false, placehol
 interface TemplateProps {
   data: ResumeData;
   update: (next: ResumeData) => void;
-  onAiRewrite: (sectionId: string, itemIdx: number) => void;
-  rewritingKey: string | null;
+  onAiAction: (sectionId: string, itemIdx: number, action: "rewrite" | "improve" | "expand") => void;
+  busyKey: string | null;
 }
 
-function SectionItems({ section, sIdx, update, data, onAiRewrite, rewritingKey }: {
+/* Sortable wrapper for a single bullet within a section */
+function SortableBullet({
+  id,
+  section,
+  idx,
+  data,
+  update,
+  onAiAction,
+  busyKey,
+}: {
+  id: string;
+  section: ResumeSection;
+  idx: number;
+  data: ResumeData;
+  update: (n: ResumeData) => void;
+  onAiAction: (sectionId: string, itemIdx: number, action: "rewrite" | "improve" | "expand") => void;
+  busyKey: string | null;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  const item = section.items[idx];
+  const key = `${section.id}-${idx}`;
+  const isBusy = busyKey?.startsWith(key);
+
+  const updateItem = (v: string) => {
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.map((it, j) => j === idx ? v : it) } : s) });
+  };
+  const removeItem = () => {
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.filter((_, j) => j !== idx) } : s) });
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="group/item flex items-start gap-1 relative">
+      <button
+        {...attributes}
+        {...listeners}
+        className="opacity-0 group-hover/item:opacity-60 hover:!opacity-100 cursor-grab active:cursor-grabbing p-0.5 rounded text-gray-400 print:hidden mt-0.5"
+        title="Drag to reorder"
+        aria-label="Drag bullet"
+      >
+        <GripVertical className="h-3 w-3" />
+      </button>
+      <div className="flex-1">
+        <Editable
+          value={item}
+          onChange={updateItem}
+          placeholder="Click to add..."
+          className="text-inherit"
+        />
+      </div>
+      <div className="opacity-0 group-hover/item:opacity-100 transition-opacity flex gap-0.5 shrink-0 print:hidden">
+        <button
+          onClick={() => onAiAction(section.id, idx, "improve")}
+          disabled={isBusy || !item?.trim()}
+          title="✨ Improve (add metric, sharpen verb)"
+          className="p-1 rounded hover:bg-emerald-100 text-emerald-600 disabled:opacity-30"
+        >
+          {busyKey === `${key}-improve` ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+        </button>
+        <button
+          onClick={() => onAiAction(section.id, idx, "rewrite")}
+          disabled={isBusy || !item?.trim()}
+          title="🔁 Rewrite in XYZ format"
+          className="p-1 rounded hover:bg-purple-100 text-purple-600 disabled:opacity-30"
+        >
+          {busyKey === `${key}-rewrite` ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+        </button>
+        <button
+          onClick={() => onAiAction(section.id, idx, "expand")}
+          disabled={isBusy || !item?.trim()}
+          title="➕ Expand into 2-3 bullets"
+          className="p-1 rounded hover:bg-blue-100 text-blue-600 disabled:opacity-30"
+        >
+          {busyKey === `${key}-expand` ? <Loader2 className="h-3 w-3 animate-spin" /> : <Expand className="h-3 w-3" />}
+        </button>
+        <button
+          onClick={removeItem}
+          title="❌ Delete"
+          className="p-1 rounded hover:bg-red-100 text-red-500"
+        >
+          <Trash2 className="h-3 w-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SectionItems({ section, sIdx, update, data, onAiAction, busyKey }: {
   section: ResumeSection;
   sIdx: number;
   data: ResumeData;
   update: (n: ResumeData) => void;
-  onAiRewrite: (sectionId: string, itemIdx: number) => void;
-  rewritingKey: string | null;
+  onAiAction: (sectionId: string, itemIdx: number, action: "rewrite" | "improve" | "expand") => void;
+  busyKey: string | null;
 }) {
-  const updateItem = (idx: number, v: string) => {
-    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.map((it, j) => j === idx ? v : it) } : s) });
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const ids = section.items.map((_, i) => `${section.id}::${i}`);
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const from = ids.indexOf(active.id as string);
+    const to = ids.indexOf(over.id as string);
+    if (from < 0 || to < 0) return;
+    const next = arrayMove(section.items, from, to);
+    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: next } : s) });
   };
-  const removeItem = (idx: number) => {
-    update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: s.items.filter((_, j) => j !== idx) } : s) });
-  };
+
   const addItem = () => {
     update({ ...data, sections: data.sections.map(s => s.id === section.id ? { ...s, items: [...s.items, ""] } : s) });
   };
 
   return (
     <div className="space-y-1">
-      {section.items.map((item, idx) => {
-        const key = `${section.id}-${idx}`;
-        const isRewriting = rewritingKey === key;
-        return (
-          <div key={idx} className="group/item flex items-start gap-1 relative">
-            <div className="flex-1">
-              <Editable
-                value={item}
-                onChange={(v) => updateItem(idx, v)}
-                placeholder="Click to add..."
-                className="text-inherit"
-              />
-            </div>
-            <div className="opacity-0 group-hover/item:opacity-100 transition-opacity flex gap-0.5 shrink-0 print:hidden">
-              <button
-                onClick={() => onAiRewrite(section.id, idx)}
-                disabled={isRewriting || !item.trim()}
-                title="Rewrite with AI"
-                className="p-1 rounded hover:bg-purple-100 text-purple-600 disabled:opacity-30"
-              >
-                {isRewriting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-              </button>
-              <button
-                onClick={() => removeItem(idx)}
-                title="Remove"
-                className="p-1 rounded hover:bg-red-100 text-red-500"
-              >
-                <Trash2 className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
-        );
-      })}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+          {section.items.map((_, idx) => (
+            <SortableBullet
+              key={`${section.id}::${idx}`}
+              id={`${section.id}::${idx}`}
+              section={section}
+              idx={idx}
+              data={data}
+              update={update}
+              onAiAction={onAiAction}
+              busyKey={busyKey}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
       <button
         onClick={addItem}
         className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-blue-600 hover:text-blue-800 flex items-center gap-1 mt-1 print:hidden"
@@ -303,7 +404,7 @@ interface ThemeProps {
   sidebar?: boolean;
 }
 
-function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSections }: TemplateProps & { theme: ThemeProps; viewSections?: ResumeSection[] }) {
+function ThemedTemplate({ data, update, onAiAction, busyKey, theme, viewSections }: TemplateProps & { theme: ThemeProps; viewSections?: ResumeSection[] }) {
   const updateName = (v: string) => update({ ...data, name: v });
   const updateContact = (v: string) => update({ ...data, contact: v.split(/\s*[|•·]\s*/).map(s => s.trim()).filter(Boolean) });
 
@@ -326,7 +427,7 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSe
                 <h2 className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300 mb-1.5">
                   <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
                 </h2>
-                <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} />
+                <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiAction={onAiAction} busyKey={busyKey} />
               </div>
             );
           })}
@@ -339,7 +440,7 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSe
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-800 border-b border-gray-200 pb-1 mb-2">
                   <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
                 </h2>
-                <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} />
+                <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiAction={onAiAction} busyKey={busyKey} />
               </div>
             );
           })}
@@ -380,7 +481,7 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSe
               <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
             </h2>
             <div className="text-gray-700">
-              <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} />
+              <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiAction={onAiAction} busyKey={busyKey} />
             </div>
           </div>
         ))}
@@ -420,12 +521,17 @@ const themes: Record<string, ThemeProps> = {
 interface ResumeEditorProps {
   initialMarkdown: string;
   inputData: any;
+  targetRole?: string;
+  originalMarkdown?: string;
+  originalScore?: number | null;
+  improvedScore?: number | null;
 }
 
-export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) {
+export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalMarkdown, originalScore, improvedScore }: ResumeEditorProps) {
   const [data, setData] = useState<ResumeData>(() => parseMarkdownToResume(initialMarkdown));
   const [selected, setSelected] = useState("modern");
-  const [rewritingKey, setRewritingKey] = useState<string | null>(null);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved">("idle");
   const [showTemplates, setShowTemplates] = useState(false);
   const [showSmartControls, setShowSmartControls] = useState(true);
@@ -490,26 +596,38 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
     });
   };
 
-  const onAiRewrite = useCallback(async (sectionId: string, itemIdx: number) => {
+  const onAiAction = useCallback(async (sectionId: string, itemIdx: number, action: "rewrite" | "improve" | "expand" = "rewrite") => {
     const section = data.sections.find(s => s.id === sectionId);
     if (!section) return;
     const original = section.items[itemIdx];
     if (!original?.trim()) return;
-    const key = `${sectionId}-${itemIdx}`;
-    setRewritingKey(key);
+    const key = `${sectionId}-${itemIdx}-${action}`;
+    setBusyKey(key);
+
+    const roleCtx = targetRole ? ` for a "${targetRole}" role` : "";
+    const prompts: Record<typeof action, { sys: string; user: string }> = {
+      rewrite: {
+        sys: "You are a top resume writer. Rewrite the bullet using Google XYZ format: 'Accomplished [X] as measured by [Y], by doing [Z]'. Strong action verb start, quantified metric (%, $, #), under 25 words. Reply with ONLY the rewritten bullet — no quotes, no preamble.",
+        user: `Section: ${section.heading}${roleCtx}\n\nRewrite:\n${original}`,
+      },
+      improve: {
+        sys: "You are a recruiter-grade resume editor. Lightly improve the bullet: stronger action verb, add a credible inferred metric if missing, tighten language. Keep the same core meaning. Reply with ONLY the improved bullet — no quotes, no preamble.",
+        user: `Section: ${section.heading}${roleCtx}\n\nImprove:\n${original}`,
+      },
+      expand: {
+        sys: "You are an expert resume writer. Expand this single bullet into 2-3 specific, metric-rich bullets in XYZ format. Each on its own line, no leading dashes, no numbering, no preamble. Each under 25 words.",
+        user: `Section: ${section.heading}${roleCtx}\n\nExpand:\n${original}`,
+      },
+    };
+
     try {
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({
-          systemPrompt: "You are a resume writing expert. Rewrite the bullet point using the XYZ format: 'Accomplished [X] as measured by [Y], by doing [Z]'. Use a strong action verb, include quantifiable metrics (%, $, numbers), and keep it under 25 words. Reply with ONLY the rewritten bullet, no quotes, no preamble.",
-          userPrompt: `Section: ${section.heading}\n\nRewrite this bullet point to be more impactful:\n${original}`,
-        }),
+        body: JSON.stringify({ systemPrompt: prompts[action].sys, userPrompt: prompts[action].user }),
       });
-      if (!resp.ok || !resp.body) {
-        toast.error("AI rewrite failed");
-        return;
-      }
+      if (!resp.ok || !resp.body) { toast.error("AI action failed"); return; }
+
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "", fullText = "";
@@ -517,10 +635,10 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        let idx: number;
-        while ((idx = buffer.indexOf("\n")) !== -1) {
-          let line = buffer.slice(0, idx);
-          buffer = buffer.slice(idx + 1);
+        let i: number;
+        while ((i = buffer.indexOf("\n")) !== -1) {
+          let line = buffer.slice(0, i);
+          buffer = buffer.slice(i + 1);
           if (line.endsWith("\r")) line = line.slice(0, -1);
           if (!line.startsWith("data: ")) continue;
           const jsonStr = line.slice(6).trim();
@@ -533,7 +651,20 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
         }
       }
       const cleaned = fullText.replace(/^[ "'\-•*\s]+|[ "'\s]+$/g, "").trim();
-      if (cleaned) {
+      if (!cleaned) return;
+
+      if (action === "expand") {
+        const newBullets = cleaned.split("\n").map(l => l.replace(/^[\-*•\d.)\s]+/, "").trim()).filter(Boolean);
+        if (!newBullets.length) return;
+        const next = {
+          ...data,
+          sections: data.sections.map(s => s.id === sectionId
+            ? { ...s, items: s.items.flatMap((it, j) => j === itemIdx ? newBullets : [it]) }
+            : s),
+        };
+        update(next);
+        toast.success(`Expanded into ${newBullets.length} bullets ✨`);
+      } else {
         const next = {
           ...data,
           sections: data.sections.map(s => s.id === sectionId
@@ -541,14 +672,14 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
             : s),
         };
         update(next);
-        toast.success("Bullet rewritten ✨");
+        toast.success(action === "improve" ? "Bullet improved ✨" : "Bullet rewritten ✨");
       }
     } catch {
-      toast.error("AI rewrite failed");
+      toast.error("AI action failed");
     } finally {
-      setRewritingKey(null);
+      setBusyKey(null);
     }
-  }, [data, update]);
+  }, [data, update, targetRole]);
 
   const downloadPDF = async () => {
     if (isLocked) { navigate("/pricing"); return; }
@@ -891,7 +1022,7 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
           className={`border border-border/30 rounded-lg overflow-hidden bg-white transition-all duration-300 ${densityClass} ${focusEmphasisClass}`}
           style={{ boxShadow: "0 0 0 1px hsl(var(--primary) / 0.15), 0 25px 50px -15px rgba(0,0,0,0.6), 0 0 60px -20px hsl(var(--primary) / 0.25)" }}
         >
-          <ThemedTemplate data={data} viewSections={displayData.sections} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} theme={theme} />
+          <ThemedTemplate data={data} viewSections={displayData.sections} update={update} onAiAction={onAiAction} busyKey={busyKey} theme={theme} />
         </motion.div>
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
           💡 Hover any line for AI rewrite or delete. Use Controls above to toggle sections, change density, or set focus.
