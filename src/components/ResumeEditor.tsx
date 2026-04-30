@@ -404,7 +404,7 @@ interface ThemeProps {
   sidebar?: boolean;
 }
 
-function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSections }: TemplateProps & { theme: ThemeProps; viewSections?: ResumeSection[] }) {
+function ThemedTemplate({ data, update, onAiAction, busyKey, theme, viewSections }: TemplateProps & { theme: ThemeProps; viewSections?: ResumeSection[] }) {
   const updateName = (v: string) => update({ ...data, name: v });
   const updateContact = (v: string) => update({ ...data, contact: v.split(/\s*[|•·]\s*/).map(s => s.trim()).filter(Boolean) });
 
@@ -427,7 +427,7 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSe
                 <h2 className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300 mb-1.5">
                   <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
                 </h2>
-                <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} />
+                <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiAction={onAiAction} busyKey={busyKey} />
               </div>
             );
           })}
@@ -440,7 +440,7 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSe
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-800 border-b border-gray-200 pb-1 mb-2">
                   <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
                 </h2>
-                <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} />
+                <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiAction={onAiAction} busyKey={busyKey} />
               </div>
             );
           })}
@@ -481,7 +481,7 @@ function ThemedTemplate({ data, update, onAiRewrite, rewritingKey, theme, viewSe
               <SectionHeader section={sec} sIdx={sIdx} data={data} update={update} />
             </h2>
             <div className="text-gray-700">
-              <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} />
+              <SectionItems section={sec} sIdx={sIdx} data={data} update={update} onAiAction={onAiAction} busyKey={busyKey} />
             </div>
           </div>
         ))}
@@ -526,7 +526,7 @@ interface ResumeEditorProps {
 export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) {
   const [data, setData] = useState<ResumeData>(() => parseMarkdownToResume(initialMarkdown));
   const [selected, setSelected] = useState("modern");
-  const [rewritingKey, setRewritingKey] = useState<string | null>(null);
+  const [busyKey, setRewritingKey] = useState<string | null>(null);
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved">("idle");
   const [showTemplates, setShowTemplates] = useState(false);
   const [showSmartControls, setShowSmartControls] = useState(true);
@@ -591,7 +591,7 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
     });
   };
 
-  const onAiRewrite = useCallback(async (sectionId: string, itemIdx: number) => {
+  const onAiAction = useCallback(async (sectionId: string, itemIdx: number) => {
     const section = data.sections.find(s => s.id === sectionId);
     if (!section) return;
     const original = section.items[itemIdx];
@@ -992,7 +992,7 @@ export function ResumeEditor({ initialMarkdown, inputData }: ResumeEditorProps) 
           className={`border border-border/30 rounded-lg overflow-hidden bg-white transition-all duration-300 ${densityClass} ${focusEmphasisClass}`}
           style={{ boxShadow: "0 0 0 1px hsl(var(--primary) / 0.15), 0 25px 50px -15px rgba(0,0,0,0.6), 0 0 60px -20px hsl(var(--primary) / 0.25)" }}
         >
-          <ThemedTemplate data={data} viewSections={displayData.sections} update={update} onAiRewrite={onAiRewrite} rewritingKey={rewritingKey} theme={theme} />
+          <ThemedTemplate data={data} viewSections={displayData.sections} update={update} onAiAction={onAiAction} busyKey={busyKey} theme={theme} />
         </motion.div>
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
           💡 Hover any line for AI rewrite or delete. Use Controls above to toggle sections, change density, or set focus.
