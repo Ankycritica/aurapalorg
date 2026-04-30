@@ -754,11 +754,16 @@ HARD RULES:
 
       {/* Live Editor (replaces old static result + templates) */}
       {result && !loading && (
-        <ResumeEditor initialMarkdown={result} inputData={{ ...values, experiences, educations }} />
+        <ResumeEditor
+          initialMarkdown={result}
+          inputData={{ ...values, experiences, educations, tone }}
+          targetRole={values.role || ""}
+          originalMarkdown={originalMarkdown}
+          originalScore={originalScore}
+          improvedScore={atsScore?.score ?? null}
+        />
       )}
-
-      <AnimatePresence>
-        {result && !loading && (
+      {result && !loading && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5">
             <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
