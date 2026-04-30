@@ -676,9 +676,12 @@ HARD RULES:
         {loading && !result && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="glass-card overflow-hidden p-6" style={{ borderTop: "3px solid hsl(var(--primary))" }}>
-            <h2 className="font-display font-semibold text-lg mb-4">Generating your resume...</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <h2 className="font-display font-semibold text-lg">{loadingStage || "Analyzing your background..."}</h2>
+            </div>
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground mb-3">~15 seconds. You'll be able to edit every line after.</p>
+              <p className="text-sm text-muted-foreground mb-3">~15 seconds. Every line will be editable when ready.</p>
               {[85, 70, 90, 60, 75].map((w, i) => (
                 <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />
               ))}
