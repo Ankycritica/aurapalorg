@@ -951,6 +951,19 @@ Give 5-7 specific, non-generic suggestions. Focus on weak verbs, missing metrics
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm text-foreground hover:bg-secondary transition-all">
             <Settings2 className="h-4 w-4" /> Controls
           </button>
+          <button onClick={fetchSuggestions}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-400 text-sm hover:bg-amber-500/25 transition-all">
+            <Lightbulb className="h-4 w-4" /> Suggestions
+          </button>
+          {hasBeforeAfter && (
+            <button onClick={() => setShowBeforeAfter(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500/20 to-blue-500/20 text-emerald-400 text-sm hover:from-emerald-500/30 hover:to-blue-500/30 transition-all">
+              <GitCompare className="h-4 w-4" /> Before / After
+              {scoreDelta > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300">+{scoreDelta}</span>
+              )}
+            </button>
+          )}
           <button onClick={() => setShowTemplates(s => !s)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm text-foreground hover:bg-secondary transition-all">
             <Eye className="h-4 w-4" /> {showTemplates ? "Hide" : "All"} Templates
