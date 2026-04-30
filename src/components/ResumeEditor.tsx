@@ -1,10 +1,27 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Lock, Crown, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Loader2, Save, Eye, Copy, FileText, Settings2, Target, Layers } from "lucide-react";
+import { Download, Lock, Crown, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Loader2, Save, Eye, Copy, FileText, Settings2, Target, Layers, Wand2, Expand, GripVertical, Lightbulb, GitCompare, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 /* ───────── Types ───────── */
 
