@@ -19,7 +19,14 @@ export function useUsage() {
   const plan = profile?.plan ?? "free";
   const isFree = plan === "free";
 
-  const limit = isFree ? FREE_LIFETIME_LIMIT : (DAILY_LIMITS[plan] ?? 100);
+  // For free users: dynamic limit = 5 + earned referral (cap 100) + earned share (cap 50)
+  const dynamicFreeLimit = isFree
+    ? FREE_LIFETIME_LIMIT
+      + Math.min((profile as any)?.referral_credits_earned ?? 0, 100)
+      + Math.min((profile as any)?.share_credits_earned ?? 0, 50)
+    : FREE_LIFETIME_LIMIT;
+
+  const limit = isFree ? dynamicFreeLimit : (DAILY_LIMITS[plan] ?? 100);
   const remaining = Math.max(0, limit - usageCount);
   const isLimitReached = usageCount >= limit;
 
