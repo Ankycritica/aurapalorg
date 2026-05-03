@@ -91,6 +91,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, [user, checkSubscription]);
 
+  // Auto-redeem referral code captured at signup time
+  useEffect(() => {
+    if (!user) return;
+    const code = (() => { try { return localStorage.getItem("aurapal_referred_by"); } catch { return null; } })();
+    if (!code) return;
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke("award-credits", {
+          body: { action: "redeem_referral", code },
+        });
+        try { localStorage.removeItem("aurapal_referred_by"); } catch {}
+        if ((data as any)?.ok) {
+          await fetchProfile(user.id);
+        }
+      } catch {}
+    })();
+  }, [user]);
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
