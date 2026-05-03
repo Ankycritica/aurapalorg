@@ -87,6 +87,9 @@ export type Database = {
           id: string
           lifetime_credits_used: number
           plan: Database["public"]["Enums"]["app_plan"]
+          referral_code: string | null
+          referral_credits_earned: number
+          share_credits_earned: number
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_status: string | null
@@ -104,6 +107,9 @@ export type Database = {
           id?: string
           lifetime_credits_used?: number
           plan?: Database["public"]["Enums"]["app_plan"]
+          referral_code?: string | null
+          referral_credits_earned?: number
+          share_credits_earned?: number
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
@@ -121,6 +127,9 @@ export type Database = {
           id?: string
           lifetime_credits_used?: number
           plan?: Database["public"]["Enums"]["app_plan"]
+          referral_code?: string | null
+          referral_credits_earned?: number
+          share_credits_earned?: number
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
@@ -128,6 +137,33 @@ export type Database = {
           trial_start?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_ip: string | null
+          referred_user_id: string
+          referrer_id: string
+          referrer_ip: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_ip?: string | null
+          referred_user_id: string
+          referrer_id: string
+          referrer_ip?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_ip?: string | null
+          referred_user_id?: string
+          referrer_id?: string
+          referrer_ip?: string | null
         }
         Relationships: []
       }
@@ -161,7 +197,9 @@ export type Database = {
     }
     Functions: {
       get_daily_usage: { Args: { p_user_id: string }; Returns: number }
+      get_free_limit: { Args: { p_user_id: string }; Returns: number }
       get_lifetime_usage: { Args: { p_user_id: string }; Returns: number }
+      get_today_share_count: { Args: { p_user_id: string }; Returns: number }
       get_user_plan: {
         Args: { p_user_id: string }
         Returns: Database["public"]["Enums"]["app_plan"]
