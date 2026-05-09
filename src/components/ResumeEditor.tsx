@@ -22,6 +22,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { aiFetch } from "@/lib/aiFetch";
 
 /* ───────── Types ───────── */
 
@@ -676,11 +677,7 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
     };
 
     try {
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ systemPrompt: prompts[action].sys, userPrompt: prompts[action].user }),
-      });
+      const resp = await aiFetch("ai-tool", { systemPrompt: prompts[action].sys, userPrompt: prompts[action].user });
       if (!resp.ok || !resp.body) { toast.error("AI action failed"); return; }
 
       const reader = resp.body.getReader();
@@ -873,15 +870,11 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
     setSuggestionsLoading(true);
     try {
       const md = resumeToMarkdown(data);
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({
-          systemPrompt: `You are a brutal, helpful resume reviewer. Return ONLY valid JSON (no markdown), shape:
+      const resp = await aiFetch("ai-tool", {
+        systemPrompt: `You are a brutal, helpful resume reviewer. Return ONLY valid JSON (no markdown), shape:
 {"suggestions":[{"title":"<short fix>","detail":"<1-2 sentences why and how>","severity":"high|medium|low"}]}
 Give 5-7 specific, non-generic suggestions. Focus on weak verbs, missing metrics, vague claims, ATS keyword gaps${targetRole ? ` for "${targetRole}"` : ""}, and bullet structure.`,
-          userPrompt: `Review this resume and produce suggestions:\n\n${md}`,
-        }),
+        userPrompt: `Review this resume and produce suggestions:\n\n${md}`,
       });
       if (!resp.ok || !resp.body) { setSuggestionsLoading(false); return; }
       const reader = resp.body.getReader();

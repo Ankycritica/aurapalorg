@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { attributionFooter } from "@/lib/referral";
+import { aiFetch } from "@/lib/aiFetch";
 
 interface ToolField {
   id: string;
@@ -126,11 +127,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
       const tracked = await trackUsage(toolSlug);
       if (!tracked) { setShowPaywall(true); setLoading(false); return; }
 
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ systemPrompt, userPrompt: buildUserPrompt(values) }),
-      });
+      const resp = await aiFetch("ai-tool", { systemPrompt, userPrompt: buildUserPrompt(values), toolName: toolSlug });
 
       if (resp.status === 429) { setError("Too many requests. Please wait."); setLoading(false); return; }
       if (resp.status === 402) { setError("AI credits exhausted."); setLoading(false); return; }
