@@ -155,10 +155,49 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // --- Auth ---
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await (userClient.auth as any).getClaims(token);
+    const userId = claimsData?.claims?.sub;
+    if (claimsErr || !userId) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // --- Server-side limit check ---
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
+    const { data: profile } = await admin.from("profiles").select("plan").eq("user_id", userId).single();
+    const plan = profile?.plan ?? "free";
+    let limit = Infinity, used = 0;
+    if (plan === "free") {
+      const { data: l } = await admin.rpc("get_free_limit", { p_user_id: userId });
+      const { data: u } = await admin.rpc("get_lifetime_usage", { p_user_id: userId });
+      limit = (l as number) ?? 5; used = (u as number) ?? 0;
+    } else if (plan === "trialing" || plan === "pro") {
+      const { data: u } = await admin.rpc("get_daily_usage", { p_user_id: userId });
+      limit = 100; used = (u as number) ?? 0;
+    }
+    if (used >= limit) {
+      return new Response(JSON.stringify({ error: "Usage limit reached" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const { goal, context } = await req.json();
     if (!goal || typeof goal !== "string") {
       return new Response(JSON.stringify({ error: "Missing goal" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+
+    // Record usage server-side
+    await admin.from("usage_tracking").insert({ user_id: userId, tool_name: "aura-agent" });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
