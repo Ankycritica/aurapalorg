@@ -40,18 +40,13 @@ export function useUsage() {
 
   useEffect(() => { fetchUsage(); }, [fetchUsage]);
 
-  const trackUsage = useCallback(async (toolName: string) => {
+  // Server-side enforcement happens in the AI edge functions; this is just an
+  // optimistic client-side gate so we can show a paywall before calling the API.
+  const trackUsage = useCallback(async (_toolName: string) => {
     if (!user) return false;
     if (isLimitReached) return false;
-    const { error } = await supabase.from("usage_tracking").insert({
-      user_id: user.id,
-      tool_name: toolName,
-    });
-    if (!error) {
-      setUsageCount(c => c + 1);
-      return true;
-    }
-    return false;
+    setUsageCount(c => c + 1);
+    return true;
   }, [user, isLimitReached]);
 
   return {
