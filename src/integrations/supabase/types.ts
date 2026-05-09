@@ -144,26 +144,20 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          referred_ip: string | null
           referred_user_id: string
           referrer_id: string
-          referrer_ip: string | null
         }
         Insert: {
           created_at?: string
           id?: string
-          referred_ip?: string | null
           referred_user_id: string
           referrer_id: string
-          referrer_ip?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          referred_ip?: string | null
           referred_user_id?: string
           referrer_id?: string
-          referrer_ip?: string | null
         }
         Relationships: []
       }
