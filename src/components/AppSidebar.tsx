@@ -51,8 +51,8 @@ function SidebarInner({ collapsed, onNavigate, isAdmin, isPaid }: { collapsed: b
               {tools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === "/dashboard"} className={`hover:bg-sidebar-accent/50 transition-colors duration-200 ${(item as any).highlight ? "text-primary font-semibold" : ""}`} activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
-                      <item.icon className={`h-4 w-4 mr-2 shrink-0 ${(item as any).highlight ? "text-primary" : ""}`} />
+                    <NavLink to={item.url} end={item.url === "/dashboard"} className={`group relative overflow-hidden hover:bg-sidebar-accent/50 hover:translate-x-0.5 transition-all duration-200 ${(item as any).highlight ? "text-primary font-semibold" : ""}`} activeClassName="bg-sidebar-accent text-sidebar-primary font-medium before:content-[''] before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[3px] before:rounded-r-full before:bg-gradient-to-b before:from-primary before:to-accent before:shadow-[0_0_12px_hsl(var(--primary)/0.6)]" onClick={onNavigate}>
+                      <item.icon className={`h-4 w-4 mr-2 shrink-0 transition-transform duration-200 group-hover:scale-110 ${(item as any).highlight ? "text-primary" : ""}`} />
                       {!collapsed && <span>{item.title}{(item as any).highlight && <span className="ml-1.5 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary ring-1 ring-primary/30">New</span>}</span>}
                     </NavLink>
                   </SidebarMenuButton>
