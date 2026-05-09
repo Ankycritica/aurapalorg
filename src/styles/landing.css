@@ -1,0 +1,54 @@
+/* Noir & Gold — landing-scoped only */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700;9..144,900&display=swap');
+
+.landing-noir {
+  --noir-0: #0a0a0a;
+  --noir-1: #0d0d0d;
+  --noir-2: #15140f;
+  --gold: #c9a84c;
+  --gold-soft: #f0d78c;
+  --cream: #f5f0e0;
+}
+
+.landing-noir .font-fraunces {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-feature-settings: 'ss01', 'ss02';
+  letter-spacing: -0.02em;
+}
+
+.landing-noir .text-gold { color: var(--gold); }
+.landing-noir .text-cream { color: var(--cream); }
+.landing-noir .bg-noir { background-color: var(--noir-1); }
+
+.landing-noir .gold-hairline {
+  background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-soft) 50%, var(--gold) 70%, transparent);
+}
+
+.landing-noir .grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.9'/></svg>");
+}
+
+@keyframes hairline-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.landing-noir .animate-hairline {
+  transform-origin: left center;
+  animation: hairline-grow 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes word-rise {
+  from { opacity: 0; transform: translateY(28px); filter: blur(10px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.landing-noir .word-rise {
+  display: inline-block;
+  opacity: 0;
+  animation: word-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
