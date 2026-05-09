@@ -9,6 +9,11 @@ import { StatsSection } from "@/components/landing/StatsSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { ComparisonTable } from "@/components/landing/ComparisonTable";
 import { StickyMobileCTA } from "@/components/landing/StickyMobileCTA";
+import { CinematicIntro } from "@/components/landing/CinematicIntro";
+import { StickyToolReveal } from "@/components/landing/StickyToolReveal";
+import { ClosingFrame } from "@/components/landing/ClosingFrame";
+import { useLenis } from "@/lib/useLenis";
+import "@/styles/landing.css";
 
 const features = [
   { title: "AI Resume Builder", desc: "Create ATS-optimized resumes with impact-driven bullet points.", icon: FileText, color: "#00C4EE" },
@@ -38,6 +43,8 @@ const plans = [
 export default function Landing() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  useLenis(true);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -79,6 +86,8 @@ export default function Landing() {
         )}
       </nav>
 
+      <CinematicIntro />
+      <StickyToolReveal />
       <HeroSection />
       <TrustBar />
 
@@ -218,6 +227,7 @@ export default function Landing() {
         </div>
       </section>
 
+      <ClosingFrame />
       <Footer />
       <StickyMobileCTA />
     </div>
