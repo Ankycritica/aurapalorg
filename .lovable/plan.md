@@ -1,122 +1,73 @@
-## Job Finder — Full Vision (v1)
+## Cinematic Landing Overhaul — Noir & Gold
 
-A new top-level tool at `/jobs` that turns AuraPal into a closed-loop career engine: **search → match → tailor → apply → track**. Free to search, credits only for AI work and HR email reveals.
+Modernize **only the landing page** (`/`) with a cinematic video hero, oversized editorial typography, and scroll-driven storytelling. Zero changes to dashboard, tools, auth, AI prompts, or pricing logic.
 
----
+### Visual direction
 
-### 1. Job Search Engine (free, no credits)
+- **Palette (landing-scoped only, not global tokens):** Noir black `#0d0d0d` → `#1a1a1a` base, Gold `#c9a84c` primary accent, Champagne `#f0d78c` highlight, off-white `#f5f0e0` for body text. Existing app-wide Midnight Indigo theme stays untouched everywhere else.
+- **Typography:** Keep Inter for body. Add **Fraunces** (variable serif, Google Fonts) for the hero display — oversized, tight tracking, optical-size enabled. Used only on landing.
+- **Mood:** Apple keynote × luxury fashion editorial. Heavy negative space, slow reveals, single gold accent line, cinematic letterboxing on hero.
 
-**Sources** — aggregated server-side via a single edge function `job-search`:
-- **Adzuna** (global, requires free `app_id` + `app_key`, ~30 countries)
-- **Arbeitnow** (free, no key, EU + remote)
-- **Remotive** (free, no key, remote-first)
-- **Jooble** (free key, 70+ countries)
+### What gets built
 
-The function fan-outs in parallel, normalizes results into a common shape, dedupes by `(title, company, location)`, and returns a paginated list. Each result includes the canonical `apply_url` that routes to the company's career page or board listing.
+**1. Hero video background**
+- Generate a seamless 10s loop via `videogen--generate_video`: slow-drifting black silk with refracted gold light streaks, subtle particle dust, shallow depth of field, 1920×1080, no text.
+- Saved to `src/assets/hero-loop.mp4`. Autoplay muted loop, `playsInline`, `preload="metadata"`, `<video>` with `poster` (first-frame still via imagegen) so initial paint isn't blank.
+- Layered above: vignette gradient + 60% noir overlay + animated gold-grain SVG noise for filmic texture.
+- Reduced-motion fallback: static poster image only.
+- Mobile: serve poster image instead of video (bandwidth + battery).
 
-**Filters:** keyword, location (or "Remote"), seniority, employment type, posted-within (24h/7d/30d), salary range when provided.
+**2. Hero typography & copy treatment**
+- Massive Fraunces display headline (clamp 56–144px) split into 3 lines with per-word stagger reveal (framer-motion, blur-to-sharp + y-translate, 80ms stagger).
+- Thin gold hairline divider (1px, animates width 0→120px on mount).
+- Eyebrow kicker in tracked uppercase Inter, gold.
+- Subhead in champagne off-white, max-width 52ch.
+- Two CTAs: primary gold pill ("Start free →"), ghost ("See how it works") — both with magnetic hover.
 
-**UI:** Split layout — left: filters + result list with infinite scroll; right: selected job detail panel with full description, company, salary, posted date, and a prominent **"Apply on company site"** button (opens `apply_url` in new tab).
+**3. Scroll-driven sections (replace existing flat layout)**
+- **Sticky reveal** — pinned section where each tool name fades in/out as you scroll (uses existing tool list, no new content).
+- **Bento "Capabilities"** — 3×2 grid, asymmetric tile sizes, gold border on hover, parallax inner content.
+- **Comparison table & FAQ** — kept, restyled to noir+gold.
+- **Closing cinematic** — full-bleed dark frame with single oversized gold word ("Begin.") + CTA.
 
-### 2. Match Score (free, reuses existing engine)
+**4. Micro-interactions**
+- Magnetic buttons (cursor-follow translate within 8px radius)
+- Cursor-tracked gold glow on hero
+- Section entrance: IntersectionObserver + framer-motion fade-up, staggered
+- Smooth scroll via Lenis (lightweight, ~3KB gzipped)
 
-For any job opened, a **"Score my fit"** button calls the existing roast/scoring logic against the user's saved resume (from Resume Builder). Returns a 0–100 score + 3 strengths + 3 gaps. Costs 1 credit (same as a roast).
+### Files
 
-### 3. Tailor to Job (paid, 1 credit each)
+**Created**
+- `src/assets/hero-loop.mp4` — videogen output (10s, 1080p, 16:9)
+- `src/assets/hero-poster.jpg` — imagegen still for poster/mobile fallback
+- `src/components/landing/CinematicHero.tsx` — replaces `HeroSection` usage on landing
+- `src/components/landing/StickyToolReveal.tsx`
+- `src/components/landing/BentoCapabilities.tsx`
+- `src/components/landing/ClosingFrame.tsx`
+- `src/components/landing/MagneticButton.tsx`
+- `src/lib/useLenis.ts` — smooth scroll hook (landing-only mount)
+- `src/styles/landing.css` — Fraunces font-face import, noir tokens scoped under `.landing-noir` class so it can't leak
 
-Two one-click actions in the job detail panel:
-- **"Tailor my resume"** → opens Resume Builder pre-filled with rewritten bullets aligned to the JD
-- **"Generate cover letter"** → opens Cover Letter tool pre-filled with company + JD context
+**Modified**
+- `src/pages/Landing.tsx` — wraps content in `<div className="landing-noir">`, swaps section order, mounts Lenis, keeps existing SEO/meta intact
+- `index.html` — preload Fraunces + hero-poster
 
-Both reuse existing tools — no new AI prompts needed, just pass JD text as additional context.
+**Untouched**
+- All routes other than `/`
+- `index.css` global tokens, `tailwind.config.ts` color tokens
+- Dashboard, sidebar, all tool pages, AI prompts, edge functions, auth, Stripe, memory rules
 
-### 4. Application Tracker (free)
+### Performance budget
 
-Kanban board at `/jobs/tracker` with columns: **Saved · Applied · Interview · Offer · Rejected**. Drag cards between columns. Each card stores: job title, company, location, apply_url, JD snippet, date saved, notes, next-action date. Saving a job from search auto-creates a card in **Saved**.
+- Hero video ≤ 2.5 MB (H.264, CRF 28, 24fps, no audio track)
+- Poster JPG ≤ 120 KB
+- Lenis adds ~3 KB gzipped
+- Lighthouse target: LCP < 2.5s on 4G (poster paints instantly, video swaps in)
 
-### 5. HR Email Reveal (paid, 3 credits)
+### Out of scope
 
-In the job detail panel: **"Find recruiter email"** button. Server flow:
-1. Try **Hunter.io domain-search API** for the company domain → return verified emails of people with HR/Recruiter/Talent titles.
-2. Fallback: pattern-guess (`firstname.lastname@domain`) + Hunter.io email-verifier.
-3. Cache result per `(user, company)` so re-reveal is free for 30 days.
-
-Charges 3 credits only on a successful reveal. Returns up to 3 contacts with name, title, verified email, confidence score.
-
-### 6. Email Alerts (free)
-
-In search UI: **"Save this search → email me daily"**. Stores `{user, query, filters, frequency}` in a new `job_alerts` table. A pg_cron job runs daily, re-runs each saved search via `job-search`, diffs against last sent, and sends a digest of *new* matches via the Lovable email infrastructure. Includes one-click unsubscribe.
-
----
-
-## Technical section
-
-### New routes
-- `/jobs` — search + detail panel
-- `/jobs/tracker` — kanban board
-- `/jobs/alerts` — manage saved searches
-
-### New edge functions
-| Function | Purpose | Auth | Credits |
-|---|---|---|---|
-| `job-search` | Fan-out to 4 aggregators, normalize, dedupe, paginate | getClaims() | 0 |
-| `job-match-score` | Run resume vs JD, return score + gaps | getClaims() | 1 (via existing usage_tracking) |
-| `job-hr-email` | Hunter.io lookup + cache | getClaims() | 3 (atomic deduction) |
-| `job-alerts-dispatch` | Cron-driven daily digest | service role | 0 |
-
-### New tables (migration)
-```text
-saved_jobs (id, user_id, source, external_id, title, company, location,
-            apply_url, jd_text, salary_min, salary_max, status, notes,
-            next_action_at, created_at, updated_at)
-   status ENUM: saved | applied | interview | offer | rejected
-
-job_alerts (id, user_id, name, query, filters jsonb, frequency, last_sent_at,
-            active, created_at)
-
-job_alert_sent (id, alert_id, external_id, sent_at)   -- dedupe sent jobs
-
-hr_email_cache (id, user_id, company_domain, payload jsonb, created_at)
-```
-RLS: per-user on all four tables (`auth.uid() = user_id` on saved_jobs, job_alerts, hr_email_cache; via alert join on job_alert_sent).
-
-### Credit model integration
-- Match score, tailor, cover letter → already counted by `usage_tracking` via existing `ai-tool` function. No changes needed.
-- HR email reveal → new `usage_tracking` insert with `tool_name = 'hr-email'`, deducting 3 by inserting 3 rows in a single transaction (matches existing pattern). Free users hit their lifetime limit faster, which is the intended paywall trigger.
-
-### Secrets needed
-- `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` (free signup at developer.adzuna.com)
-- `JOOBLE_API_KEY` (free at jooble.org/api/about)
-- `HUNTER_API_KEY` (Hunter.io — paid, ~$0.10/lookup; falls back gracefully if missing)
-
-Arbeitnow + Remotive need no keys.
-
-### Email alerts infra
-Requires Lovable Email domain to be set up. If not configured when user enables alerts, surface the email-domain setup dialog before creating the alert. New edge function `job-alerts-dispatch` runs hourly via pg_cron, processes due alerts, calls `job-search` per alert, diffs against `job_alert_sent`, and enqueues a digest email per user.
-
-### Sidebar / dashboard
-- Add **"Find Jobs"** entry to `AppSidebar` with Briefcase icon (`lucide-react`).
-- Add a **"Job Finder"** card to `Dashboard` tool grid.
-- Aura Agent gets a new suggested action: "Find me jobs matching my resume" → deep-links to `/jobs?q=<inferred>`.
-
-### SEO surface
-- Static page `/jobs` with strong H1 + meta.
-- Programmatic landing pages later (e.g. `/jobs/remote-react-developer`) — out of scope for v1, but DB schema supports it.
-
-### Out of scope for v1
-- LinkedIn/Indeed scraping (ToS + reliability risk)
-- Auto-apply / form-fill (legal + technical can-of-worms)
-- Programmatic SEO landing pages (post-launch once we see traction)
-
-### Constraints respected
-- No changes to existing tool prompts, Aura Agent, Stripe, or auth flows.
-- Reuses `useUsage`, `aiFetch`, `usage_tracking`, existing dark-glass design tokens, and the unified results panel pattern.
-- All edge functions use `getClaims()` per project policy.
-
-### Rollout order
-1. Migration + secrets
-2. `job-search` function + `/jobs` UI (search + detail + apply link)
-3. Saved jobs + tracker kanban
-4. Match score + tailor buttons (wires into existing tools)
-5. HR email reveal (gated until `HUNTER_API_KEY` provided)
-6. Email alerts (gated until email domain configured)
+- Dashboard / app shell visuals
+- Tool page redesign
+- New copy or messaging changes (reuse current strings)
+- Any backend, schema, or AI changes
