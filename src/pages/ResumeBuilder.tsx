@@ -9,6 +9,7 @@ import { PaywallModal } from "@/components/PaywallModal";
 import { ResumeEditor } from "@/components/ResumeEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { aiFetch } from "@/lib/aiFetch";
 
 async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjsLib = await import("pdfjs-dist");
@@ -296,11 +297,7 @@ HARD RULES:
 
       setLoadingStage("Applying recruiter logic & XYZ format...");
 
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ systemPrompt, userPrompt }),
-      });
+      const resp = await aiFetch("ai-tool", { systemPrompt, userPrompt });
 
       if (resp.status === 429) { setError("Too many requests. Please wait a moment."); setLoading(false); return; }
       if (resp.status === 402) { setError("AI credits exhausted. Please try again later."); setLoading(false); return; }
@@ -337,14 +334,10 @@ HARD RULES:
         if (extractedText) {
           (async () => {
             try {
-              const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-                body: JSON.stringify({
+              const r = await aiFetch("ai-tool", {
                   systemPrompt: `You are an ATS scorer. Reply ONLY with a single number 0-100 representing ATS quality. No words.`,
                   userPrompt: `Score this resume for a ${values.role} role:\n\n${extractedText}`,
-                }),
-              });
+                });
               if (!r.ok || !r.body) return;
               const rd = r.body.getReader();
               const dec = new TextDecoder();

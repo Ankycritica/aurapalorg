@@ -8,6 +8,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { attributionFooter } from "@/lib/referral";
+import { aiFetch } from "@/lib/aiFetch";
 
 interface Plan {
   headline: string;
@@ -77,11 +78,7 @@ export default function AuraAgent() {
       const tracked = await trackUsage("aura-agent");
       if (!tracked) { setShowPaywall(true); setLoading(false); return; }
 
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aura-agent`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ goal, context }),
-      });
+      const resp = await aiFetch("aura-agent", { goal, context });
 
       if (resp.status === 429) { setError("Too many requests. Please wait a moment."); setLoading(false); return; }
       if (resp.status === 402) { setError("AI credits exhausted."); setLoading(false); return; }

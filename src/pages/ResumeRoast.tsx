@@ -7,6 +7,7 @@ import { PaywallModal } from "@/components/PaywallModal";
 import { ShareScoreModal } from "@/components/ShareScoreModal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { aiFetch } from "@/lib/aiFetch";
 
 interface RoastSection {
   name: string;
@@ -154,11 +155,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
 
       const userPrompt = `Roast this resume${values.role ? ` (targeting: ${values.role})` : ""}. The resume is ${wordCount} words long — factor the length and depth into your scoring:\n\n${values.resume}`;
 
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ systemPrompt, userPrompt }),
-      });
+      const resp = await aiFetch("ai-tool", { systemPrompt, userPrompt });
 
       if (resp.status === 429) { setError("Too many requests. Please wait."); setLoading(false); return; }
       if (!resp.ok || !resp.body) { setError("Something went wrong. Please try again."); setLoading(false); return; }

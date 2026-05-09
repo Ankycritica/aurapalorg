@@ -22,6 +22,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { aiFetch } from "@/lib/aiFetch";
 
 /* ───────── Types ───────── */
 
@@ -676,11 +677,7 @@ export function ResumeEditor({ initialMarkdown, inputData, targetRole, originalM
     };
 
     try {
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ systemPrompt: prompts[action].sys, userPrompt: prompts[action].user }),
-      });
+      const resp = await aiFetch("ai-tool", { systemPrompt: prompts[action].sys, userPrompt: prompts[action].user });
       if (!resp.ok || !resp.body) { toast.error("AI action failed"); return; }
 
       const reader = resp.body.getReader();
