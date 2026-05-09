@@ -37,6 +37,8 @@ import SalaryCheckerFree from "@/pages/seo/SalaryCheckerFree";
 import StartupIdeaValidator from "@/pages/seo/StartupIdeaValidator";
 import AuraAgent from "@/pages/AuraAgent";
 import Templates from "@/pages/Templates";
+import JobFinder from "@/pages/JobFinder";
+import JobTracker from "@/pages/JobTracker";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,8 @@ const App = () => {
               <Route path="/agent" element={<AuraAgent />} />
               <Route path="/resume-builder" element={<ResumeBuilder />} />
               <Route path="/templates" element={<Templates />} />
+              <Route path="/jobs" element={<JobFinder />} />
+              <Route path="/jobs/tracker" element={<JobTracker />} />
               <Route path="/seo-article-generator" element={<SeoArticleGenerator />} />
               <Route path="/business-plan" element={<BusinessPlan />} />
               <Route path="/side-hustle-ideas" element={<SideHustle />} />
