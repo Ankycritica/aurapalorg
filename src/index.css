@@ -248,4 +248,96 @@
     pointer-events: none;
     user-select: none;
   }
+
+  /* === Million-dollar polish utilities (additive) === */
+
+  /* Shimmer sweep — used on loading skeletons & alert states */
+  @keyframes shimmer-sweep {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--secondary) / 0.45) 0%,
+      hsl(var(--secondary) / 0.7) 40%,
+      hsl(var(--primary) / 0.18) 50%,
+      hsl(var(--secondary) / 0.7) 60%,
+      hsl(var(--secondary) / 0.45) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer-sweep 1.8s linear infinite;
+  }
+
+  /* Soft glowing focus ring for inputs — replaces hard ring */
+  .input-glow {
+    transition: box-shadow 220ms var(--ease-out-expo), border-color 220ms var(--ease-out-expo), background-color 220ms var(--ease-out-expo);
+  }
+  .input-glow:focus,
+  .input-glow:focus-visible {
+    outline: none;
+    border-color: hsl(var(--primary) / 0.6);
+    box-shadow:
+      0 0 0 4px hsl(var(--primary) / 0.12),
+      0 0 24px -4px hsl(var(--primary) / 0.35),
+      inset 0 0 0 1px hsl(var(--primary) / 0.4);
+  }
+
+  /* Premium card hover — lifts + glowing inner border */
+  .premium-card {
+    position: relative;
+    transition: transform 320ms var(--ease-out-expo), box-shadow 320ms var(--ease-out-expo), border-color 320ms var(--ease-out-expo);
+  }
+  .premium-card::after {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 1px 0 hsl(255 100% 100% / 0.06);
+    opacity: 0;
+    transition: opacity 320ms var(--ease-out-expo);
+  }
+  .premium-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--primary) / 0.35);
+  }
+  .premium-card:hover::after { opacity: 1; }
+
+  /* Cinematic page transition wrapper */
+  @keyframes page-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .page-enter { animation: page-enter 0.45s var(--ease-out-expo) both; }
+
+  /* Hairline gradient bottom border — for sticky headers */
+  .hairline-bottom {
+    position: relative;
+  }
+  .hairline-bottom::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.45), hsl(var(--accent) / 0.35), transparent);
+    opacity: 0.7;
+  }
+
+  /* Brand gradient text (static, accessible) */
+  .text-gradient-brand {
+    background: var(--gradient-text-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Reduced-motion safety */
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer,
+    .animate-pulse-glow,
+    .gradient-text-animated {
+      animation: none !important;
+    }
+    .premium-card { transition: none; }
+    .premium-card:hover { transform: none; }
+  }
 }
