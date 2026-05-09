@@ -63,7 +63,14 @@ interface HistoryItem {
 }
 
 export function ToolPage({ title, description, icon: Icon, toolSlug, fields, systemPrompt, buildUserPrompt, seoContent, accentColor, generateLabel }: ToolPageProps) {
-  const [values, setValues] = useState<Record<string, string>>({});
+  // Prefill from URL params (e.g. from Job Finder "Cover letter" deep-link)
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    if (typeof window === "undefined") return {};
+    const sp = new URLSearchParams(window.location.search);
+    const init: Record<string, string> = {};
+    fields.forEach((f) => { const v = sp.get(f.id); if (v) init[f.id] = v; });
+    return init;
+  });
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

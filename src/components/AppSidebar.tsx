@@ -13,6 +13,7 @@ import {
 const tools = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Aura Agent", url: "/agent", icon: Sparkles, highlight: true },
+  { title: "Find Jobs", url: "/jobs", icon: Briefcase, highlight: true },
   { title: "Resume Builder", url: "/resume-builder", icon: FileText },
   { title: "Cover Letter", url: "/cover-letter", icon: Mail },
   { title: "Interview Prep", url: "/interview-prep", icon: MessageCircle },

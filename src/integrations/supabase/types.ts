@@ -77,6 +77,98 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_email_cache: {
+        Row: {
+          company_domain: string
+          created_at: string
+          id: string
+          payload: Json
+          user_id: string
+        }
+        Insert: {
+          company_domain: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          user_id: string
+        }
+        Update: {
+          company_domain?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_alert_sent: {
+        Row: {
+          alert_id: string
+          external_id: string
+          id: string
+          sent_at: string
+        }
+        Insert: {
+          alert_id: string
+          external_id: string
+          id?: string
+          sent_at?: string
+        }
+        Update: {
+          alert_id?: string
+          external_id?: string
+          id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_alert_sent_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "job_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_alerts: {
+        Row: {
+          active: boolean
+          created_at: string
+          filters: Json
+          frequency: string
+          id: string
+          last_sent_at: string | null
+          name: string
+          query: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          filters?: Json
+          frequency?: string
+          id?: string
+          last_sent_at?: string | null
+          name: string
+          query?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          filters?: Json
+          frequency?: string
+          id?: string
+          last_sent_at?: string | null
+          name?: string
+          query?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -161,6 +253,72 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_jobs: {
+        Row: {
+          apply_url: string | null
+          company: string | null
+          company_domain: string | null
+          created_at: string
+          external_id: string | null
+          id: string
+          jd_text: string | null
+          location: string | null
+          next_action_at: string | null
+          notes: string | null
+          posted_at: string | null
+          salary_currency: string | null
+          salary_max: number | null
+          salary_min: number | null
+          source: string | null
+          status: Database["public"]["Enums"]["job_status"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          apply_url?: string | null
+          company?: string | null
+          company_domain?: string | null
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          jd_text?: string | null
+          location?: string | null
+          next_action_at?: string | null
+          notes?: string | null
+          posted_at?: string | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["job_status"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          apply_url?: string | null
+          company?: string | null
+          company_domain?: string | null
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          jd_text?: string | null
+          location?: string | null
+          next_action_at?: string | null
+          notes?: string | null
+          posted_at?: string | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["job_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       usage_tracking: {
         Row: {
           created_at: string
@@ -201,6 +359,7 @@ export type Database = {
     }
     Enums: {
       app_plan: "free" | "pro" | "premium" | "trialing"
+      job_status: "saved" | "applied" | "interview" | "offer" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -329,6 +488,7 @@ export const Constants = {
   public: {
     Enums: {
       app_plan: ["free", "pro", "premium", "trialing"],
+      job_status: ["saved", "applied", "interview", "offer", "rejected"],
     },
   },
 } as const
