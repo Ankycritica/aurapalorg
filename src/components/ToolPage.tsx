@@ -314,7 +314,11 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                 ? (() => { const sd = parseSalaryData(result, values); return sd ? { symbol: sd.symbol, diff: sd.diffFromMedian, status: sd.status } : null; })()
                 : null;
               return (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              <motion.div
+                initial={{ opacity: 0, y: 14, scale: 0.985 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-4">
                 {/* Verdict header (salary + roasts + startup validator) */}
                 <VerdictHeader toolSlug={toolSlug} result={result} inputs={values} salaryDiff={salaryDiff} />
