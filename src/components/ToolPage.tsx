@@ -255,7 +255,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                   <select
                     value={values[field.id] || field.options[0]?.value || ""}
                     onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
-                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
+                    className="input-glow w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground"
                   >
                     {field.options.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -264,11 +264,11 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                 ) : field.type === "textarea" ? (
                   <textarea placeholder={field.placeholder} value={values[field.id] || ""}
                     onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
-                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[120px] resize-y transition-all duration-200" />
+                    className="input-glow w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground min-h-[120px] resize-y" />
                 ) : (
                   <input type="text" placeholder={field.placeholder} value={values[field.id] || ""}
                     onChange={(e) => setValues(v => ({ ...v, [field.id]: e.target.value }))}
-                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200" />
+                    className="input-glow w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground" />
                 )}
               </div>
             ))}
@@ -295,7 +295,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                 <p className="text-sm text-muted-foreground mb-4">Generating your results... this takes 10-20 seconds</p>
                 <div className="space-y-3">
                   {[85, 70, 90, 60].map((w, i) => (
-                    <div key={i} className="h-4 bg-secondary/50 rounded animate-pulse" style={{ width: `${w}%` }} />
+                    <div key={i} className="h-4 rounded shimmer" style={{ width: `${w}%`, animationDelay: `${i * 0.12}s` }} />
                   ))}
                 </div>
               </motion.div>
@@ -314,7 +314,11 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
                 ? (() => { const sd = parseSalaryData(result, values); return sd ? { symbol: sd.symbol, diff: sd.diffFromMedian, status: sd.status } : null; })()
                 : null;
               return (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              <motion.div
+                initial={{ opacity: 0, y: 14, scale: 0.985 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-4">
                 {/* Verdict header (salary + roasts + startup validator) */}
                 <VerdictHeader toolSlug={toolSlug} result={result} inputs={values} salaryDiff={salaryDiff} />
