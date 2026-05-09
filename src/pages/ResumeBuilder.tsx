@@ -171,13 +171,9 @@ export default function ResumeBuilder() {
   const runAtsScore = async (resumeText: string) => {
     setAtsLoading(true);
     try {
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tool`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({
-          systemPrompt: `You are an ATS (Applicant Tracking System) expert. Analyze the resume and return ONLY valid JSON, no markdown:\n{"score": <0-100>, "positives": ["<strength 1>", "<strength 2>"], "missing": ["<missing keyword 1>", "<missing keyword 2>"]}\nBe specific. Score based on formatting, keywords, quantified achievements, and ATS compatibility.`,
-          userPrompt: `Analyze this resume for ATS compatibility for a ${values.role || "general"} role:\n\n${resumeText}`,
-        }),
+      const resp = await aiFetch("ai-tool", {
+        systemPrompt: `You are an ATS (Applicant Tracking System) expert. Analyze the resume and return ONLY valid JSON, no markdown:\n{"score": <0-100>, "positives": ["<strength 1>", "<strength 2>"], "missing": ["<missing keyword 1>", "<missing keyword 2>"]}\nBe specific. Score based on formatting, keywords, quantified achievements, and ATS compatibility.`,
+        userPrompt: `Analyze this resume for ATS compatibility for a ${values.role || "general"} role:\n\n${resumeText}`,
       });
       if (!resp.ok || !resp.body) return;
       const reader = resp.body.getReader();
