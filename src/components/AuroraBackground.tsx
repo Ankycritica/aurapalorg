@@ -12,13 +12,13 @@ export function AuroraBackground({ intensity = "default" }: { intensity?: "defau
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       {/* Base wash */}
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 0%, hsl(220 25% 9%), hsl(var(--background)) 70%)" }} />
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 0%, hsl(30 20% 8%), hsl(var(--background)) 70%)" }} />
 
       {/* Aurora blob 1 — primary teal, top-left drift */}
       <motion.div
         className="absolute -top-32 -left-24 h-[42rem] w-[42rem] rounded-full"
         style={{
-          background: "radial-gradient(circle, hsl(173 80% 40% / 0.30), transparent 60%)",
+          background: "radial-gradient(circle, hsl(43 70% 50% / 0.32), transparent 60%)",
           filter: "blur(110px)",
           opacity,
           willChange: "transform",
@@ -30,7 +30,7 @@ export function AuroraBackground({ intensity = "default" }: { intensity?: "defau
       <motion.div
         className="absolute -top-20 right-[-10rem] h-[38rem] w-[38rem] rounded-full"
         style={{
-          background: "radial-gradient(circle, hsl(262 83% 58% / 0.28), transparent 60%)",
+          background: "radial-gradient(circle, hsl(28 88% 58% / 0.28), transparent 60%)",
           filter: "blur(120px)",
           opacity,
           willChange: "transform",
@@ -42,7 +42,7 @@ export function AuroraBackground({ intensity = "default" }: { intensity?: "defau
       <motion.div
         className="absolute bottom-[-12rem] left-[20%] h-[36rem] w-[36rem] rounded-full"
         style={{
-          background: "radial-gradient(circle, hsl(330 80% 60% / 0.20), transparent 60%)",
+          background: "radial-gradient(circle, hsl(18 85% 55% / 0.22), transparent 60%)",
           filter: "blur(120px)",
           opacity: opacity * 0.85,
           willChange: "transform",
