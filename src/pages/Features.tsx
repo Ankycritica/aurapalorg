@@ -6,6 +6,7 @@ import {
   DollarSign, Rocket, Shield, Zap, Globe, Users, Star, ArrowRight, Check,
 } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/lib/useSeo";
 
 const tools = [
   { icon: FileText, name: "AI Resume Builder", desc: "ATS-optimized resumes with XYZ-formula bullets, scored 0–100.", to: "/resume-builder" },
