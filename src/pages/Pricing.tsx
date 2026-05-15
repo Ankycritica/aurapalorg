@@ -87,6 +87,12 @@ export default function Pricing() {
   const [couponTrigger, setCouponTrigger] = useState<"exit_intent" | "checkout_cancelled" | "trial_ended">("exit_intent");
   const shownRef = useRef(false);
 
+  useSeo({
+    title: "Pricing — AuraPal | Free, Pro $19, Premium $49",
+    description: "AuraPal pricing: free forever (5/day), Pro $19/mo (100/day), Premium $49/mo unlimited. All 10 AI career tools included.",
+    path: "/pricing",
+  });
+
   const showCoupon = (plan: "pro" | "premium", trigger: "exit_intent" | "checkout_cancelled" | "trial_ended") => {
     if (shownRef.current) return;
     if (sessionStorage.getItem("aurapal_coupon_shown") === "1") return;
