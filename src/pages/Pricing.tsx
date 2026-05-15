@@ -7,6 +7,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { CouponModal } from "@/components/CouponModal";
+import { useSeo } from "@/lib/useSeo";
 
 const plans = [
   {
