@@ -3,7 +3,7 @@ import { SeoLandingLayout } from "./SeoLandingLayout";
 export default function StartupIdeaValidator() {
   return (
     <SeoLandingLayout
-      metaTitle="Free Startup Idea Validator — Score Your Idea 0–100 in 30s | AuraPal"
+      metaTitle="Free Startup Idea Validator — Score 0–100 | AuraPal"
       metaDescription="Validate your startup idea in 30 seconds. AI scores market size, competition, monetization & defensibility — then gives you a 14-day MVP plan. Free forever."
       keywords="startup idea validator, validate startup idea, MVP plan, startup scoring, idea feedback"
       badge="Free Startup Idea Validator"

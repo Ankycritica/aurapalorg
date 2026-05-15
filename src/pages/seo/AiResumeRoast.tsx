@@ -3,7 +3,7 @@ import { SeoLandingLayout } from "./SeoLandingLayout";
 export default function AiResumeRoast() {
   return (
     <SeoLandingLayout
-      metaTitle="Free AI Resume Roast — Brutally Honest Resume Feedback in 15s | AuraPal"
+      metaTitle="Free AI Resume Roast — Brutal Feedback in 15s | AuraPal"
       metaDescription="Get your resume roasted by AI. Brutal, actionable feedback on formatting, bullet points, ATS keywords, and impact. Free forever. No signup wall."
       keywords="AI resume roast, resume feedback, resume review, ATS resume check, free resume critique"
       badge="Free AI Resume Roast"

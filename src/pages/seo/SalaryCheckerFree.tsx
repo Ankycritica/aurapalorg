@@ -3,7 +3,7 @@ import { SeoLandingLayout } from "./SeoLandingLayout";
 export default function SalaryCheckerFree() {
   return (
     <SeoLandingLayout
-      metaTitle="Free Salary Checker — Am I Underpaid? AI Market Benchmark in 15s | AuraPal"
+      metaTitle="Free Salary Checker — Am I Underpaid? | AuraPal"
       metaDescription="Find out if you're underpaid in 15 seconds. Free AI salary checker compares your pay to market rates by role, location & experience. Get a negotiation script."
       keywords="free salary checker, am I underpaid, salary comparison, pay benchmark, salary negotiation tool"
       badge="Am I Underpaid? — Free Salary Checker"
