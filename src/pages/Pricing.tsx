@@ -7,6 +7,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { CouponModal } from "@/components/CouponModal";
+import { useSeo } from "@/lib/useSeo";
 
 const plans = [
   {
@@ -85,6 +86,12 @@ export default function Pricing() {
   const [couponPlan, setCouponPlan] = useState<"pro" | "premium">("pro");
   const [couponTrigger, setCouponTrigger] = useState<"exit_intent" | "checkout_cancelled" | "trial_ended">("exit_intent");
   const shownRef = useRef(false);
+
+  useSeo({
+    title: "Pricing — AuraPal | Free, Pro $19, Premium $49",
+    description: "AuraPal pricing: free forever (5/day), Pro $19/mo (100/day), Premium $49/mo unlimited. All 10 AI career tools included.",
+    path: "/pricing",
+  });
 
   const showCoupon = (plan: "pro" | "premium", trigger: "exit_intent" | "checkout_cancelled" | "trial_ended") => {
     if (shownRef.current) return;

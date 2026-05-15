@@ -6,6 +6,7 @@ import {
   DollarSign, Rocket, Shield, Zap, Globe, Users, Star, ArrowRight, Check,
 } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/lib/useSeo";
 
 const tools = [
   { icon: FileText, name: "AI Resume Builder", desc: "ATS-optimized resumes with XYZ-formula bullets, scored 0–100.", to: "/resume-builder" },
@@ -28,16 +29,11 @@ const reasons = [
 ];
 
 export default function Features() {
-  useEffect(() => {
-    document.title = "Features — 10 Free AI Career Tools | AuraPal";
-    const setMeta = (name: string, content: string) => {
-      let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
-      if (!el) { el = document.createElement("meta"); el.name = name; document.head.appendChild(el); }
-      el.content = content;
-    };
-    setMeta("description", "Explore all 10 free AI career tools on AuraPal: resume builder, cover letter writer, interview prep, LinkedIn roaster, salary checker, startup idea validator and more. No signup wall.");
-    setMeta("keywords", "AI career tools, free resume builder, AI cover letter, interview prep AI, LinkedIn audit, salary checker, startup idea validator, AuraPal features");
-  }, []);
+  useSeo({
+    title: "Features — 10 Free AI Career Tools | AuraPal",
+    description: "Explore all 10 free AI career tools on AuraPal: resume builder, cover letter, interview prep, LinkedIn roaster, salary checker, startup validator and more.",
+    path: "/features",
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground">

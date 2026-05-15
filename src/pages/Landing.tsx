@@ -13,6 +13,7 @@ import { CinematicIntro } from "@/components/landing/CinematicIntro";
 import { StickyToolReveal } from "@/components/landing/StickyToolReveal";
 import { ClosingFrame } from "@/components/landing/ClosingFrame";
 import { useLenis } from "@/lib/useLenis";
+import { useSeo } from "@/lib/useSeo";
 import "@/styles/landing.css";
 
 const features = [
@@ -43,6 +44,21 @@ const plans = [
 export default function Landing() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  useSeo({
+    title: "AuraPal — Free AI Career Engine for Resumes & Jobs",
+    description: "AuraPal: 10 free AI career tools — resume builder, cover letter, interview prep, LinkedIn roaster, salary check & more. No credit card.",
+    path: "/",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        { "@type": "Question", name: "Is AuraPal really free?", acceptedAnswer: { "@type": "Answer", text: "Yes. The free plan gives you 5 AI generations per day across all 10 tools, no credit card." } },
+        { "@type": "Question", name: "What tools does AuraPal include?", acceptedAnswer: { "@type": "Answer", text: "Resume builder, cover letter generator, interview prep, LinkedIn roaster, resume roast, side hustle ideas, SEO article generator, business plan generator, salary checker and startup idea validator." } },
+        { "@type": "Question", name: "Will my resume data stay private?", acceptedAnswer: { "@type": "Answer", text: "Yes. We never share or sell your data. You can delete any generated content from your dashboard." } },
+      ],
+    },
+  });
 
   useLenis(true);
 

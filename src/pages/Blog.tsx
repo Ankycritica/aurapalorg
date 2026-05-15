@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Footer } from "@/components/Footer";
 import { toast } from "sonner";
+import { useSeo } from "@/lib/useSeo";
 
 const articles = [
   {
@@ -21,6 +22,23 @@ const articles = [
 
 export default function Blog() {
   const [email, setEmail] = useState("");
+  useSeo({
+    title: "AuraPal Blog — Career Tips & AI Insights",
+    description: "Career guides, resume tips, LinkedIn tactics and AI insights to help you land your next role faster.",
+    path: "/blog",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      name: "AuraPal Blog",
+      url: "https://aurapal.org/blog",
+      description: "Career tips, resume guides and AI insights from AuraPal.",
+      blogPost: articles.map((a) => ({
+        "@type": "BlogPosting",
+        headline: a.title,
+        description: a.teaser,
+      })),
+    },
+  });
 
   const handleNotify = () => {
     if (!email.trim() || !email.includes("@")) {

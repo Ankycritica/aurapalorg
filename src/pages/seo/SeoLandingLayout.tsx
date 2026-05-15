@@ -23,18 +23,48 @@ interface SeoLandingProps {
 export function SeoLandingLayout(props: SeoLandingProps) {
   useEffect(() => {
     document.title = props.metaTitle;
-    const setMeta = (name: string, content: string) => {
+    const setMetaName = (name: string, content: string) => {
       let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.name = name;
-        document.head.appendChild(el);
-      }
-      el.content = content;
+      if (!el) { el = document.createElement("meta"); el.setAttribute("name", name); document.head.appendChild(el); }
+      el.setAttribute("content", content);
     };
-    setMeta("description", props.metaDescription);
-    if (props.keywords) setMeta("keywords", props.keywords);
-  }, [props.metaTitle, props.metaDescription, props.keywords]);
+    const setMetaProp = (prop: string, content: string) => {
+      let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement | null;
+      if (!el) { el = document.createElement("meta"); el.setAttribute("property", prop); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+    const url = `https://aurapal.org${window.location.pathname}`;
+    setMetaName("description", props.metaDescription);
+    if (props.keywords) setMetaName("keywords", props.keywords);
+    setMetaProp("og:title", props.metaTitle);
+    setMetaProp("og:description", props.metaDescription);
+    setMetaProp("og:url", url);
+    setMetaProp("og:type", "article");
+    setMetaName("twitter:title", props.metaTitle);
+    setMetaName("twitter:description", props.metaDescription);
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", url);
+
+    const faqLd = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: props.faq.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    };
+    document.querySelectorAll('script[data-seo="faq-jsonld"]').forEach((n) => n.remove());
+    const s = document.createElement("script");
+    s.type = "application/ld+json";
+    s.setAttribute("data-seo", "faq-jsonld");
+    s.textContent = JSON.stringify(faqLd);
+    document.head.appendChild(s);
+    return () => {
+      document.querySelectorAll('script[data-seo="faq-jsonld"]').forEach((n) => n.remove());
+    };
+  }, [props.metaTitle, props.metaDescription, props.keywords, props.faq]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
