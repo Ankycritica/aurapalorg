@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/lib/useSeo";
 
 export default function About() {
+  useSeo({
+    title: "About AuraPal — Free AI Career Engine",
+    description: "AuraPal is an AI-powered career engine helping job seekers land better roles with free resume, cover letter, interview & LinkedIn tools.",
+    path: "/about",
+  });
   return (
     <div className="min-h-screen bg-background text-foreground">
       <nav className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-50">
