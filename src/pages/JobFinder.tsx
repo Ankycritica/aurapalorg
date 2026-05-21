@@ -215,7 +215,7 @@ export default function JobFinder() {
             <span className="text-[11px] uppercase tracking-widest text-primary font-semibold">Job Finder</span>
           </div>
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">Find your next role</h1>
-          <p className="text-sm text-muted-foreground mt-1">Search across Remotive, Arbeitnow, Adzuna and Jooble — apply on the company site, free.</p>
+          <p className="text-sm text-muted-foreground mt-1">Live results from Adzuna, USAJobs, The Muse, Remotive, RemoteOK, Jobicy, Arbeitnow & Jooble — only active postings, ranked by relevance.</p>
         </div>
         <Link to="/jobs/tracker" className="px-4 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border/60 text-sm font-medium inline-flex items-center gap-2">
           <Bookmark className="h-4 w-4" /> My tracker
