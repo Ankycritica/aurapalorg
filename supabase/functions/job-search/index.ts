@@ -182,7 +182,11 @@ async function fetchAdzuna(q: string, location: string): Promise<Job[]> {
   const key = Deno.env.get("ADZUNA_APP_KEY");
   if (!id || !key) return [];
   const ll = (location || "").toLowerCase();
-  const country = ll.includes("uk") || ll.includes("london") || ll.includes("england") ? "gb" : "us";
+  const detected = detectCountry(ll);
+  const country = detected?.adzuna || "us";
+  const currency = ({ in: "INR", gb: "GBP", us: "USD", ca: "CAD", au: "AUD", nz: "NZD",
+    de: "EUR", fr: "EUR", nl: "EUR", it: "EUR", es: "EUR", pl: "PLN", br: "BRL",
+    mx: "MXN", za: "ZAR", sg: "SGD", ch: "CHF", at: "EUR", be: "EUR" } as Record<string,string>)[country] || "USD";
   const pages = [1, 2, 3];
   const results: Job[] = [];
   await Promise.all(pages.map(async (page) => {
