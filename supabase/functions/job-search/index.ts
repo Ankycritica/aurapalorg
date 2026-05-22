@@ -37,6 +37,73 @@ const US_STATES: Record<string, string> = {
   wisconsin: "WI", wyoming: "WY", "district of columbia": "DC",
 };
 
+// Adzuna-supported countries with city/state hints
+type CountryHint = { code: string; name: string; adzuna: string };
+const COUNTRY_HINTS: CountryHint[] = [
+  { code: "in", name: "india", adzuna: "in" },
+  { code: "gb", name: "united kingdom", adzuna: "gb" },
+  { code: "us", name: "united states", adzuna: "us" },
+  { code: "ca", name: "canada", adzuna: "ca" },
+  { code: "au", name: "australia", adzuna: "au" },
+  { code: "de", name: "germany", adzuna: "de" },
+  { code: "fr", name: "france", adzuna: "fr" },
+  { code: "nl", name: "netherlands", adzuna: "nl" },
+  { code: "it", name: "italy", adzuna: "it" },
+  { code: "es", name: "spain", adzuna: "es" },
+  { code: "pl", name: "poland", adzuna: "pl" },
+  { code: "br", name: "brazil", adzuna: "br" },
+  { code: "mx", name: "mexico", adzuna: "mx" },
+  { code: "za", name: "south africa", adzuna: "za" },
+  { code: "sg", name: "singapore", adzuna: "sg" },
+  { code: "nz", name: "new zealand", adzuna: "nz" },
+  { code: "ch", name: "switzerland", adzuna: "ch" },
+  { code: "at", name: "austria", adzuna: "at" },
+  { code: "be", name: "belgium", adzuna: "be" },
+];
+
+const CITY_TO_COUNTRY: Record<string, string> = {
+  // India
+  bangalore: "in", bengaluru: "in", mumbai: "in", delhi: "in", "new delhi": "in",
+  noida: "in", gurgaon: "in", gurugram: "in", hyderabad: "in", chennai: "in",
+  pune: "in", kolkata: "in", ahmedabad: "in", jaipur: "in", kochi: "in",
+  chandigarh: "in", indore: "in", lucknow: "in", surat: "in", nagpur: "in",
+  bhopal: "in", coimbatore: "in", thiruvananthapuram: "in", visakhapatnam: "in",
+  // UK
+  london: "gb", manchester: "gb", birmingham: "gb", edinburgh: "gb", glasgow: "gb",
+  leeds: "gb", liverpool: "gb", bristol: "gb",
+  // Canada
+  toronto: "ca", vancouver: "ca", montreal: "ca", calgary: "ca", ottawa: "ca",
+  // Australia / NZ
+  sydney: "au", melbourne: "au", brisbane: "au", perth: "au", adelaide: "au",
+  auckland: "nz", wellington: "nz",
+  // Europe
+  berlin: "de", munich: "de", hamburg: "de", frankfurt: "de", cologne: "de",
+  paris: "fr", lyon: "fr", marseille: "fr",
+  amsterdam: "nl", rotterdam: "nl", "the hague": "nl",
+  madrid: "es", barcelona: "es", valencia: "es",
+  rome: "it", milan: "it", turin: "it",
+  warsaw: "pl", krakow: "pl",
+  zurich: "ch", geneva: "ch", vienna: "at", brussels: "be",
+  // Others
+  singapore: "sg", "sao paulo": "br", "são paulo": "br", "rio de janeiro": "br",
+  "mexico city": "mx", johannesburg: "za", "cape town": "za",
+};
+
+function detectCountry(loc: string): CountryHint | null {
+  const l = loc.toLowerCase().trim();
+  if (!l) return null;
+  for (const c of COUNTRY_HINTS) {
+    if (l.includes(c.name) || l === c.code) return c;
+  }
+  for (const [city, code] of Object.entries(CITY_TO_COUNTRY)) {
+    if (l.includes(city)) return COUNTRY_HINTS.find((c) => c.code === code) || null;
+  }
+  if (US_STATES[l] || Object.values(US_STATES).some((a) => a.toLowerCase() === l)) {
+    return COUNTRY_HINTS.find((c) => c.code === "us") || null;
+  }
+  return null;
+}
+
 function locationVariants(loc: string): string[] {
   const l = loc.trim().toLowerCase();
   if (!l) return [];
@@ -44,6 +111,15 @@ function locationVariants(loc: string): string[] {
   if (US_STATES[l]) out.add(US_STATES[l].toLowerCase());
   for (const [name, abbr] of Object.entries(US_STATES)) {
     if (abbr.toLowerCase() === l) out.add(name);
+  }
+  const ctry = detectCountry(l);
+  if (ctry) {
+    out.add(ctry.name);
+    out.add(ctry.code);
+    // include sibling cities of same country for broader matching
+    for (const [city, code] of Object.entries(CITY_TO_COUNTRY)) {
+      if (code === ctry.code) out.add(city);
+    }
   }
   return [...out];
 }
