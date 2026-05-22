@@ -213,7 +213,7 @@ async function fetchAdzuna(q: string, location: string): Promise<Job[]> {
         jd_text: (it.description || "").slice(0, 4000),
         salary_min: it.salary_min ?? null,
         salary_max: it.salary_max ?? null,
-        salary_currency: country === "gb" ? "GBP" : "USD",
+        salary_currency: currency,
         posted_at: it.created,
         tags: [it.category?.label].filter(Boolean),
       });
