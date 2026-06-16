@@ -1,12 +1,12 @@
 # AuraPal
 
-> Free AI Career Engine — 10 AI-powered tools to build resumes, cover letters, prep for interviews, roast LinkedIn profiles, check salaries, and validate startup ideas.
+> Free AI Career Engine — 8 AI-powered tools to build resumes, cover letters, prep for interviews, roast LinkedIn profiles, check salaries, and validate startup ideas.
 
 AuraPal helps job seekers, founders, and creators land better opportunities with brutally honest, AI-powered feedback. Free forever plan, no credit card.
 
 ## Pages
 
-- [Home](/): Overview of all 10 free AI career tools.
+- [Home](/): Overview of all 8 free AI career tools.
 - [About](/about): Mission and how AuraPal works.
 - [Features](/features): Full feature list across all tools.
 - [Pricing](/pricing): Free, Pro ($19/mo) and Premium ($49/mo) plans.
