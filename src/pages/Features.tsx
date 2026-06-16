@@ -31,7 +31,7 @@ const reasons = [
 export default function Features() {
   useSeo({
     title: "Features — 10 Free AI Career Tools | AuraPal",
-    description: "Explore all 10 free AI career tools on AuraPal: resume builder, cover letter, interview prep, LinkedIn roaster, salary checker, startup validator and more.",
+    description: "Explore all 8 free AI career tools on AuraPal: resume builder, cover letter, interview prep, LinkedIn roaster, salary checker, startup validator and more.",
     path: "/features",
   });
 
@@ -56,7 +56,7 @@ export default function Features() {
       <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-10 text-center">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/20 text-xs font-semibold text-primary mb-5">
-            <Sparkles className="h-3.5 w-3.5" /> 10 free AI tools, one platform
+            <Sparkles className="h-3.5 w-3.5" /> 8 free AI tools, one platform
           </span>
           <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Everything AuraPal can do
@@ -81,7 +81,7 @@ export default function Features() {
 
       {/* Tools grid */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-2">All 10 tools</h2>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-2">All 8 tools</h2>
         <p className="text-center text-sm text-muted-foreground mb-8">Each one is free to use 5 times per day. No signup wall.</p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tools.map((t, i) => (
@@ -131,7 +131,7 @@ export default function Features() {
               <p className="font-display text-3xl font-bold mb-2">$0</p>
               <ul className="text-sm text-muted-foreground space-y-1.5">
                 <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 5 generations / day</li>
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> All 10 tools</li>
+                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> All 8 tools</li>
                 <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> No credit card</li>
               </ul>
             </div>

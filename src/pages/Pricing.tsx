@@ -89,7 +89,7 @@ export default function Pricing() {
 
   useSeo({
     title: "Pricing — AuraPal | Free, Pro $19, Premium $49",
-    description: "AuraPal pricing: free forever (5/day), Pro $19/mo (100/day), Premium $49/mo unlimited. All 10 AI career tools included.",
+    description: "AuraPal pricing: free forever (5/day), Pro $19/mo (100/day), Premium $49/mo unlimited. All 8 AI career tools included.",
     path: "/pricing",
   });
 

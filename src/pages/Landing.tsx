@@ -36,9 +36,9 @@ const testimonials = [
 ];
 
 const plans = [
-  { name: "Free", price: "$0", period: "forever", features: ["5 AI generations per day", "All 10 tools", "Basic output formatting", "Copy to clipboard"], popular: false },
-  { name: "Pro", price: "$19", period: "/month", features: ["100 AI generations per day", "All 10 tools", "Advanced formatting", "Priority AI processing", "Export to PDF"], popular: true },
-  { name: "Premium", price: "$49", period: "/month", features: ["Unlimited generations", "All 10 tools", "Advanced formatting", "Priority processing", "Export to PDF", "Priority support"], popular: false },
+  { name: "Free", price: "$0", period: "forever", features: ["5 AI generations per day", "All 8 tools", "Basic output formatting", "Copy to clipboard"], popular: false },
+  { name: "Pro", price: "$19", period: "/month", features: ["100 AI generations per day", "All 8 tools", "Advanced formatting", "Priority AI processing", "Export to PDF"], popular: true },
+  { name: "Premium", price: "$49", period: "/month", features: ["Unlimited generations", "All 8 tools", "Advanced formatting", "Priority processing", "Export to PDF", "Priority support"], popular: false },
 ];
 
 export default function Landing() {
@@ -47,13 +47,13 @@ export default function Landing() {
 
   useSeo({
     title: "AuraPal — Free AI Career Engine for Resumes & Jobs",
-    description: "AuraPal: 10 free AI career tools — resume builder, cover letter, interview prep, LinkedIn roaster, salary check & more. No credit card.",
+    description: "AuraPal: 8 free AI career tools — resume builder, cover letter, interview prep, LinkedIn roaster, salary check & more. No credit card.",
     path: "/",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
       mainEntity: [
-        { "@type": "Question", name: "Is AuraPal really free?", acceptedAnswer: { "@type": "Answer", text: "Yes. The free plan gives you 5 AI generations per day across all 10 tools, no credit card." } },
+        { "@type": "Question", name: "Is AuraPal really free?", acceptedAnswer: { "@type": "Answer", text: "Yes. The free plan gives you 5 AI generations per day across all 8 tools, no credit card." } },
         { "@type": "Question", name: "What tools does AuraPal include?", acceptedAnswer: { "@type": "Answer", text: "Resume builder, cover letter generator, interview prep, LinkedIn roaster, resume roast, side hustle ideas, SEO article generator, business plan generator, salary checker and startup idea validator." } },
         { "@type": "Question", name: "Will my resume data stay private?", acceptedAnswer: { "@type": "Answer", text: "Yes. We never share or sell your data. You can delete any generated content from your dashboard." } },
       ],
@@ -110,7 +110,7 @@ export default function Landing() {
       {/* Features — 8 tools */}
       <section id="features" className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-center mb-4">10 AI-Powered Career Tools</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-center mb-4">8 AI-Powered Career Tools</h2>
           <p className="text-muted-foreground text-center mb-12 max-w-xl mx-auto">Powerful AI tools designed to help you land jobs, grow your income, and build your personal brand.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((f, i) => (
