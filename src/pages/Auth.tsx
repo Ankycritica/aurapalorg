@@ -57,7 +57,8 @@ export default function Auth() {
   const handleApple = async () => {
     setAppleLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: window.location.origin });
+      const redirect = window.location.origin + (nextPath.startsWith("/") ? nextPath : "/");
+      const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: redirect });
       if (result.error) { toast.error("Apple sign-in failed"); return; }
       if (result.redirected) return;
       navigate(nextPath);
