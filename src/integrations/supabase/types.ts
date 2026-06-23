@@ -22,7 +22,6 @@ export type Database = {
           device: string | null
           event_name: string
           id: string
-          ip: string | null
           metadata: Json | null
           user_id: string | null
         }
@@ -33,7 +32,6 @@ export type Database = {
           device?: string | null
           event_name: string
           id?: string
-          ip?: string | null
           metadata?: Json | null
           user_id?: string | null
         }
@@ -44,7 +42,6 @@ export type Database = {
           device?: string | null
           event_name?: string
           id?: string
-          ip?: string | null
           metadata?: Json | null
           user_id?: string | null
         }
