@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Loader2, ArrowRight, Briefcase, RefreshCw, Lightbulb, Linkedin, Target, FileText, MessageCircle, ListChecks, Twitter, Download, Share2, Copy, CheckCheck, Lock, Wand2 } from "lucide-react";
+import { Sparkles, Loader2, ArrowRight, Briefcase, RefreshCw, Lightbulb, Linkedin, Target, FileText, MessageCircle, ListChecks, Twitter, Download, Share2, Copy, CheckCheck, Lock, Wand2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useUsage } from "@/hooks/useUsage";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
