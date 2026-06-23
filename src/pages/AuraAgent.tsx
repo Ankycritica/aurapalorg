@@ -265,9 +265,25 @@ export default function AuraAgent() {
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
         className="glass-card p-5 sm:p-6 space-y-5">
         <div>
-          <label className="text-sm font-medium text-foreground mb-2 block flex items-center gap-2">
-            <Target className="h-4 w-4 text-primary" /> What do you want to achieve?
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" /> What do you want to achieve?
+            </label>
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={() => listeningTarget === "goal" ? stopListening() : startListening("goal")}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ring-1 transition-all ${
+                  listeningTarget === "goal"
+                    ? "bg-destructive/15 text-destructive ring-destructive/40 animate-pulse"
+                    : "bg-primary/10 text-primary ring-primary/30 hover:bg-primary/20"
+                }`}
+                title={listeningTarget === "goal" ? "Stop dictation" : "Dictate your goal"}
+              >
+                {listeningTarget === "goal" ? <><MicOff className="h-3 w-3" /> Stop</> : <><Mic className="h-3 w-3" /> Speak</>}
+              </button>
+            )}
+          </div>
           <input
             type="text" value={goal} onChange={(e) => setGoal(e.target.value)}
             placeholder="e.g. Land a senior PM role at a Series B startup in 60 days"
@@ -284,9 +300,25 @@ export default function AuraAgent() {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-foreground mb-2 block">
-            Context <span className="text-muted-foreground font-normal">(optional — paste resume, LinkedIn headline, current role…)</span>
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-foreground">
+              Context <span className="text-muted-foreground font-normal">(optional — paste resume, LinkedIn headline, current role…)</span>
+            </label>
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={() => listeningTarget === "context" ? stopListening() : startListening("context")}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ring-1 transition-all ${
+                  listeningTarget === "context"
+                    ? "bg-destructive/15 text-destructive ring-destructive/40 animate-pulse"
+                    : "bg-primary/10 text-primary ring-primary/30 hover:bg-primary/20"
+                }`}
+                title={listeningTarget === "context" ? "Stop dictation" : "Dictate your context"}
+              >
+                {listeningTarget === "context" ? <><MicOff className="h-3 w-3" /> Stop</> : <><Mic className="h-3 w-3" /> Speak</>}
+              </button>
+            )}
+          </div>
           <textarea
             value={context} onChange={(e) => setContext(e.target.value)}
             placeholder="The more you share, the sharper the plan."
@@ -298,10 +330,17 @@ export default function AuraAgent() {
           <div className="border border-destructive/30 bg-destructive/10 rounded-lg p-3 text-sm text-destructive">{error}</div>
         )}
 
+        {!user && (
+          <div className="rounded-lg border border-primary/25 bg-primary/5 px-3 py-2 text-xs text-muted-foreground flex items-center gap-2">
+            <Lock className="h-3.5 w-3.5 text-primary" />
+            <span>Preview the agent freely. <strong className="text-foreground">Sign in</strong> to run it — your goal is saved while you do.</span>
+          </div>
+        )}
+
         <button onClick={run} disabled={loading}
           className="group relative w-full py-3.5 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.6)] transition-all disabled:opacity-60 active:scale-[0.99] flex items-center justify-center gap-2 overflow-hidden">
           <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Aura is thinking…</> : <><Wand2 className="h-4 w-4" /> Run Aura Agent</>}
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Aura is thinking…</> : <><Wand2 className="h-4 w-4" /> {user ? "Run Aura Agent" : "Sign in & Run Aura Agent"}</>}
         </button>
       </motion.section>
 
