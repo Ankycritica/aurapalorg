@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Loader2, ArrowRight, Briefcase, RefreshCw, Lightbulb, Linkedin, Target, FileText, MessageCircle, ListChecks, Twitter, Download, Share2, Copy, CheckCheck, Lock, Wand2 } from "lucide-react";
+import { Sparkles, Loader2, ArrowRight, Briefcase, RefreshCw, Lightbulb, Linkedin, Target, FileText, MessageCircle, ListChecks, Twitter, Download, Share2, Copy, CheckCheck, Lock, Wand2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useUsage } from "@/hooks/useUsage";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
@@ -46,6 +47,7 @@ export default function AuraAgent() {
   const { user } = useAuth();
   const { isLimitReached, trackUsage, plan: userPlan } = useUsage();
   const { track } = useAnalytics();
+  const navigate = useNavigate();
 
   const [goal, setGoal] = useState("");
   const [context, setContext] = useState("");
@@ -56,9 +58,67 @@ export default function AuraAgent() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // ── Voice input (Web Speech API) ──────────────────────────────────────────
+  const [listeningTarget, setListeningTarget] = useState<null | "goal" | "context">(null);
+  const recognitionRef = useRef<any>(null);
+  const speechSupported = typeof window !== "undefined" && (("SpeechRecognition" in window) || ("webkitSpeechRecognition" in window));
+
+  const startListening = useCallback((target: "goal" | "context") => {
+    if (!speechSupported) { toast.error("Voice input isn't supported in this browser."); return; }
+    try {
+      const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const rec = new SR();
+      rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false;
+      let finalText = "";
+      rec.onresult = (e: any) => {
+        let interim = "";
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalText += t; else interim += t;
+        }
+        const combined = (finalText + interim).trim();
+        if (target === "goal") setGoal(combined);
+        else setContext((prev) => (prev ? prev.replace(/\s*\[dictating…\].*$/, "") : "") + (combined ? combined : ""));
+      };
+      rec.onerror = (e: any) => {
+        if (e.error === "not-allowed") toast.error("Microphone access denied.");
+        else if (e.error !== "aborted" && e.error !== "no-speech") toast.error("Voice input error.");
+        setListeningTarget(null);
+      };
+      rec.onend = () => setListeningTarget(null);
+      recognitionRef.current = rec;
+      setListeningTarget(target);
+      rec.start();
+    } catch {
+      toast.error("Couldn't start voice input.");
+      setListeningTarget(null);
+    }
+  }, [speechSupported]);
+
+  const stopListening = useCallback(() => {
+    try { recognitionRef.current?.stop(); } catch {}
+    setListeningTarget(null);
+  }, []);
+
+  useEffect(() => () => { try { recognitionRef.current?.stop(); } catch {}; window.speechSynthesis?.cancel(); }, []);
+
+  // ── Voice output ──────────────────────────────────────────────────────────
+  const [speaking, setSpeaking] = useState(false);
+  const speakPlan = useCallback((p: Plan) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) { toast.error("Voice playback not supported."); return; }
+    if (speaking) { window.speechSynthesis.cancel(); setSpeaking(false); return; }
+    const text = `${p.headline}. ${p.executive_summary}. Here's your top action: ${p.action_plan?.[0]?.task || ""}. And the share-worthy line: ${p.share_hook}.`;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = 1.02; u.pitch = 1;
+    u.onend = () => setSpeaking(false);
+    u.onerror = () => setSpeaking(false);
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+    setSpeaking(true);
+  }, [speaking]);
+
   useEffect(() => { track("page_view", { page: "aura_agent" }); }, []);
 
-  // Fake step progression while loading (UX polish)
   useEffect(() => {
     if (!loading) return;
     setStepIdx(0);
@@ -71,6 +131,15 @@ export default function AuraAgent() {
 
   const run = async () => {
     if (!goal.trim()) { setError("Tell me what you want to achieve."); return; }
+    // Gate execution on auth — visitors can preview the UI, must sign in to run
+    if (!user) {
+      toast.message("Sign in to run Aura Agent — it's free.", { description: "Your goal is saved while you sign in." });
+      try {
+        sessionStorage.setItem("aura_pending", JSON.stringify({ goal, context }));
+      } catch {}
+      navigate("/auth?next=/agent");
+      return;
+    }
     if (isLimitReached) { setShowPaywall(true); return; }
     setError(""); setLoading(true); setPlan(null);
 
@@ -80,6 +149,7 @@ export default function AuraAgent() {
 
       const resp = await aiFetch("aura-agent", { goal, context });
 
+      if (resp.status === 401) { setError("Your session expired. Please sign in again."); setLoading(false); navigate("/auth?next=/agent"); return; }
       if (resp.status === 429) { setError("Too many requests. Please wait a moment."); setLoading(false); return; }
       if (resp.status === 402) { setError("AI credits exhausted."); setLoading(false); return; }
       const data = await resp.json();
@@ -95,11 +165,33 @@ export default function AuraAgent() {
         });
       }
     } catch (e: any) {
-      setError("Failed to connect. Please try again.");
+      const msg = (e?.message || "").toLowerCase();
+      if (msg.includes("not authenticated")) {
+        setError("Please sign in to run Aura Agent.");
+        navigate("/auth?next=/agent");
+      } else {
+        setError("Couldn't reach Aura. Check your connection and try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Restore a pending goal after sign-in
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const raw = sessionStorage.getItem("aura_pending");
+      if (raw) {
+        const { goal: g, context: c } = JSON.parse(raw);
+        if (g && !goal) setGoal(g);
+        if (c && !context) setContext(c);
+        sessionStorage.removeItem("aura_pending");
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
 
   const copyAll = () => {
     if (!plan) return;
@@ -173,9 +265,25 @@ export default function AuraAgent() {
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
         className="glass-card p-5 sm:p-6 space-y-5">
         <div>
-          <label className="text-sm font-medium text-foreground mb-2 block flex items-center gap-2">
-            <Target className="h-4 w-4 text-primary" /> What do you want to achieve?
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" /> What do you want to achieve?
+            </label>
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={() => listeningTarget === "goal" ? stopListening() : startListening("goal")}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ring-1 transition-all ${
+                  listeningTarget === "goal"
+                    ? "bg-destructive/15 text-destructive ring-destructive/40 animate-pulse"
+                    : "bg-primary/10 text-primary ring-primary/30 hover:bg-primary/20"
+                }`}
+                title={listeningTarget === "goal" ? "Stop dictation" : "Dictate your goal"}
+              >
+                {listeningTarget === "goal" ? <><MicOff className="h-3 w-3" /> Stop</> : <><Mic className="h-3 w-3" /> Speak</>}
+              </button>
+            )}
+          </div>
           <input
             type="text" value={goal} onChange={(e) => setGoal(e.target.value)}
             placeholder="e.g. Land a senior PM role at a Series B startup in 60 days"
@@ -192,9 +300,25 @@ export default function AuraAgent() {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-foreground mb-2 block">
-            Context <span className="text-muted-foreground font-normal">(optional — paste resume, LinkedIn headline, current role…)</span>
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-foreground">
+              Context <span className="text-muted-foreground font-normal">(optional — paste resume, LinkedIn headline, current role…)</span>
+            </label>
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={() => listeningTarget === "context" ? stopListening() : startListening("context")}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ring-1 transition-all ${
+                  listeningTarget === "context"
+                    ? "bg-destructive/15 text-destructive ring-destructive/40 animate-pulse"
+                    : "bg-primary/10 text-primary ring-primary/30 hover:bg-primary/20"
+                }`}
+                title={listeningTarget === "context" ? "Stop dictation" : "Dictate your context"}
+              >
+                {listeningTarget === "context" ? <><MicOff className="h-3 w-3" /> Stop</> : <><Mic className="h-3 w-3" /> Speak</>}
+              </button>
+            )}
+          </div>
           <textarea
             value={context} onChange={(e) => setContext(e.target.value)}
             placeholder="The more you share, the sharper the plan."
@@ -206,10 +330,17 @@ export default function AuraAgent() {
           <div className="border border-destructive/30 bg-destructive/10 rounded-lg p-3 text-sm text-destructive">{error}</div>
         )}
 
+        {!user && (
+          <div className="rounded-lg border border-primary/25 bg-primary/5 px-3 py-2 text-xs text-muted-foreground flex items-center gap-2">
+            <Lock className="h-3.5 w-3.5 text-primary" />
+            <span>Preview the agent freely. <strong className="text-foreground">Sign in</strong> to run it — your goal is saved while you do.</span>
+          </div>
+        )}
+
         <button onClick={run} disabled={loading}
           className="group relative w-full py-3.5 min-h-[52px] rounded-lg font-semibold text-sm bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.6)] transition-all disabled:opacity-60 active:scale-[0.99] flex items-center justify-center gap-2 overflow-hidden">
           <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Aura is thinking…</> : <><Wand2 className="h-4 w-4" /> Run Aura Agent</>}
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Aura is thinking…</> : <><Wand2 className="h-4 w-4" /> {user ? "Run Aura Agent" : "Sign in & Run Aura Agent"}</>}
         </button>
       </motion.section>
 
@@ -254,6 +385,9 @@ export default function AuraAgent() {
 
                 {/* Action bar */}
                 <div className="flex flex-wrap gap-2 mt-5">
+                  <button onClick={() => speakPlan(plan)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${speaking ? "bg-primary/20 text-primary ring-1 ring-primary/40" : "bg-secondary/60 hover:bg-secondary"}`}>
+                    {speaking ? <><VolumeX className="h-4 w-4" /> Stop voice</> : <><Volume2 className="h-4 w-4" /> Listen</>}
+                  </button>
                   <button onClick={copyAll} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm hover:bg-secondary transition-all">
                     {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied" : "Copy plan"}
                   </button>
