@@ -30,12 +30,13 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "$19",
-    originalPrice: "$29",
-    period: "/month",
+    price: "FREE",
+    originalPrice: "$19",
+    period: "until Oct 1",
     icon: Crown,
-    tagline: "For serious job seekers & creators",
+    tagline: "Free for every signup before October 1, 2026",
     features: [
+      "🎉 FREE for everyone who signs up before Oct 1, 2026",
       "100 AI generations per day (20× more)",
       "Resume Builder + LinkedIn optimization",
       "Cover Letter + Interview Prep + Salary Check",
@@ -44,17 +45,18 @@ const plans = [
       "Export to PDF / DOCX",
       "40+ premium resume templates",
     ],
-    cta: "Start 7-day Free Trial",
+    cta: "Claim Free Pro",
     tier: "pro" as const,
     popular: true,
-    badge: "🔥 Most Popular — 7-day free trial",
+    badge: "🎁 FREE until Oct 1, 2026",
   },
   {
     name: "Premium",
-    price: "$49",
+    price: "$19",
+    originalPrice: "$49",
     period: "/month",
     icon: Sparkles,
-    tagline: "For agencies, founders & power users",
+    tagline: "Launch price — locked in until October",
     features: [
       "Unlimited AI generations",
       "Everything in Pro",
@@ -63,10 +65,10 @@ const plans = [
       "Early access to new tools",
       "Commercial use license",
     ],
-    cta: "Start 7-day Free Trial",
+    cta: "Upgrade to Premium",
     tier: "premium" as const,
     popular: false,
-    badge: "✨ Best Value — 7-day free trial",
+    badge: "🔥 $19/mo launch price (was $49)",
   },
 ];
 
@@ -88,8 +90,8 @@ export default function Pricing() {
   const shownRef = useRef(false);
 
   useSeo({
-    title: "Pricing — AuraPal | Free, Pro $19, Premium $49",
-    description: "AuraPal pricing: free forever (5/day), Pro $19/mo (100/day), Premium $49/mo unlimited. All 8 AI career tools included.",
+    title: "Pricing — AuraPal | FREE Pro until Oct 1, Premium $19/mo",
+    description: "🎉 Limited launch: Pro is FREE for everyone who signs up before October 1, 2026. Premium just $19/mo (was $49). All 8 AI career tools included.",
     path: "/pricing",
   });
 
@@ -161,7 +163,7 @@ export default function Pricing() {
     <div className="max-w-6xl mx-auto space-y-10">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/20 text-xs font-semibold text-primary">
-          🔥 Limited launch pricing — locked in for life
+          🎁 Launch promo: Pro is FREE for everyone signing up before October 1, 2026
         </span>
         <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">
           Stop guessing. <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Start landing.</span>

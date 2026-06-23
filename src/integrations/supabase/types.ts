@@ -176,6 +176,7 @@ export type Database = {
           id: string
           lifetime_credits_used: number
           plan: Database["public"]["Enums"]["app_plan"]
+          promo_pro_until: string | null
           referral_code: string | null
           referral_credits_earned: number
           share_credits_earned: number
@@ -196,6 +197,7 @@ export type Database = {
           id?: string
           lifetime_credits_used?: number
           plan?: Database["public"]["Enums"]["app_plan"]
+          promo_pro_until?: string | null
           referral_code?: string | null
           referral_credits_earned?: number
           share_credits_earned?: number
@@ -216,6 +218,7 @@ export type Database = {
           id?: string
           lifetime_credits_used?: number
           plan?: Database["public"]["Enums"]["app_plan"]
+          promo_pro_until?: string | null
           referral_code?: string | null
           referral_credits_earned?: number
           share_credits_earned?: number
