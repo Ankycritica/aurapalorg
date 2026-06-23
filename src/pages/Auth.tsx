@@ -34,7 +34,7 @@ export default function Auth() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate("/");
+        navigate(nextPath);
       }
     } catch (err: any) {
       toast.error(err.message || "Authentication failed");
@@ -49,7 +49,7 @@ export default function Auth() {
       const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
       if (result.error) { toast.error("Google sign-in failed"); return; }
       if (result.redirected) return;
-      navigate("/");
+      navigate(nextPath);
     } catch { toast.error("Google sign-in failed"); } finally { setGoogleLoading(false); }
   };
 
@@ -59,7 +59,7 @@ export default function Auth() {
       const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: window.location.origin });
       if (result.error) { toast.error("Apple sign-in failed"); return; }
       if (result.redirected) return;
-      navigate("/");
+      navigate(nextPath);
     } catch { toast.error("Apple sign-in failed"); } finally { setAppleLoading(false); }
   };
 
