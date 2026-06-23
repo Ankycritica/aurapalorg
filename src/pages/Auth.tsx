@@ -20,6 +20,8 @@ export default function Auth() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = searchParams.get("next") || "/";
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
