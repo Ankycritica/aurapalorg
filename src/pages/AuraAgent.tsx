@@ -47,6 +47,7 @@ export default function AuraAgent() {
   const { user } = useAuth();
   const { isLimitReached, trackUsage, plan: userPlan } = useUsage();
   const { track } = useAnalytics();
+  const navigate = useNavigate();
 
   const [goal, setGoal] = useState("");
   const [context, setContext] = useState("");
@@ -57,9 +58,67 @@ export default function AuraAgent() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // ── Voice input (Web Speech API) ──────────────────────────────────────────
+  const [listeningTarget, setListeningTarget] = useState<null | "goal" | "context">(null);
+  const recognitionRef = useRef<any>(null);
+  const speechSupported = typeof window !== "undefined" && (("SpeechRecognition" in window) || ("webkitSpeechRecognition" in window));
+
+  const startListening = useCallback((target: "goal" | "context") => {
+    if (!speechSupported) { toast.error("Voice input isn't supported in this browser."); return; }
+    try {
+      const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const rec = new SR();
+      rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false;
+      let finalText = "";
+      rec.onresult = (e: any) => {
+        let interim = "";
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalText += t; else interim += t;
+        }
+        const combined = (finalText + interim).trim();
+        if (target === "goal") setGoal(combined);
+        else setContext((prev) => (prev ? prev.replace(/\s*\[dictating…\].*$/, "") : "") + (combined ? combined : ""));
+      };
+      rec.onerror = (e: any) => {
+        if (e.error === "not-allowed") toast.error("Microphone access denied.");
+        else if (e.error !== "aborted" && e.error !== "no-speech") toast.error("Voice input error.");
+        setListeningTarget(null);
+      };
+      rec.onend = () => setListeningTarget(null);
+      recognitionRef.current = rec;
+      setListeningTarget(target);
+      rec.start();
+    } catch {
+      toast.error("Couldn't start voice input.");
+      setListeningTarget(null);
+    }
+  }, [speechSupported]);
+
+  const stopListening = useCallback(() => {
+    try { recognitionRef.current?.stop(); } catch {}
+    setListeningTarget(null);
+  }, []);
+
+  useEffect(() => () => { try { recognitionRef.current?.stop(); } catch {}; window.speechSynthesis?.cancel(); }, []);
+
+  // ── Voice output ──────────────────────────────────────────────────────────
+  const [speaking, setSpeaking] = useState(false);
+  const speakPlan = useCallback((p: Plan) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) { toast.error("Voice playback not supported."); return; }
+    if (speaking) { window.speechSynthesis.cancel(); setSpeaking(false); return; }
+    const text = `${p.headline}. ${p.executive_summary}. Here's your top action: ${p.action_plan?.[0]?.task || ""}. And the share-worthy line: ${p.share_hook}.`;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = 1.02; u.pitch = 1;
+    u.onend = () => setSpeaking(false);
+    u.onerror = () => setSpeaking(false);
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+    setSpeaking(true);
+  }, [speaking]);
+
   useEffect(() => { track("page_view", { page: "aura_agent" }); }, []);
 
-  // Fake step progression while loading (UX polish)
   useEffect(() => {
     if (!loading) return;
     setStepIdx(0);
@@ -72,6 +131,15 @@ export default function AuraAgent() {
 
   const run = async () => {
     if (!goal.trim()) { setError("Tell me what you want to achieve."); return; }
+    // Gate execution on auth — visitors can preview the UI, must sign in to run
+    if (!user) {
+      toast.message("Sign in to run Aura Agent — it's free.", { description: "Your goal is saved while you sign in." });
+      try {
+        sessionStorage.setItem("aura_pending", JSON.stringify({ goal, context }));
+      } catch {}
+      navigate("/auth?next=/agent");
+      return;
+    }
     if (isLimitReached) { setShowPaywall(true); return; }
     setError(""); setLoading(true); setPlan(null);
 
@@ -81,6 +149,7 @@ export default function AuraAgent() {
 
       const resp = await aiFetch("aura-agent", { goal, context });
 
+      if (resp.status === 401) { setError("Your session expired. Please sign in again."); setLoading(false); navigate("/auth?next=/agent"); return; }
       if (resp.status === 429) { setError("Too many requests. Please wait a moment."); setLoading(false); return; }
       if (resp.status === 402) { setError("AI credits exhausted."); setLoading(false); return; }
       const data = await resp.json();
@@ -96,11 +165,33 @@ export default function AuraAgent() {
         });
       }
     } catch (e: any) {
-      setError("Failed to connect. Please try again.");
+      const msg = (e?.message || "").toLowerCase();
+      if (msg.includes("not authenticated")) {
+        setError("Please sign in to run Aura Agent.");
+        navigate("/auth?next=/agent");
+      } else {
+        setError("Couldn't reach Aura. Check your connection and try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Restore a pending goal after sign-in
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const raw = sessionStorage.getItem("aura_pending");
+      if (raw) {
+        const { goal: g, context: c } = JSON.parse(raw);
+        if (g && !goal) setGoal(g);
+        if (c && !context) setContext(c);
+        sessionStorage.removeItem("aura_pending");
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
 
   const copyAll = () => {
     if (!plan) return;
