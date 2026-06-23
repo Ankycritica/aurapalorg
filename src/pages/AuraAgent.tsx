@@ -385,6 +385,9 @@ export default function AuraAgent() {
 
                 {/* Action bar */}
                 <div className="flex flex-wrap gap-2 mt-5">
+                  <button onClick={() => speakPlan(plan)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${speaking ? "bg-primary/20 text-primary ring-1 ring-primary/40" : "bg-secondary/60 hover:bg-secondary"}`}>
+                    {speaking ? <><VolumeX className="h-4 w-4" /> Stop voice</> : <><Volume2 className="h-4 w-4" /> Listen</>}
+                  </button>
                   <button onClick={copyAll} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 text-sm hover:bg-secondary transition-all">
                     {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied" : "Copy plan"}
                   </button>
