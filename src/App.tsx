@@ -67,10 +67,14 @@ const App = () => {
             <Route path="/ai-resume-roast-free" element={<AiResumeRoastFree />} />
             <Route path="/salary-checker-free" element={<SalaryCheckerFree />} />
             <Route path="/startup-idea-validator" element={<StartupIdeaValidator />} />
-            
+
+            {/* Public app-layout routes — visitors can preview the tool UI; running it gates on auth */}
+            <Route element={<AppLayout />}>
+              <Route path="/agent" element={<AuraAgent />} />
+            </Route>
+
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/agent" element={<AuraAgent />} />
               <Route path="/resume-builder" element={<ResumeBuilder />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/jobs" element={<JobFinder />} />
