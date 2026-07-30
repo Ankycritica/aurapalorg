@@ -14,6 +14,155 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_creatives: {
+        Row: {
+          active: boolean
+          advertiser: string | null
+          body: string | null
+          click_url: string
+          cpm_cents: number
+          created_at: string
+          cta_label: string | null
+          format: string
+          headline: string
+          id: string
+          image_url: string | null
+          name: string
+          network: string
+          target_tools: string[]
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          active?: boolean
+          advertiser?: string | null
+          body?: string | null
+          click_url: string
+          cpm_cents?: number
+          created_at?: string
+          cta_label?: string | null
+          format?: string
+          headline: string
+          id?: string
+          image_url?: string | null
+          name: string
+          network?: string
+          target_tools?: string[]
+          updated_at?: string
+          weight?: number
+        }
+        Update: {
+          active?: boolean
+          advertiser?: string | null
+          body?: string | null
+          click_url?: string
+          cpm_cents?: number
+          created_at?: string
+          cta_label?: string | null
+          format?: string
+          headline?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          network?: string
+          target_tools?: string[]
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: []
+      }
+      ad_earnings: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          description: string | null
+          entry_type: string
+          id: string
+          reference_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          description?: string | null
+          entry_type?: string
+          id?: string
+          reference_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          description?: string | null
+          entry_type?: string
+          id?: string
+          reference_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ad_impressions: {
+        Row: {
+          clicked: boolean
+          country: string | null
+          created_at: string
+          creative_id: string | null
+          device: string | null
+          duration_ms: number | null
+          format: string
+          id: string
+          network: string
+          revenue_cents: number
+          slot_id: string
+          tool_name: string | null
+          user_id: string | null
+          user_share_cents: number
+        }
+        Insert: {
+          clicked?: boolean
+          country?: string | null
+          created_at?: string
+          creative_id?: string | null
+          device?: string | null
+          duration_ms?: number | null
+          format?: string
+          id?: string
+          network?: string
+          revenue_cents?: number
+          slot_id: string
+          tool_name?: string | null
+          user_id?: string | null
+          user_share_cents?: number
+        }
+        Update: {
+          clicked?: boolean
+          country?: string | null
+          created_at?: string
+          creative_id?: string | null
+          device?: string | null
+          duration_ms?: number | null
+          format?: string
+          id?: string
+          network?: string
+          revenue_cents?: number
+          slot_id?: string
+          tool_name?: string | null
+          user_id?: string | null
+          user_share_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_impressions_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "ad_creatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_events: {
         Row: {
           browser: string | null
@@ -168,6 +317,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ad_earnings_total_cents: number
+          ad_payout_balance_cents: number
+          ads_opt_out: boolean
           avatar_url: string | null
           created_at: string
           display_name: string | null
@@ -180,6 +332,7 @@ export type Database = {
           referral_code: string | null
           referral_credits_earned: number
           share_credits_earned: number
+          stripe_connect_account_id: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_status: string | null
@@ -189,6 +342,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ad_earnings_total_cents?: number
+          ad_payout_balance_cents?: number
+          ads_opt_out?: boolean
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -201,6 +357,7 @@ export type Database = {
           referral_code?: string | null
           referral_credits_earned?: number
           share_credits_earned?: number
+          stripe_connect_account_id?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
@@ -210,6 +367,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ad_earnings_total_cents?: number
+          ad_payout_balance_cents?: number
+          ads_opt_out?: boolean
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -222,6 +382,7 @@ export type Database = {
           referral_code?: string | null
           referral_credits_earned?: number
           share_credits_earned?: number
+          stripe_connect_account_id?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
@@ -348,6 +509,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_ad_earnings_summary: {
+        Args: { p_user_id: string }
+        Returns: {
+          clicks: number
+          impressions: number
+          pending_cents: number
+          total_cents: number
+        }[]
+      }
       get_daily_usage: { Args: { p_user_id: string }; Returns: number }
       get_free_limit: { Args: { p_user_id: string }; Returns: number }
       get_lifetime_usage: { Args: { p_user_id: string }; Returns: number }
