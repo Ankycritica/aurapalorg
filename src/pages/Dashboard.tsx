@@ -6,6 +6,7 @@ import { useUsage } from "@/hooks/useUsage";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { AdEarningsCard } from "@/components/ads/AdEarningsCard";
 import { ProfileCompleteness } from "@/components/ProfileCompleteness";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
@@ -479,6 +480,8 @@ export default function Dashboard() {
           ))}
         </div>
       </motion.div>
+
+      <AdEarningsCard />
 
       <ProfileCompleteness />
 

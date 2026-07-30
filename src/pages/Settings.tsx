@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Crown, LogOut, CreditCard } from "lucide-react";
+import { Crown, LogOut, CreditCard, Coins } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUsage } from "@/hooks/useUsage";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
@@ -8,10 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export default function Settings() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, refreshProfile } = useAuth();
   const { usageCount, remaining, limit, plan } = useUsage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [adsOptOut, setAdsOptOut] = useState(Boolean((profile as any)?.ads_opt_out));
+  const [savingAds, setSavingAds] = useState(false);
+  const canOptOut = plan === "premium";
   const initials = (profile?.display_name || user?.email || "U").slice(0, 1).toUpperCase();
 
   useEffect(() => {
@@ -20,6 +23,19 @@ export default function Settings() {
       supabase.functions.invoke("check-subscription").then(() => window.location.reload());
     }
   }, []);
+
+  useEffect(() => { setAdsOptOut(Boolean((profile as any)?.ads_opt_out)); }, [profile]);
+
+  const toggleAds = async (next: boolean) => {
+    if (!user) return;
+    setSavingAds(true);
+    setAdsOptOut(next);
+    const { error } = await supabase.from("profiles").update({ ads_opt_out: next } as any).eq("user_id", user.id);
+    setSavingAds(false);
+    if (error) { setAdsOptOut(!next); toast.error("Could not update your ad preference."); return; }
+    await refreshProfile();
+    toast.success(next ? "Ads turned off. You'll stop earning ad revenue." : "Ads on — you're earning again.");
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -79,6 +95,32 @@ export default function Settings() {
           >
             <CreditCard className="h-4 w-4" /> Manage Subscription
           </button>
+        )}
+      </div>
+
+      <div className="glass-card p-6 space-y-3">
+        <div className="flex items-center gap-2">
+          <Coins className="h-5 w-5 text-primary" />
+          <h2 className="font-display font-semibold text-lg">Ads & earnings</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          While the AI is thinking, AuraPal shows a sponsored card instead of a spinner — and you keep <span className="text-foreground font-semibold">50% of the revenue</span>.
+          {canOptOut ? " As a Premium member you can switch ads off completely, but you'll stop earning." : " Premium members can switch ads off entirely."}
+        </p>
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-sm text-muted-foreground">Show ads during wait time</span>
+          <button
+            role="switch"
+            aria-checked={!adsOptOut}
+            disabled={!canOptOut || savingAds}
+            onClick={() => toggleAds(!adsOptOut)}
+            className={`relative h-6 w-11 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${!adsOptOut ? "bg-primary" : "bg-secondary"}`}
+          >
+            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-background transition-transform ${!adsOptOut ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+          </button>
+        </div>
+        {!canOptOut && (
+          <Link to="/pricing" className="text-xs text-primary hover:underline">Upgrade to Premium to turn ads off →</Link>
         )}
       </div>
 
