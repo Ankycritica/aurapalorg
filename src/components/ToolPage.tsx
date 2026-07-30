@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { attributionFooter } from "@/lib/referral";
 import { aiFetch } from "@/lib/aiFetch";
+import { WaitTimeAd } from "@/components/ads/WaitTimeAd";
 
 interface ToolField {
   id: string;
@@ -297,16 +298,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
 
           {/* Loading skeleton */}
           <AnimatePresence>
-            {loading && !result && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-6">
-                <p className="text-sm text-muted-foreground mb-4">Generating your results... this takes 10-20 seconds</p>
-                <div className="space-y-3">
-                  {[85, 70, 90, 60].map((w, i) => (
-                    <div key={i} className="h-4 rounded shimmer" style={{ width: `${w}%`, animationDelay: `${i * 0.12}s` }} />
-                  ))}
-                </div>
-              </motion.div>
-            )}
+            {loading && !result && <WaitTimeAd toolName={toolSlug} active />}
           </AnimatePresence>
 
           {/* Result panel */}

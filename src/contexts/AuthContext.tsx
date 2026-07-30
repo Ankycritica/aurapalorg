@@ -16,6 +16,7 @@ interface Profile {
   referral_code: string | null;
   referral_credits_earned: number;
   share_credits_earned: number;
+  ads_opt_out: boolean;
 }
 
 interface AuthContextValue {
@@ -39,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("display_name, avatar_url, plan, email, trial_start, trial_end, grace_until, subscription_status, referral_code, referral_credits_earned, share_credits_earned")
+      .select("display_name, avatar_url, plan, email, trial_start, trial_end, grace_until, subscription_status, referral_code, referral_credits_earned, share_credits_earned, ads_opt_out")
       .eq("user_id", userId)
       .single();
     if (data) setProfile(data as Profile);
