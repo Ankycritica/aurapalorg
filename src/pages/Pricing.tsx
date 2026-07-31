@@ -22,6 +22,7 @@ const plans = [
       "Resume + Cover Letter + LinkedIn",
       "Basic output formatting",
       "Copy & share to social",
+      "Earn 50% of ad revenue while the AI works",
     ],
     cta: "Current Plan",
     tier: "free" as const,
@@ -30,13 +31,13 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "FREE",
+    price: "$3.99",
     originalPrice: "$19",
-    period: "until Oct 1",
+    period: "/month",
     icon: Crown,
-    tagline: "Free for every signup before October 1, 2026",
+    tagline: "Free until Oct 1, 2026 for everyone who signs up now",
     features: [
-      "🎉 FREE for everyone who signs up before Oct 1, 2026",
+      "🎉 FREE until Oct 1, 2026 — then just $3.99/mo",
       "100 AI generations per day (20× more)",
       "Resume Builder + LinkedIn optimization",
       "Cover Letter + Interview Prep + Salary Check",
@@ -52,11 +53,11 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "$19",
-    originalPrice: "$49",
+    price: "$7.99",
+    originalPrice: "$19",
     period: "/month",
     icon: Sparkles,
-    tagline: "Launch price — locked in until October",
+    tagline: "Everything unlocked, plus an ad-free option",
     features: [
       "Unlimited AI generations",
       "Everything in Pro",
@@ -64,11 +65,12 @@ const plans = [
       "Priority email support",
       "Early access to new tools",
       "Commercial use license",
+      "Turn ads off completely (or keep earning)",
     ],
     cta: "Upgrade to Premium",
     tier: "premium" as const,
     popular: false,
-    badge: "🔥 $19/mo launch price (was $49)",
+    badge: "🔥 $7.99/mo launch price (was $19)",
   },
 ];
 
@@ -90,8 +92,8 @@ export default function Pricing() {
   const shownRef = useRef(false);
 
   useSeo({
-    title: "Pricing — AuraPal | FREE Pro until Oct 1, Premium $19/mo",
-    description: "🎉 Limited launch: Pro is FREE for everyone who signs up before October 1, 2026. Premium just $19/mo (was $49). All 8 AI career tools included.",
+    title: "Pricing — AuraPal | Pro free until Oct 1, Premium $7.99",
+    description: "Pro is FREE until October 1, 2026, then $3.99/mo. Premium $7.99/mo with unlimited AI. Every user earns 50% of ad revenue while the AI works.",
     path: "/pricing",
   });
 

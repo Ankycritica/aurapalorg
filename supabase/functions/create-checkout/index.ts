@@ -8,8 +8,8 @@ const corsHeaders = {
 };
 
 const TIERS: Record<string, { price_id: string; product_id: string }> = {
-  pro: { price_id: "price_1TKWnURsz05LwtLbXoYF98zW", product_id: "prod_UJ95ke4gJIY1yn" },
-  premium: { price_id: "price_1TKWoORsz05LwtLbMETt4I6O", product_id: "prod_UJ963RL5LJEYrq" },
+  pro: { price_id: "price_1Tz1UrRsz05LwtLbrNn6LLYs", product_id: "prod_UyzTplJ97Du342" },
+  premium: { price_id: "price_1TzIIlRsz05LwtLbgK6gjsYh", product_id: "prod_UzGqplXyBhNVO3" },
 };
 
 serve(async (req) => {
