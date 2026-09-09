@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { AdEarningsCard } from "@/components/ads/AdEarningsCard";
 import { ProfileCompleteness } from "@/components/ProfileCompleteness";
+import { PipelineWidget } from "@/components/PipelineWidget";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 const toolColors: Record<string, string> = {
@@ -482,6 +483,8 @@ export default function Dashboard() {
       </motion.div>
 
       <AdEarningsCard />
+
+      <PipelineWidget />
 
       <ProfileCompleteness />
 
