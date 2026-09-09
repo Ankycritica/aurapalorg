@@ -1,0 +1,82 @@
+/* Monochrome landing — scoped to .lm only. App theme untouched. */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.lm {
+  --lm-bg: #050505;
+  --lm-bg-2: #0d0d0d;
+  --lm-line: rgba(255, 255, 255, 0.08);
+  --lm-line-2: rgba(255, 255, 255, 0.14);
+  --lm-fg: #ffffff;
+  --lm-fg-2: rgba(255, 255, 255, 0.62);
+  --lm-fg-3: rgba(255, 255, 255, 0.36);
+  --lm-green: #22c55e;
+  --lm-red: #ef4444;
+  --lm-amber: #f59e0b;
+  background: var(--lm-bg);
+  color: var(--lm-fg);
+}
+
+.lm .mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-ligatures: none;
+}
+
+.lm .section-number {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lm-fg-3);
+}
+
+.lm .hairline { border-color: var(--lm-line); }
+.lm .hairline-2 { border-color: var(--lm-line-2); }
+
+.lm .panel {
+  background: var(--lm-bg-2);
+  border: 1px solid var(--lm-line);
+  border-radius: 10px;
+}
+
+.lm .btn-invert {
+  background: #fff;
+  color: #000;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: opacity .15s ease;
+}
+.lm .btn-invert:hover { opacity: .88; }
+
+.lm .btn-ghost {
+  color: #fff;
+  border: 1px solid var(--lm-line-2);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background .15s ease;
+}
+.lm .btn-ghost:hover { background: rgba(255, 255, 255, 0.06); }
+
+/* ticker */
+@keyframes lm-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.lm .ticker-track {
+  display: flex;
+  width: max-content;
+  animation: lm-ticker 40s linear infinite;
+}
+.lm .ticker-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+/* terminal cursor */
+@keyframes lm-blink { 50% { opacity: 0; } }
+.lm .cursor::after {
+  content: '▍';
+  animation: lm-blink 1s steps(1) infinite;
+  color: var(--lm-fg-2);
+}
+
+.lm ::selection { background: #fff; color: #000; }

@@ -1,44 +1,50 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, Star, Menu, X, FileText, PenLine, Lightbulb, MessageSquareWarning, Mail, MessageCircle, FlameKindling, Briefcase, Flame, DollarSign, Rocket } from "lucide-react";
+import { Menu, X, ArrowRight, FileText, Mail, MessageCircle, PenLine, Briefcase, Lightbulb, MessageSquareWarning, FlameKindling, DollarSign, Rocket } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Footer } from "@/components/Footer";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { TrustBar } from "@/components/landing/TrustBar";
-import { StatsSection } from "@/components/landing/StatsSection";
-import { FAQSection } from "@/components/landing/FAQSection";
-import { ComparisonTable } from "@/components/landing/ComparisonTable";
+import { HeroMono } from "@/components/landing/HeroMono";
+import { TickerBar } from "@/components/landing/TickerBar";
+import { PipelineSection } from "@/components/landing/PipelineSection";
+import { StatsMono } from "@/components/landing/StatsMono";
 import { StickyMobileCTA } from "@/components/landing/StickyMobileCTA";
-import { CinematicIntro } from "@/components/landing/CinematicIntro";
-import { StickyToolReveal } from "@/components/landing/StickyToolReveal";
-import { ClosingFrame } from "@/components/landing/ClosingFrame";
 import { useLenis } from "@/lib/useLenis";
 import { useSeo } from "@/lib/useSeo";
-import "@/styles/landing.css";
+import "@/styles/landing-mono.css";
 
-const features = [
-  { title: "AI Resume Builder", desc: "Create ATS-optimized resumes with impact-driven bullet points.", icon: FileText, color: "#00C4EE" },
-  { title: "Cover Letter Generator", desc: "Tailored cover letters for every job application.", icon: Mail, color: "#EC4899" },
-  { title: "Interview Prep", desc: "Mock sessions with AI-scored feedback and frameworks.", icon: MessageCircle, color: "#06B6D4" },
-  { title: "SEO Article Generator", desc: "Build your personal brand with optimized content.", icon: PenLine, color: "#7C6FF7" },
-  { title: "Business Plan Generator", desc: "Create investor-ready business plans in minutes.", icon: Briefcase, color: "#10B981" },
-  { title: "Side Hustle Ideas", desc: "Discover new income streams tailored to your skills.", icon: Lightbulb, color: "#F5C842" },
-  { title: "LinkedIn Roaster", desc: "Get brutally honest feedback on your LinkedIn profile.", icon: MessageSquareWarning, color: "#F97066" },
-  { title: "Resume Roast", desc: "Get your resume roasted with actionable improvements.", icon: FlameKindling, color: "#F97316" },
-  { title: "Am I Underpaid? 💸", desc: "AI salary benchmark in 15 seconds. Find out what you're worth.", icon: DollarSign, color: "#22D3A0" },
-  { title: "Startup Validator 🚀", desc: "Get your startup idea scored 0–100 before you quit your job.", icon: Rocket, color: "#A78BFA" },
+const tools = [
+  { title: "Resume Builder", desc: "ATS-scored, XYZ bullets, PDF export", icon: FileText, to: "/resume-builder" },
+  { title: "Cover Letter", desc: "Tailored to the job description", icon: Mail, to: "/cover-letter" },
+  { title: "Interview Prep", desc: "Likely questions + answer frameworks", icon: MessageCircle, to: "/interview-prep" },
+  { title: "LinkedIn Roaster", desc: "Score out of 100, section by section", icon: MessageSquareWarning, to: "/linkedin-roaster" },
+  { title: "Resume Roast", desc: "Five scored categories, one fix each", icon: FlameKindling, to: "/resume-roast" },
+  { title: "Am I Underpaid?", desc: "P25–P90 benchmark + negotiation ask", icon: DollarSign, to: "/salary-check" },
+  { title: "Startup Validator", desc: "Idea scored 0–100 before you quit", icon: Rocket, to: "/startup-validator" },
+  { title: "SEO Article", desc: "Keyword-structured posts that rank", icon: PenLine, to: "/seo-article-generator" },
+  { title: "Business Plan", desc: "Investor-ready in minutes", icon: Briefcase, to: "/business-plan" },
+  { title: "Side Hustle", desc: "Income ideas matched to your hours", icon: Lightbulb, to: "/side-hustle-ideas" },
 ];
 
 const testimonials = [
-  { quote: "AuraPal's Resume Roast scored me 34/100. Fixed everything it said. Got 4 interviews the next week.", name: "Sarah K.", role: "Marketing Manager" },
-  { quote: "The LinkedIn Roaster told me my headline was 'criminally vague'. It was right.", name: "James T.", role: "Software Engineer" },
-  { quote: "Generated a full investor business plan in 4 minutes.", name: "Priya M.", role: "Founder" },
+  { quote: "Resume Roast scored me 34/100. I fixed everything it flagged. Four interviews the following week.", name: "Sarah K.", role: "Marketing Manager" },
+  { quote: "The LinkedIn Roaster called my headline 'criminally vague'. It was painfully right. Profile views tripled.", name: "James T.", role: "Software Engineer" },
+  { quote: "Generated a full investor business plan in four minutes. Showed it to my co-founder the same day.", name: "Priya M.", role: "Founder" },
 ];
 
 const plans = [
-  { name: "Free", price: "$0", period: "forever", features: ["5 AI generations per day", "All 8 tools", "Basic output formatting", "Copy to clipboard"], popular: false },
-  { name: "Pro", price: "$19", period: "/month", features: ["100 AI generations per day", "All 8 tools", "Advanced formatting", "Priority AI processing", "Export to PDF"], popular: true },
-  { name: "Premium", price: "$49", period: "/month", features: ["Unlimited generations", "All 8 tools", "Advanced formatting", "Priority processing", "Export to PDF", "Priority support"], popular: false },
+  { name: "Free", price: "$0", period: "forever", line: "Enough to see if it sticks.", volume: "5", unit: "generations / day", popular: false, cta: "Start free" },
+  { name: "Pro", price: "$19", period: "/ month", line: "For an active job search.", volume: "100", unit: "generations / day", popular: true, cta: "Start Pro" },
+  { name: "Premium", price: "$49", period: "/ month", line: "For people who ship daily.", volume: "∞", unit: "unlimited generations", popular: false, cta: "Go Premium" },
+];
+
+const faqs = [
+  { q: "Is AuraPal really free?", a: "Yes. The free plan gives you 5 AI generations per day across all 10 tools. No card required." },
+  { q: "What AI powers it?", a: "Claude, made by Anthropic. Every tool uses a purpose-built prompt designed around what recruiters and hiring managers actually look for." },
+  { q: "Can I cancel anytime?", a: "Yes. Stop billing in one click from Settings. Your generations and history stay." },
+  { q: "Is my resume data private?", a: "Encrypted in transit and at rest, never sold, never used to train models. Delete any generation from your dashboard." },
+  { q: "What can I export?", a: "Pro and Premium export resumes, cover letters and reports to PDF. Everyone can copy to clipboard." },
+  { q: "Why not just use ChatGPT?", a: "You can. AuraPal is faster: no prompt engineering, structured scored outputs, history, templates, and a tracker for the jobs you apply to." },
 ];
 
 export default function Landing() {
@@ -47,16 +53,12 @@ export default function Landing() {
 
   useSeo({
     title: "AuraPal — Free AI Career Engine for Resumes & Jobs",
-    description: "AuraPal: 8 free AI career tools — resume builder, cover letter, interview prep, LinkedIn roaster, salary check & more. No credit card.",
+    description: "AuraPal: 10 free AI career tools — resume builder, cover letter, interview prep, LinkedIn roaster, salary check & more. No credit card.",
     path: "/",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: [
-        { "@type": "Question", name: "Is AuraPal really free?", acceptedAnswer: { "@type": "Answer", text: "Yes. The free plan gives you 5 AI generations per day across all 8 tools, no credit card." } },
-        { "@type": "Question", name: "What tools does AuraPal include?", acceptedAnswer: { "@type": "Answer", text: "Resume builder, cover letter generator, interview prep, LinkedIn roaster, resume roast, side hustle ideas, SEO article generator, business plan generator, salary checker and startup idea validator." } },
-        { "@type": "Question", name: "Will my resume data stay private?", acceptedAnswer: { "@type": "Answer", text: "Yes. We never share or sell your data. You can delete any generated content from your dashboard." } },
-      ],
+      mainEntity: faqs.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
     },
   });
 
@@ -68,182 +70,148 @@ export default function Landing() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const navLink = "text-sm transition-colors hover:text-white";
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="lm min-h-screen">
       {/* Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border/50" : ""}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="AuraPal" className="h-8 w-8 rounded-lg" />
-            <span className="font-display font-bold text-lg">AuraPal</span>
-            <span className="hidden sm:inline text-[10px] uppercase tracking-widest text-primary font-semibold ml-1">Career Engine</span>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ${scrolled ? "bg-[#050505]/90 backdrop-blur border-b hairline" : ""}`}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="AuraPal" className="h-7 w-7 rounded-md" />
+            <span className="font-display font-semibold text-[15px]">AuraPal</span>
           </Link>
-          <div className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
-            <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
-            <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
-            <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Sign in</Link>
-            <Link to="/auth" className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all">
-              Get started free
-            </Link>
+          <div className="hidden md:flex items-center gap-7" style={{ color: "var(--lm-fg-2)" }}>
+            <a href="#pipeline" className={navLink}>How it works</a>
+            <a href="#tools" className={navLink}>Tools</a>
+            <a href="#pricing" className={navLink}>Pricing</a>
+            <Link to="/blog" className={navLink}>Blog</Link>
+            <Link to="/auth" className={navLink}>Log in</Link>
+            <Link to="/auth" className="btn-invert px-4 py-2 text-sm">Sign up</Link>
           </div>
-          <button className="md:hidden p-2" onClick={() => setMobileMenu(!mobileMenu)}>
+          <button className="md:hidden p-2" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Menu">
             {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
         {mobileMenu && (
-          <div className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border/50 px-4 py-4 space-y-3">
-            <a href="#features" onClick={() => setMobileMenu(false)} className="block text-sm text-muted-foreground">Features</a>
-            <a href="#pricing" onClick={() => setMobileMenu(false)} className="block text-sm text-muted-foreground">Pricing</a>
-            <Link to="/about" onClick={() => setMobileMenu(false)} className="block text-sm text-muted-foreground">About</Link>
-            <Link to="/auth" className="block text-sm text-muted-foreground">Sign in</Link>
-            <Link to="/auth" className="block w-full text-center px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground">Get started free</Link>
+          <div className="md:hidden bg-[#050505] border-b hairline px-4 py-4 space-y-3" style={{ color: "var(--lm-fg-2)" }}>
+            <a href="#pipeline" onClick={() => setMobileMenu(false)} className="block text-sm">How it works</a>
+            <a href="#tools" onClick={() => setMobileMenu(false)} className="block text-sm">Tools</a>
+            <a href="#pricing" onClick={() => setMobileMenu(false)} className="block text-sm">Pricing</a>
+            <Link to="/blog" className="block text-sm">Blog</Link>
+            <Link to="/auth" className="block text-sm">Log in</Link>
+            <Link to="/auth" className="btn-invert block text-center px-4 py-2.5 text-sm">Sign up</Link>
           </div>
         )}
       </nav>
 
-      <CinematicIntro />
-      <StickyToolReveal />
-      <HeroSection />
-      <TrustBar />
+      <HeroMono />
+      <TickerBar />
+      <PipelineSection />
+      <StatsMono />
 
-      {/* Features — 8 tools */}
-      <section id="features" className="py-20 px-4">
+      {/* Tools index */}
+      <section id="tools" className="px-4 sm:px-6 py-24">
         <div className="max-w-6xl mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-center mb-4">8 AI-Powered Career Tools</h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-xl mx-auto">Powerful AI tools designed to help you land jobs, grow your income, and build your personal brand.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {features.map((f, i) => (
-              <motion.div key={f.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.04 }}>
-                <Link to="/auth" className="glass-card p-5 block h-full hover:-translate-y-1 transition-all duration-300 group" style={{ borderTop: `3px solid ${f.color}` }}>
-                  <div className="h-9 w-9 rounded-xl flex items-center justify-center mb-3" style={{ background: `${f.color}20` }}>
-                    <f.icon className="h-4.5 w-4.5" style={{ color: f.color }} />
-                  </div>
-                  <h3 className="font-display font-semibold text-foreground text-sm mb-1">{f.title}</h3>
-                  <p className="text-xs text-muted-foreground mb-2">{f.desc}</p>
-                  <span className="text-xs font-medium text-primary group-hover:underline">Try free →</span>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Roast Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-3xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="glass-card p-8 text-center relative overflow-hidden"
-            style={{ borderImage: "linear-gradient(135deg, #F97316, #EF4444, #F97316) 1", borderWidth: "2px", borderStyle: "solid" }}>
-            <Flame className="h-10 w-10 text-orange-400 mx-auto mb-4" />
-            <h2 className="font-display text-2xl md:text-3xl font-bold mb-3">Get Roasted. Get Better. 🔥</h2>
-            <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-              Our AI tears apart your resume and LinkedIn — then shows you exactly how to fix them. Brutal. Honest. Free.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/auth" className="px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-all">
-                Roast my resume →
+          <p className="section-number mb-3">Every tool.</p>
+          <h2 className="font-display font-bold tracking-[-0.02em] text-3xl sm:text-4xl mb-12">Ten tools. Same account. Same credits.</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 border-t border-l hairline">
+            {tools.map((t) => (
+              <Link key={t.title} to={t.to} className="group border-r border-b hairline p-5 hover:bg-white/[0.03] transition-colors">
+                <t.icon className="h-4 w-4 mb-4" style={{ color: "var(--lm-fg-3)" }} />
+                <p className="text-sm font-medium mb-1 flex items-center gap-1.5">
+                  {t.title}
+                  <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </p>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--lm-fg-3)" }}>{t.desc}</p>
               </Link>
-              <Link to="/auth" className="px-6 py-3 rounded-xl font-semibold text-sm border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 transition-all">
-                Roast my LinkedIn →
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <StatsSection />
-
-      {/* How it works */}
-      <section className="py-20 px-4 bg-secondary/20">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display text-3xl font-bold mb-12">How it works</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { step: "1", title: "Sign up free", desc: "Create your account in 10 seconds. No credit card needed." },
-              { step: "2", title: "Pick your AI tool", desc: "Choose from 8 AI-powered career tools." },
-              { step: "3", title: "Get results instantly", desc: "AI generates professional content in seconds." },
-            ].map((s, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <div className="h-12 w-12 rounded-full bg-primary/10 text-primary font-display font-bold text-xl flex items-center justify-center mx-auto mb-4">{s.step}</div>
-                <h3 className="font-display font-semibold mb-2">{s.title}</h3>
-                <p className="text-sm text-muted-foreground">{s.desc}</p>
-              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="font-display text-3xl font-bold text-center mb-12">What users are saying</h2>
-          <div className="grid md:grid-cols-3 gap-6">
+      <section className="px-4 sm:px-6 py-24 border-t hairline">
+        <div className="max-w-6xl mx-auto">
+          <p className="section-number mb-12">From users.</p>
+          <div className="grid md:grid-cols-3 gap-10">
             {testimonials.map((t, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="glass-card p-6">
-                <div className="flex gap-0.5 mb-3">
-                  {[...Array(5)].map((_, j) => <Star key={j} className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />)}
-                </div>
-                <p className="text-sm text-secondary-foreground mb-4 italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary">{t.name[0]}</div>
-                  <div>
-                    <p className="text-sm font-medium">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
+              <motion.figure key={i} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+                className="border-l hairline-2 pl-5">
+                <blockquote className="text-[15px] leading-relaxed">{t.quote}</blockquote>
+                <figcaption className="mt-4 text-xs" style={{ color: "var(--lm-fg-3)" }}>{t.name} · {t.role}</figcaption>
+              </motion.figure>
             ))}
           </div>
         </div>
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 px-4 bg-secondary/20">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="font-display text-3xl font-bold text-center mb-4">Simple, transparent pricing</h2>
-          <p className="text-muted-foreground text-center mb-12">No credit card required for the free plan.</p>
-          <div className="grid md:grid-cols-3 gap-6">
-            {plans.map((p, i) => (
-              <motion.div key={p.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className={`glass-card p-6 flex flex-col ${p.popular ? "gradient-border ring-1 ring-primary/20" : ""}`}>
-                {p.popular && <span className="text-xs font-semibold text-primary bg-primary/10 rounded-full px-3 py-1 w-fit mb-4">Most Popular</span>}
-                <h3 className="font-display text-xl font-bold mb-1">{p.name}</h3>
-                <div className="mb-4">
-                  <span className="text-4xl font-display font-bold">{p.price}</span>
-                  <span className="text-muted-foreground text-sm">{p.period}</span>
+      <section id="pricing" className="px-4 sm:px-6 py-24 border-t hairline">
+        <div className="max-w-6xl mx-auto">
+          <p className="section-number mb-3">Pricing.</p>
+          <h2 className="font-display font-bold tracking-[-0.02em] text-3xl sm:text-4xl mb-3">Pay for results. Not the tool.</h2>
+          <p className="text-[15px] mb-12 max-w-lg" style={{ color: "var(--lm-fg-2)" }}>Every plan is the full product with all ten tools. Plans differ only by volume.</p>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            {plans.map((p) => (
+              <div key={p.name} className={`panel p-6 flex flex-col ${p.popular ? "border-white/40" : ""}`}>
+                <div className="flex items-center justify-between mb-5">
+                  <p className="text-sm font-medium">{p.name}</p>
+                  {p.popular && <span className="mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-white text-black">Most popular</span>}
                 </div>
-                <ul className="space-y-2 mb-6 flex-1">
-                  {p.features.map(f => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-secondary-foreground">
-                      <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/auth" className={`w-full py-3 rounded-lg font-semibold text-sm text-center transition-all block ${
-                  p.popular ? "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90" : "bg-secondary/60 hover:bg-secondary text-foreground"
-                }`}>{p.popular ? "Get started" : "Start free"}</Link>
-              </motion.div>
+                <p className="mono text-4xl font-semibold tracking-tight">{p.price}<span className="text-sm font-normal ml-1" style={{ color: "var(--lm-fg-3)" }}>{p.period}</span></p>
+                <p className="text-sm mt-2 mb-6" style={{ color: "var(--lm-fg-2)" }}>{p.line}</p>
+                <div className="border-t hairline pt-5 mb-6">
+                  <p className="text-xs mb-1" style={{ color: "var(--lm-fg-3)" }}>You get</p>
+                  <p className="mono text-2xl font-semibold">{p.volume}</p>
+                  <p className="text-xs" style={{ color: "var(--lm-fg-3)" }}>{p.unit}</p>
+                </div>
+                <Link to="/auth" className={`mt-auto text-center py-2.5 text-sm ${p.popular ? "btn-invert" : "btn-ghost"}`}>{p.cta}</Link>
+              </div>
             ))}
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-6 mt-10 text-xs" style={{ color: "var(--lm-fg-3)" }}>
+            <p><span className="text-white">Cancel any time.</span> Stop billing in one click.</p>
+            <p><span className="text-white">5 free per day.</span> No card required.</p>
+            <p><span className="text-white">All ten tools.</span> On every plan, including free.</p>
           </div>
         </div>
       </section>
 
-      <ComparisonTable />
-      <FAQSection />
+      {/* FAQ */}
+      <section id="faq" className="px-4 sm:px-6 py-24 border-t hairline">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_1.4fr] gap-12">
+          <div>
+            <p className="section-number mb-3">Frequently asked.</p>
+            <h2 className="font-display font-bold tracking-[-0.02em] text-3xl sm:text-4xl mb-4">What people ask before signing up.</h2>
+            <p className="text-sm" style={{ color: "var(--lm-fg-2)" }}>
+              Something else? Write to <a href="mailto:contact@aurapal.org" className="text-white underline underline-offset-4">contact@aurapal.org</a>. A real person replies.
+            </p>
+          </div>
+          <Accordion type="single" collapsible className="border-t hairline">
+            {faqs.map((f, i) => (
+              <AccordionItem key={i} value={`f-${i}`} className="border-b hairline">
+                <AccordionTrigger className="text-[15px] font-medium py-5 hover:no-underline text-left">{f.q}</AccordionTrigger>
+                <AccordionContent className="text-sm pb-5 leading-relaxed" style={{ color: "var(--lm-fg-2)" }}>{f.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
 
-      {/* Final CTA */}
-      <section className="py-20 px-4" style={{ background: "linear-gradient(180deg, hsl(220 20% 7%) 0%, #0A0F1E 100%)" }}>
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-display text-3xl font-bold mb-4">Ready to transform your career?</h2>
-          <p className="text-sm text-muted-foreground mb-6">No credit card · 5 free daily generations</p>
-          <Link to="/auth" className="inline-block px-10 py-4 rounded-xl font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all text-sm">
-            Get started free →
+      {/* Final CTA — inverted */}
+      <section className="bg-white text-black px-4 sm:px-6 py-24">
+        <div className="max-w-6xl mx-auto">
+          <p className="mono text-[11px] uppercase tracking-[0.12em] text-black/50 mb-3">Five free. Then upgrade if it sticks.</p>
+          <h2 className="font-display font-bold tracking-[-0.03em] text-4xl sm:text-5xl lg:text-6xl max-w-3xl mb-8">Get your first result in the next sixty seconds.</h2>
+          <Link to="/auth" className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg text-sm font-semibold hover:opacity-85 transition-opacity">
+            Get started <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
 
-      <ClosingFrame />
       <Footer />
       <StickyMobileCTA />
     </div>
