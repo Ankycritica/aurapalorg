@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, FileText, MessageCircle, MessageSquareWarning } from "lucide-react";
 import { toast } from "sonner";
@@ -46,23 +45,26 @@ export default function Auth() {
   const handleGoogle = async () => {
     setGoogleLoading(true);
     try {
-      const redirect = window.location.origin + (nextPath.startsWith("/") ? nextPath : "/");
-      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: redirect });
-      if (result.error) { toast.error("Google sign-in failed"); return; }
-      if (result.redirected) return;
-      navigate(nextPath);
-    } catch { toast.error("Google sign-in failed"); } finally { setGoogleLoading(false); }
+      const redirectTo = window.location.origin + (nextPath.startsWith("/") ? nextPath : "/");
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      });
+      if (error) { toast.error("Google sign-in failed"); setGoogleLoading(false); }
+      // On success the browser redirects to Google; nothing else to do here.
+    } catch { toast.error("Google sign-in failed"); setGoogleLoading(false); }
   };
 
   const handleApple = async () => {
     setAppleLoading(true);
     try {
-      const redirect = window.location.origin + (nextPath.startsWith("/") ? nextPath : "/");
-      const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: redirect });
-      if (result.error) { toast.error("Apple sign-in failed"); return; }
-      if (result.redirected) return;
-      navigate(nextPath);
-    } catch { toast.error("Apple sign-in failed"); } finally { setAppleLoading(false); }
+      const redirectTo = window.location.origin + (nextPath.startsWith("/") ? nextPath : "/");
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "apple",
+        options: { redirectTo },
+      });
+      if (error) { toast.error("Apple sign-in failed"); setAppleLoading(false); }
+    } catch { toast.error("Apple sign-in failed"); setAppleLoading(false); }
   };
 
   return (
