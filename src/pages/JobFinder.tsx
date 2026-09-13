@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Briefcase, Search, MapPin, ExternalLink, Bookmark, BookmarkCheck, Sparkles, Mail, FileText, Building2, Loader2, Lock } from "lucide-react";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUsage } from "@/hooks/useUsage";
 import { Button } from "@/components/ui/button";
@@ -87,12 +87,12 @@ export default function JobFinder() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       if (!token) { toast.error("Please sign in"); return; }
-      const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/job-search`, {
+      const r = await fetch(`${SUPABASE_URL}/functions/v1/job-search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          apikey: SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ query: q, location: loc, remoteOnly: ro }),
       });
@@ -179,12 +179,12 @@ export default function JobFinder() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       if (!token) { toast.error("Please sign in"); return; }
-      const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/job-hr-email`, {
+      const r = await fetch(`${SUPABASE_URL}/functions/v1/job-hr-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          apikey: SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ company: selected.company }),
       });

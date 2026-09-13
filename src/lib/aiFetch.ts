@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/client";
 
 /**
  * Authenticated fetch to a Supabase edge function. Sends the user's session JWT
@@ -9,12 +9,12 @@ export async function aiFetch(path: "ai-tool" | "aura-agent", body: unknown): Pr
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
   if (!token) throw new Error("Not authenticated");
-  return fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${path}`, {
+  return fetch(`${SUPABASE_URL}/functions/v1/${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      apikey: SUPABASE_PUBLISHABLE_KEY,
     },
     body: JSON.stringify(body),
   });

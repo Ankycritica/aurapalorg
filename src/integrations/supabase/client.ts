@@ -2,34 +2,50 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Project defaults.
+//
+// These are deliberately committed. Both values are public by design: any
+// VITE_* variable is compiled into the browser bundle, and the anon key is
+// meant to be shipped to clients — it carries no privileges of its own and
+// every table is gated by row-level security. Keeping them here means a
+// missing or stale Vercel environment variable can no longer take the whole
+// app down, which is exactly what happened when the key still pointed at the
+// previous Supabase project ("Invalid API key" on every request).
+//
+// Service-role keys and provider secrets are NOT public and live only in
+// Supabase Edge Function secrets. Never add one to this file.
+const DEFAULT_SUPABASE_URL = "https://urwltccnnlbyibvtqrmr.supabase.co";
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+  "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2x0Y2NubmxieWlidnRxcm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5ODU2ODksImV4cCI6MjEwNDU2MTY4OX0." +
+  "TLdzSUTophOlPEq02vnAdj6TazRkkTT0fz7if8j6tSM";
 
-if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-  console.error(
-    "[AuraPal] Missing Supabase env vars. VITE_SUPABASE_URL and " +
-    "VITE_SUPABASE_PUBLISHABLE_KEY must be set in the Vercel project."
+const envUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const envKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+
+// An env var only wins if it agrees with the project the defaults point at.
+// A URL and key from different projects is the failure mode we are guarding
+// against, so a mismatched pair is discarded in favour of the defaults.
+function projectRefOf(url?: string): string | null {
+  try { return url ? new URL(url).hostname.split(".")[0] : null; } catch { return null; }
+}
+function keyRefOf(key?: string): string | null {
+  try { return key ? JSON.parse(atob(key.split(".")[1]))?.ref ?? null : null; } catch { return null; }
+}
+
+const envPairIsConsistent =
+  !!envUrl && !!envKey && projectRefOf(envUrl) === keyRefOf(envKey);
+
+if (envUrl && envKey && !envPairIsConsistent) {
+  console.warn(
+    `[AuraPal] Ignoring Supabase env vars: VITE_SUPABASE_URL points at ` +
+    `"${projectRefOf(envUrl)}" but the anon key belongs to "${keyRefOf(envKey)}". ` +
+    `Falling back to the built-in project so the app keeps working.`
   );
 }
 
-// Guard against a very common deploy mistake: URL from one project,
-// anon key from another. The key is a JWT whose `ref` claim must match
-// the project ref in the URL, otherwise every auth call fails silently.
-try {
-  if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY) {
-    const urlRef = new URL(SUPABASE_URL).hostname.split(".")[0];
-    const payload = JSON.parse(atob(SUPABASE_PUBLISHABLE_KEY.split(".")[1]));
-    if (payload?.ref && payload.ref !== urlRef) {
-      console.error(
-        `[AuraPal] Supabase misconfiguration: VITE_SUPABASE_URL points at ` +
-        `"${urlRef}" but VITE_SUPABASE_PUBLISHABLE_KEY belongs to "${payload.ref}". ` +
-        `Auth and all database calls will fail until these match.`
-      );
-    }
-  }
-} catch {
-  /* key isn't a decodable JWT — ignore, Supabase will surface it */
-}
+export const SUPABASE_URL = envPairIsConsistent ? envUrl! : DEFAULT_SUPABASE_URL;
+export const SUPABASE_PUBLISHABLE_KEY = envPairIsConsistent ? envKey! : DEFAULT_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
