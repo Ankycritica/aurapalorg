@@ -7,7 +7,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Must stay in sync with TIERS in create-checkout/index.ts. A product id that
+// is missing here silently falls through to the "pro" default below, which is
+// how Premium subscribers were being downgraded to Pro after payment.
 const PRODUCT_TO_PLAN: Record<string, string> = {
+  "prod_UyzTplJ97Du342": "pro",
+  "prod_UzGqplXyBhNVO3": "premium",
+  // Legacy products from the first Stripe catalogue, kept so existing
+  // subscriptions created against them keep resolving correctly.
   "prod_UJ95ke4gJIY1yn": "pro",
   "prod_UJ963RL5LJEYrq": "premium",
 };

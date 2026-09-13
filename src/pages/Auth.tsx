@@ -72,7 +72,7 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex">
       {/* Left panel - hidden on mobile */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center" style={{ background: "#0A0F1E" }}>
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center" style={{ background: "hsl(0 0% 4%)" }}>
         <div className="absolute inset-0">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="absolute rounded-2xl border border-primary/10 bg-primary/5" style={{

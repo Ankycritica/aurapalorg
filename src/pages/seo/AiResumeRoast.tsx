@@ -8,7 +8,7 @@ export default function AiResumeRoast() {
       keywords="AI resume roast, resume feedback, resume review, ATS resume check, free resume critique"
       badge="Free AI Resume Roast"
       h1="Get your resume roasted by AI — brutally honest, actually useful"
-      subhead="Stop sending the same dead resume into the void. Our AI Resume Roaster scores you 0–100, names what's broken, and tells you exactly how to fix it. Used by 10,000+ job seekers."
+      subhead="Stop sending the same dead resume into the void. Our AI Resume Roaster scores you 0–100, names what's broken, and tells you exactly how to fix it. Used by 2,500+ job seekers."
       ctaTo="/resume-roast"
       ctaLabel="Roast my resume free"
       benefits={[

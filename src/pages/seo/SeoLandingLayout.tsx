@@ -105,7 +105,7 @@ export function SeoLandingLayout(props: SeoLandingProps) {
             <Star className="h-3.5 w-3.5 fill-primary text-primary" />
             <Star className="h-3.5 w-3.5 fill-primary text-primary" />
             <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-            <span className="ml-2">Trusted by 10,000+ professionals</span>
+            <span className="ml-2">Trusted by 2,500+ professionals</span>
           </div>
         </motion.div>
       </section>

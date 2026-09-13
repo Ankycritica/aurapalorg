@@ -24,14 +24,14 @@ const tools = [
 const reasons = [
   { icon: Zap, title: "Built on frontier AI", desc: "Powered by Google Gemini & GPT-class models — outputs that actually feel expert." },
   { icon: Shield, title: "Free forever plan", desc: "5 generations per day, no credit card. Upgrade only if you want unlimited." },
-  { icon: Users, title: "10,000+ professionals", desc: "Trusted by job seekers, founders, and creators across 40+ countries." },
+  { icon: Users, title: "2,500+ professionals", desc: "Trusted by job seekers, founders, and creators across 40+ countries." },
   { icon: Sparkles, title: "Share-ready outputs", desc: "Every result is structured for LinkedIn, Twitter, and shareable image cards." },
 ];
 
 export default function Features() {
   useSeo({
     title: "Features — 10 Free AI Career Tools | AuraPal",
-    description: "Explore all 8 free AI career tools on AuraPal: resume builder, cover letter, interview prep, LinkedIn roaster, salary checker, startup validator and more.",
+    description: "Explore all 10 free AI career tools on AuraPal: resume builder, cover letter, interview prep, LinkedIn roaster, salary checker, startup validator and more.",
     path: "/features",
   });
 
@@ -74,14 +74,14 @@ export default function Features() {
           </div>
           <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-5">
             {[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 fill-primary text-primary" />)}
-            <span className="ml-2">Trusted by 10,000+ professionals · 40+ countries</span>
+            <span className="ml-2">Trusted by 2,500+ professionals · 40+ countries</span>
           </div>
         </motion.div>
       </section>
 
       {/* Tools grid */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-2">All 8 tools</h2>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-2">All 10 tools</h2>
         <p className="text-center text-sm text-muted-foreground mb-8">Each one is free to use 5 times per day. No signup wall.</p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tools.map((t, i) => (
@@ -131,7 +131,7 @@ export default function Features() {
               <p className="font-display text-3xl font-bold mb-2">$0</p>
               <ul className="text-sm text-muted-foreground space-y-1.5">
                 <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 5 generations / day</li>
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> All 8 tools</li>
+                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> All 10 tools</li>
                 <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> No credit card</li>
               </ul>
             </div>

@@ -1,7 +1,7 @@
 import { Check, X } from "lucide-react";
 
 const rows = [
-  { feature: "All 8 AI tools", free: true, pro: true, premium: true },
+  { feature: "All 10 AI tools", free: true, pro: true, premium: true },
   { feature: "Daily AI generations", free: "5/day", pro: "100/day", premium: "Unlimited" },
   { feature: "Copy to clipboard", free: true, pro: true, premium: true },
   { feature: "Export to PDF", free: false, pro: true, premium: true },
