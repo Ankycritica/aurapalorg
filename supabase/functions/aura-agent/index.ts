@@ -208,7 +208,7 @@ serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${GEMINI_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: Deno.env.get("GEMINI_MODEL") ?? "gemini-2.5-flash",
+        model: Deno.env.get("GEMINI_MODEL") ?? "gemini-3.6-flash",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
