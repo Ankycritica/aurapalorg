@@ -8,7 +8,7 @@ export default function AiResumeRoast() {
       keywords="AI resume roast, resume feedback, resume review, ATS resume check, free resume critique"
       badge="Free AI Resume Roast"
       h1="Get your resume roasted by AI — brutally honest, actually useful"
-      subhead="Stop sending the same dead resume into the void. Our AI Resume Roaster scores you 0–100, names what's broken, and tells you exactly how to fix it. Used by 2,500+ job seekers."
+      subhead="Stop sending the same dead resume into the void. Our AI Resume Roaster scores you 0–100, names what's broken, and tells you exactly how to fix it."
       ctaTo="/resume-roast"
       ctaLabel="Roast my resume free"
       benefits={[
@@ -36,14 +36,9 @@ Before: "Helped manage social media accounts."
 After:  "Grew Instagram following from 2K to 18K in 9 months by launching a weekly carousel series, driving a 4.2× increase in inbound leads."
 
 Want the full 9-page roast with rewrites for every bullet? Generate yours.`}
-      testimonial={{
-        quote: "Scored a 34. Fixed everything it said. Got 4 interviews the next week. Worth more than the $200 resume coach I hired before.",
-        name: "Sarah K.",
-        role: "Marketing Manager",
-      }}
       faq={[
         { q: "Is the AI Resume Roast really free?", a: "Yes. Free forever plan gives you 5 roasts per day. No credit card." },
-        { q: "Will it actually help me get interviews?", a: "It identifies the specific issues recruiters and ATS systems flag. Fix those, and your callback rate goes up. Most users report 2–5× more interviews within 2 weeks." },
+        { q: "Will it actually help me get interviews?", a: "It identifies the specific issues recruiters and ATS systems flag. Fix those and you remove the concrete reasons a recruiter or ATS screens you out. No tool can promise interviews; this one tells you exactly what is weak and how to rewrite it." },
         { q: "How is this different from a generic resume review?", a: "We use a strict scoring rubric across formatting, impact, ATS, clarity, and relevance — and we rewrite your weakest bullets in the XYZ achievement format. No generic 'add more keywords' advice." },
         { q: "Is my resume data private?", a: "Yes. We never share your data. You can delete any roast from your history with one click." },
       ]}

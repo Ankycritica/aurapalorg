@@ -16,7 +16,8 @@ interface SeoLandingProps {
   exampleTitle: string;
   exampleOutput: string;
   faq: { q: string; a: string }[];
-  testimonial: { quote: string; name: string; role: string };
+  /** Optional. Omit until a real, attributable quote exists. */
+  testimonial?: { quote: string; name: string; role: string };
   keywords?: string;
 }
 
@@ -105,7 +106,7 @@ export function SeoLandingLayout(props: SeoLandingProps) {
             <Star className="h-3.5 w-3.5 fill-primary text-primary" />
             <Star className="h-3.5 w-3.5 fill-primary text-primary" />
             <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-            <span className="ml-2">Trusted by 2,500+ professionals</span>
+            <span className="ml-2">Free to start · no card required</span>
           </div>
         </motion.div>
       </section>
@@ -144,8 +145,17 @@ export function SeoLandingLayout(props: SeoLandingProps) {
           <div className="flex items-center justify-center gap-1 mb-3">
             {[1,2,3,4,5].map(i => <Star key={i} className="h-4 w-4 fill-primary text-primary" />)}
           </div>
-          <p className="text-base sm:text-lg text-foreground italic mb-3">"{props.testimonial.quote}"</p>
-          <p className="text-sm text-muted-foreground">— {props.testimonial.name}, {props.testimonial.role}</p>
+          {props.testimonial ? (
+            <>
+              <p className="text-base sm:text-lg text-foreground italic mb-3">"{props.testimonial.quote}"</p>
+              <p className="text-sm text-muted-foreground">— {props.testimonial.name}, {props.testimonial.role}</p>
+            </>
+          ) : (
+            <>
+              <p className="text-base sm:text-lg text-foreground mb-3">Free to start. No credit card, no trial timer.</p>
+              <p className="text-sm text-muted-foreground">5 generations a day on the free plan, across all 10 tools.</p>
+            </>
+          )}
         </div>
       </section>
 

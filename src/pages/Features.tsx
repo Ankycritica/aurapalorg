@@ -24,7 +24,7 @@ const tools = [
 const reasons = [
   { icon: Zap, title: "Built on frontier AI", desc: "Powered by Google Gemini & GPT-class models — outputs that actually feel expert." },
   { icon: Shield, title: "Free forever plan", desc: "5 generations per day, no credit card. Upgrade only if you want unlimited." },
-  { icon: Users, title: "2,500+ professionals", desc: "Trusted by job seekers, founders, and creators across 40+ countries." },
+  { icon: Users, title: "Built for job seekers", desc: "Made for people applying, switching careers, negotiating pay, or starting something of their own." },
   { icon: Sparkles, title: "Share-ready outputs", desc: "Every result is structured for LinkedIn, Twitter, and shareable image cards." },
 ];
 
@@ -74,7 +74,7 @@ export default function Features() {
           </div>
           <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-5">
             {[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 fill-primary text-primary" />)}
-            <span className="ml-2">Trusted by 2,500+ professionals · 40+ countries</span>
+            <span className="ml-2">10 AI tools · free to start · no card required</span>
           </div>
         </motion.div>
       </section>

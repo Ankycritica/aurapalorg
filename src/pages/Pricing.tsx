@@ -77,7 +77,7 @@ const plans = [
 const trustItems = [
   { icon: Shield, text: "7-day free trial · No charge today" },
   { icon: Clock, text: "Cancel anytime, instantly" },
-  { icon: TrendingUp, text: "Trusted by 2,500+ professionals" },
+  { icon: TrendingUp, text: "10 AI tools on every plan" },
 ];
 
 export default function Pricing() {
@@ -171,7 +171,7 @@ export default function Pricing() {
           Stop guessing. <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Start landing.</span>
         </h1>
         <p className="text-muted-foreground max-w-xl mx-auto text-base md:text-lg">
-          Get the AI career engine 2,500+ professionals use to land interviews, optimize LinkedIn, and validate ideas — for less than a coffee a week.
+          Ten AI tools to land interviews, optimize LinkedIn, benchmark your salary and validate ideas — for less than a coffee a week.
         </p>
       </motion.div>
 

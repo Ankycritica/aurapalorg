@@ -235,13 +235,13 @@ export function HeroSection() {
             <motion.ul initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
               className="mt-6 space-y-1.5 text-sm">
               <li className="flex items-center gap-2 text-muted-foreground">
-                <span>🔥</span> <span><span className="text-foreground font-semibold">2,500+</span> professionals improved their resumes this week</span>
+                <span>🎁</span> <span><span className="text-foreground font-semibold">Pro is free</span> for every signup before Oct 1, 2026</span>
               </li>
               <li className="flex items-center gap-2 text-muted-foreground">
                 <span>⭐</span> <span>Avg score increase: <span className="text-emerald-400 font-semibold">+32 points</span></span>
               </li>
               <li className="flex items-center gap-2 text-muted-foreground">
-                <span>💼</span> <span><span className="text-foreground font-semibold">1,200+</span> interviews landed</span>
+                <span>⚡</span> <span><span className="text-foreground font-semibold">10 AI tools</span>, no card required</span>
               </li>
             </motion.ul>
 
@@ -274,7 +274,7 @@ export function HeroSection() {
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-yellow-500 text-yellow-500" />)}
               </div>
-              <span className="text-xs text-muted-foreground">2,500+ professionals hired faster</span>
+              <span className="text-xs text-muted-foreground">Built in the open · launched 2026</span>
             </motion.div>
           </div>
 

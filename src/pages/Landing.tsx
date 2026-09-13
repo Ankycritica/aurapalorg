@@ -26,10 +26,13 @@ const tools = [
   { title: "Side Hustle", desc: "Income ideas matched to your hours", icon: Lightbulb, to: "/side-hustle-ideas" },
 ];
 
-const testimonials = [
-  { quote: "Resume Roast scored me 34/100. I fixed everything it flagged. Four interviews the following week.", name: "Sarah K.", role: "Marketing Manager" },
-  { quote: "The LinkedIn Roaster called my headline 'criminally vague'. It was painfully right. Profile views tripled.", name: "James T.", role: "Software Engineer" },
-  { quote: "Generated a full investor business plan in four minutes. Showed it to my co-founder the same day.", name: "Priya M.", role: "Founder" },
+// No testimonials until real users send them. Invented quotes attributed to
+// invented people are the fastest way to lose a launch audience's trust.
+// These are claims about the product that are true today and checkable.
+const promises = [
+  { title: "Scored, not vague", body: "Roast tools return a number out of 100 and a specific fix for every weak section — not 'consider strengthening this'." },
+  { title: "Nothing to configure", body: "No prompt engineering, no setup. Pick a tool, fill three fields, get a structured result in about thirty seconds." },
+  { title: "Yours to keep", body: "Every generation is saved to your history. Copy it, export it, or come back to it later." },
 ];
 
 const plans = [
@@ -133,14 +136,14 @@ export default function Landing() {
       {/* Testimonials */}
       <section className="px-4 sm:px-6 py-24 border-t hairline">
         <div className="max-w-6xl mx-auto">
-          <p className="section-number mb-12">From users.</p>
+          <p className="section-number mb-12">What you get.</p>
           <div className="grid md:grid-cols-3 gap-10">
-            {testimonials.map((t, i) => (
-              <motion.figure key={i} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+            {promises.map((t, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
                 className="border-l hairline-2 pl-5">
-                <blockquote className="text-[15px] leading-relaxed">{t.quote}</blockquote>
-                <figcaption className="mt-4 text-xs" style={{ color: "var(--lm-fg-3)" }}>{t.name} · {t.role}</figcaption>
-              </motion.figure>
+                <p className="text-[15px] font-medium mb-2">{t.title}</p>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--lm-fg-2)" }}>{t.body}</p>
+              </motion.div>
             ))}
           </div>
         </div>

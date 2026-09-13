@@ -8,7 +8,7 @@ export default function SalaryCheckerFree() {
       keywords="free salary checker, am I underpaid, salary comparison, pay benchmark, salary negotiation tool"
       badge="Am I Underpaid? — Free Salary Checker"
       h1="Find out if you're underpaid in 15 seconds (free, no signup wall)"
-      subhead="Stop wondering. Our AI compares your salary to market data for your role, location, and experience — then gives you a word-for-word negotiation script. Used by 2,500+ professionals."
+      subhead="Stop wondering. Our AI compares your salary to market data for your role, location, and experience — then gives you a word-for-word negotiation script."
       ctaTo="/salary-check"
       ctaLabel="Check my salary free"
       benefits={[

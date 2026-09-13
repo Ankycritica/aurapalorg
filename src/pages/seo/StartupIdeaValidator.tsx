@@ -48,11 +48,6 @@ Month 2:  3 paying customers, build referral motion
 Month 3:  10 paying customers, $2K MRR, hire first SDR or stay solo
 
 Want the full 12-page validation report with founder questions to answer? Generate yours.`}
-      testimonial={{
-        quote: "Got a 38/100 on my idea. Saved me from quitting my job to build it. Tried again with a sharper version — scored 81. Now we're at $7K MRR.",
-        name: "Priya M.",
-        role: "Founder",
-      }}
       faq={[
         { q: "Is the validator really free?", a: "Yes. Free plan: 5 validations per day. No credit card." },
         { q: "How accurate is the score?", a: "It's a directional founder-grade rubric — not a guarantee. But it surfaces the same red flags experienced VCs and product mentors look for. Treat it as a smart second opinion." },

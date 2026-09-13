@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 
-const stats = [
-  { value: 15000, suffix: "+", label: "Resumes Generated" },
-  { value: 92, suffix: "%", label: "Interview Success Rate" },
-  { value: 2500, suffix: "+", label: "Active Users" },
-  { value: 4.9, suffix: "/5", label: "User Rating", decimals: 1 },
+const stats: { value: number; suffix: string; label: string; decimals?: number }[] = [
+  { value: 10, suffix: "", label: "AI Tools Included", decimals: 0 },
+  { value: 5, suffix: "/day", label: "Free Generations" },
+  { value: 0, suffix: "", label: "Card Required" },
+  { value: 30, suffix: "s", label: "To First Result" },
 ];
 
 function AnimatedNumber({ target, decimals = 0, suffix }: { target: number; decimals?: number; suffix: string }) {

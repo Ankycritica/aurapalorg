@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
-const stats = [
-  { value: 15000, suffix: "+", label: "Outputs generated" },
-  { value: 92, suffix: "%", label: "Report better interviews" },
-  { value: 2500, suffix: "+", label: "Active job seekers" },
-  { value: 4.9, suffix: "/5", label: "Average rating", decimals: 1 },
+// Facts about the product, not invented traction. AuraPal launched this
+// month; usage and rating claims would be fabricated, and they are the first
+// thing a sceptical reader checks.
+const stats: { value: number; suffix: string; label: string; decimals?: number }[] = [
+  { value: 10, suffix: "", label: "AI tools included", decimals: 0 },
+  { value: 5, suffix: "/day", label: "Free generations" },
+  { value: 0, suffix: "", label: "Card required to start" },
+  { value: 30, suffix: "s", label: "To your first result" },
 ];
 
 function Num({ target, decimals = 0, suffix }: { target: number; decimals?: number; suffix: string }) {
