@@ -27,13 +27,13 @@ export default function Auth() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
+        const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=%2Fdashboard` } });
         if (error) throw error;
         toast.success("Check your email to confirm your account!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate(nextPath);
+        navigate(nextPath === "/" ? "/dashboard" : nextPath);
       }
     } catch (err: any) {
       toast.error(err.message || "Authentication failed");
@@ -45,26 +45,28 @@ export default function Auth() {
   const handleGoogle = async () => {
     setGoogleLoading(true);
     try {
-      const redirectTo = window.location.origin + (nextPath.startsWith("/") ? nextPath : "/");
+      const dest = nextPath.startsWith("/") && nextPath !== "/" ? nextPath : "/dashboard";
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(dest)}`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo },
       });
-      if (error) { toast.error("Google sign-in failed"); setGoogleLoading(false); }
+      if (error) { toast.error(error.message || "Google sign-in failed"); setGoogleLoading(false); }
       // On success the browser redirects to Google; nothing else to do here.
-    } catch { toast.error("Google sign-in failed"); setGoogleLoading(false); }
+    } catch (err: any) { toast.error(err?.message || "Google sign-in failed"); setGoogleLoading(false); }
   };
 
   const handleApple = async () => {
     setAppleLoading(true);
     try {
-      const redirectTo = window.location.origin + (nextPath.startsWith("/") ? nextPath : "/");
+      const dest = nextPath.startsWith("/") && nextPath !== "/" ? nextPath : "/dashboard";
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(dest)}`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "apple",
         options: { redirectTo },
       });
-      if (error) { toast.error("Apple sign-in failed"); setAppleLoading(false); }
-    } catch { toast.error("Apple sign-in failed"); setAppleLoading(false); }
+      if (error) { toast.error(error.message || "Apple sign-in failed"); setAppleLoading(false); }
+    } catch (err: any) { toast.error(err?.message || "Apple sign-in failed"); setAppleLoading(false); }
   };
 
   return (
