@@ -33,14 +33,23 @@ function keyRefOf(key?: string): string | null {
   try { return key ? JSON.parse(atob(key.split(".")[1]))?.ref ?? null : null; } catch { return null; }
 }
 
+const EXPECTED_REF = projectRefOf(DEFAULT_SUPABASE_URL);
+
+// Env vars are only honoured when the URL and key agree with each other AND
+// point at this project. Anything else — a mismatched pair, or a leftover
+// pair from the old Supabase project — is ignored. Without the second check a
+// stale-but-internally-consistent pair would silently win and send the whole
+// app at a database that no longer backs it.
 const envPairIsConsistent =
-  !!envUrl && !!envKey && projectRefOf(envUrl) === keyRefOf(envKey);
+  !!envUrl && !!envKey &&
+  projectRefOf(envUrl) === keyRefOf(envKey) &&
+  projectRefOf(envUrl) === EXPECTED_REF;
 
 if (envUrl && envKey && !envPairIsConsistent) {
   console.warn(
-    `[AuraPal] Ignoring Supabase env vars: VITE_SUPABASE_URL points at ` +
-    `"${projectRefOf(envUrl)}" but the anon key belongs to "${keyRefOf(envKey)}". ` +
-    `Falling back to the built-in project so the app keeps working.`
+    `[AuraPal] Ignoring Supabase env vars (url ref "${projectRefOf(envUrl)}", ` +
+    `key ref "${keyRefOf(envKey)}"); expected "${EXPECTED_REF}". ` +
+    `Using the built-in project instead.`
   );
 }
 
