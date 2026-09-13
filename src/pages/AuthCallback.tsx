@@ -33,17 +33,28 @@ export default function AuthCallback() {
 
       const next = params.get("next") || "/dashboard";
 
-      // PKCE: exchange the code for a session explicitly so we can report failures.
-      const code = params.get("code");
-      if (code) {
-        const { error: exErr } = await supabase.auth.exchangeCodeForSession(code);
+      // Implicit flow: supabase-js picks the tokens out of the URL fragment
+      // on init (detectSessionInUrl). That can land a tick after mount, so
+      // poll briefly rather than reading getSession() once.
+      let session = null;
+      for (let i = 0; i < 25 && !cancelled; i++) {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) { session = data.session; break; }
+        await new Promise((r) => setTimeout(r, 120));
+      }
+      if (cancelled) return;
+
+      // Legacy/PKCE fallback: if a ?code= arrived, try the exchange too.
+      if (!session && params.get("code")) {
+        const { error: exErr } = await supabase.auth.exchangeCodeForSession(params.get("code")!);
         if (exErr && !cancelled) { setError(exErr.message); return; }
+        const { data } = await supabase.auth.getSession();
+        session = data.session;
       }
 
-      // Implicit flow, or session already restored from storage.
-      const { data, error: sesErr } = await supabase.auth.getSession();
-      if (cancelled) return;
-      if (sesErr) { setError(sesErr.message); return; }
+      const data = { session };
+      const sesErr = null;
+      if (sesErr) { setError(sesErr); return; }
 
       if (data.session) {
         navigate(next, { replace: true });

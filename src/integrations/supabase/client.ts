@@ -37,6 +37,13 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    flowType: 'pkce',
+    // Implicit, not PKCE. PKCE keeps a one-time code_verifier in localStorage
+    // on the origin that started the flow. AuraPal is served from three
+    // origins (apex -> 308 -> www, plus *.vercel.app previews), so a login
+    // begun on one and returned to another loses the verifier and fails with
+    // "PKCE code verifier not found in storage". This is a pure browser SPA
+    // with no server to hold the verifier in a cookie, so implicit is both
+    // sufficient and far more robust here.
+    flowType: 'implicit',
   },
 });
