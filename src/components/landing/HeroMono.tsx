@@ -48,7 +48,7 @@ export function HeroMono() {
           </motion.div>
 
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-5 text-xs" style={{ color: "var(--lm-fg-3)" }}>
-            Free to start · No card required · Powered by Claude
+            Free to start · No card required · Powered by Google Gemini
           </motion.p>
         </div>
 

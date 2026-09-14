@@ -36,6 +36,13 @@ interface ToolPageProps {
   fields: ToolField[];
   systemPrompt: string;
   buildUserPrompt: (values: Record<string, string>) => string;
+  /**
+   * Optional async step that runs before generation. Use it to pull real data
+   * (e.g. live salary ranges) and hand the model facts instead of letting it
+   * invent them. Whatever it returns is appended to the user prompt. Failures
+   * are non-fatal: generation proceeds without the enrichment.
+   */
+  enrichPrompt?: (values: Record<string, string>) => Promise<string>;
   metaTitle?: string;
   metaDescription?: string;
   seoContent?: React.ReactNode;
@@ -63,7 +70,7 @@ interface HistoryItem {
   input_data: any;
 }
 
-export function ToolPage({ title, description, icon: Icon, toolSlug, fields, systemPrompt, buildUserPrompt, seoContent, accentColor, generateLabel }: ToolPageProps) {
+export function ToolPage({ title, description, icon: Icon, toolSlug, fields, systemPrompt, buildUserPrompt, enrichPrompt, seoContent, accentColor, generateLabel }: ToolPageProps) {
   // Prefill from URL params (e.g. from Job Finder "Cover letter" deep-link)
   const [values, setValues] = useState<Record<string, string>>(() => {
     if (typeof window === "undefined") return {};
@@ -135,7 +142,17 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
       const tracked = await trackUsage(toolSlug);
       if (!tracked) { setShowPaywall(true); setLoading(false); return; }
 
-      const resp = await aiFetch("ai-tool", { systemPrompt, userPrompt: buildUserPrompt(values), toolName: toolSlug });
+      let userPrompt = buildUserPrompt(values);
+      if (enrichPrompt) {
+        try {
+          const extra = await enrichPrompt(values);
+          if (extra) userPrompt += `\n\n${extra}`;
+        } catch (e) {
+          // Enrichment is best-effort — never block a generation on it.
+          console.warn("[AuraPal] prompt enrichment failed:", e);
+        }
+      }
+      const resp = await aiFetch("ai-tool", { systemPrompt, userPrompt, toolName: toolSlug });
 
       if (resp.status === 429) { setError("Too many requests. Please wait."); setLoading(false); return; }
       if (resp.status === 402) { setError("AI credits exhausted."); setLoading(false); return; }
@@ -174,7 +191,7 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
     } finally {
       setLoading(false);
     }
-  }, [values, fields, systemPrompt, buildUserPrompt, isLimitReached, trackUsage, toolSlug, saveGeneration]);
+  }, [values, fields, systemPrompt, buildUserPrompt, enrichPrompt, isLimitReached, trackUsage, toolSlug, saveGeneration]);
 
   const copyResult = () => {
     navigator.clipboard.writeText(result + attributionFooter());

@@ -43,7 +43,7 @@ const plans = [
 
 const faqs = [
   { q: "Is AuraPal really free?", a: "Yes. The free plan gives you 5 AI generations per day across all 10 tools. No card required." },
-  { q: "What AI powers it?", a: "Claude, made by Anthropic. Every tool uses a purpose-built prompt designed around what recruiters and hiring managers actually look for." },
+  { q: "What AI powers it?", a: "Google Gemini. Every tool wraps it in a purpose-built prompt and a scoring rubric designed around what recruiters and ATS filters actually screen for." },
   { q: "Can I cancel anytime?", a: "Yes. Stop billing in one click from Settings. Your generations and history stay." },
   { q: "Is my resume data private?", a: "Encrypted in transit and at rest, never sold, never used to train models. Delete any generation from your dashboard." },
   { q: "What can I export?", a: "Pro and Premium export resumes, cover letters and reports to PDF. Everyone can copy to clipboard." },
