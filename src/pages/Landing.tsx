@@ -35,10 +35,10 @@ const promises = [
   { title: "Yours to keep", body: "Every generation is saved to your history. Copy it, export it, or come back to it later." },
 ];
 
-const plans = [
-  { name: "Free", price: "$0", period: "forever", line: "Enough to see if it sticks.", volume: "5", unit: "generations / day", popular: false, cta: "Start free" },
-  { name: "Pro", price: "$19", period: "/ month", line: "For an active job search.", volume: "100", unit: "generations / day", popular: true, cta: "Start Pro" },
-  { name: "Premium", price: "$49", period: "/ month", line: "For people who ship daily.", volume: "∞", unit: "unlimited generations", popular: false, cta: "Go Premium" },
+const freePoints = [
+  { title: "All ten tools", body: "Resume builder, roasts, salary benchmark, interview prep, cover letters, job finder and the rest. Nothing is held back." },
+  { title: "No credit card", body: "There is no card field, no trial countdown and no plan to choose. Sign in and use it." },
+  { title: "Generous daily limit", body: "A high cap exists purely to stop abuse. Normal use will not reach it." },
 ];
 
 const faqs = [
@@ -153,32 +153,22 @@ export default function Landing() {
       <section id="pricing" className="px-4 sm:px-6 py-24 border-t hairline">
         <div className="max-w-6xl mx-auto">
           <p className="section-number mb-3">Pricing.</p>
-          <h2 className="font-display font-bold tracking-[-0.02em] text-3xl sm:text-4xl mb-3">Pay for results. Not the tool.</h2>
-          <p className="text-[15px] mb-12 max-w-lg" style={{ color: "var(--lm-fg-2)" }}>Every plan is the full product with all ten tools. Plans differ only by volume.</p>
+          <h2 className="font-display font-bold tracking-[-0.02em] text-3xl sm:text-4xl mb-3">It\u2019s free.</h2>
+          <p className="text-[15px] mb-12 max-w-lg" style={{ color: "var(--lm-fg-2)" }}>No plans, no tiers, no card. Every tool, for everyone.</p>
 
           <div className="grid md:grid-cols-3 gap-4">
-            {plans.map((p) => (
-              <div key={p.name} className={`panel p-6 flex flex-col ${p.popular ? "border-white/40" : ""}`}>
-                <div className="flex items-center justify-between mb-5">
-                  <p className="text-sm font-medium">{p.name}</p>
-                  {p.popular && <span className="mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-white text-black">Most popular</span>}
-                </div>
-                <p className="mono text-4xl font-semibold tracking-tight">{p.price}<span className="text-sm font-normal ml-1" style={{ color: "var(--lm-fg-3)" }}>{p.period}</span></p>
-                <p className="text-sm mt-2 mb-6" style={{ color: "var(--lm-fg-2)" }}>{p.line}</p>
-                <div className="border-t hairline pt-5 mb-6">
-                  <p className="text-xs mb-1" style={{ color: "var(--lm-fg-3)" }}>You get</p>
-                  <p className="mono text-2xl font-semibold">{p.volume}</p>
-                  <p className="text-xs" style={{ color: "var(--lm-fg-3)" }}>{p.unit}</p>
-                </div>
-                <Link to="/auth" className={`mt-auto text-center py-2.5 text-sm ${p.popular ? "btn-invert" : "btn-ghost"}`}>{p.cta}</Link>
+            {freePoints.map((p) => (
+              <div key={p.title} className="panel p-6">
+                <p className="text-sm font-medium mb-2">{p.title}</p>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--lm-fg-2)" }}>{p.body}</p>
               </div>
             ))}
           </div>
 
           <div className="grid sm:grid-cols-3 gap-6 mt-10 text-xs" style={{ color: "var(--lm-fg-3)" }}>
-            <p><span className="text-white">Cancel any time.</span> Stop billing in one click.</p>
-            <p><span className="text-white">5 free per day.</span> No card required.</p>
-            <p><span className="text-white">All ten tools.</span> On every plan, including free.</p>
+            <p><span className="text-white">Free, not freemium.</span> There is no paid tier to upsell you to.</p>
+            <p><span className="text-white">No card, ever.</span> Sign in with Google or email and start.</p>
+            <p><span className="text-white">All ten tools.</span> For everyone, from the first minute.</p>
           </div>
         </div>
       </section>

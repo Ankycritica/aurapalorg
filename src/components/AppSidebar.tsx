@@ -68,14 +68,6 @@ function SidebarInner({ collapsed, onNavigate, isAdmin, isPaid }: { collapsed: b
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/pricing" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
-                    <CreditCard className="h-4 w-4 mr-2 shrink-0" />
-                    {!collapsed && <span>Pricing</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
                   <NavLink to="/settings" className="hover:bg-sidebar-accent/50 transition-colors duration-200" activeClassName="bg-sidebar-accent text-sidebar-primary font-medium" onClick={onNavigate}>
                     <Settings className="h-4 w-4 mr-2 shrink-0" />
                     {!collapsed && <span>Settings</span>}
