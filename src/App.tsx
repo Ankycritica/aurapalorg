@@ -31,6 +31,7 @@ import NotFound from "@/pages/NotFound";
 import Admin from "@/pages/Admin";
 import About from "@/pages/About";
 import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
 import Features from "@/pages/Features";
 import AiResumeRoast from "@/pages/seo/AiResumeRoast";
 import AiResumeRoastFree from "@/pages/seo/AiResumeRoastFree";
@@ -65,6 +66,7 @@ const App = () => {
             <Route path="/about" element={<About />} />
             <Route path="/features" element={<Features />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/ai-resume-roast" element={<AiResumeRoast />} />
             <Route path="/ai-resume-roast-free" element={<AiResumeRoastFree />} />
             <Route path="/salary-checker-free" element={<SalaryCheckerFree />} />
