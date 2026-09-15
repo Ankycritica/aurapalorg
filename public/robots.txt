@@ -1,9 +1,14 @@
 User-agent: *
 Allow: /
-Allow: /pricing
-Allow: /about
-Allow: /blog
+
+# Behind the login wall — crawling these only yields a redirect to /auth.
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /settings
+Disallow: /auth
+Disallow: /jobs
+Disallow: /agent
+Disallow: /templates
+Disallow: /pricing
+
 Sitemap: https://aurapal.org/sitemap.xml
