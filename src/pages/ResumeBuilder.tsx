@@ -172,6 +172,7 @@ export default function ResumeBuilder() {
     setAtsLoading(true);
     try {
       const resp = await aiFetch("ai-tool", {
+        toolName: "resume-builder",
         systemPrompt: `You are an ATS (Applicant Tracking System) expert. Analyze the resume and return ONLY valid JSON, no markdown:\n{"score": <0-100>, "positives": ["<strength 1>", "<strength 2>"], "missing": ["<missing keyword 1>", "<missing keyword 2>"]}\nBe specific. Score based on formatting, keywords, quantified achievements, and ATS compatibility.`,
         userPrompt: `Analyze this resume for ATS compatibility for a ${values.role || "general"} role:\n\n${resumeText}`,
       });
@@ -200,7 +201,10 @@ export default function ResumeBuilder() {
       }
       const cleaned = fullText.replace(/```json\s*/g, "").replace(/```/g, "").trim();
       setAtsScore(JSON.parse(cleaned));
-    } catch {} finally {
+    } catch (e) {
+      // Non-fatal: the resume itself already rendered. Log so it is diagnosable.
+      console.warn("[AuraPal] ATS scoring failed:", e);
+    } finally {
       setAtsLoading(false);
     }
   };
@@ -293,7 +297,7 @@ HARD RULES:
 
       setLoadingStage("Applying recruiter logic & XYZ format...");
 
-      const resp = await aiFetch("ai-tool", { systemPrompt, userPrompt });
+      const resp = await aiFetch("ai-tool", { systemPrompt, userPrompt, toolName: "resume-builder" });
 
       if (resp.status === 429) { setError("Too many requests. Please wait a moment."); setLoading(false); return; }
       if (resp.status === 402) { setError("AI credits exhausted. Please try again later."); setLoading(false); return; }
@@ -331,6 +335,7 @@ HARD RULES:
           (async () => {
             try {
               const r = await aiFetch("ai-tool", {
+                  toolName: "resume-builder",
                   systemPrompt: `You are an ATS scorer. Reply ONLY with a single number 0-100 representing ATS quality. No words.`,
                   userPrompt: `Score this resume for a ${values.role} role:\n\n${extractedText}`,
                 });

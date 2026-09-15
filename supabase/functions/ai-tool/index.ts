@@ -65,11 +65,27 @@ serve(async (req) => {
       });
     }
 
-    // Record usage server-side BEFORE the call
-    await admin.from("usage_tracking").insert({
-      user_id: userId,
-      tool_name: typeof toolName === "string" ? toolName.slice(0, 64) : "ai-tool",
-    });
+    // Record usage server-side BEFORE the call.
+    //
+    // Some tools legitimately make several calls for one user action — the
+    // resume builder fires three (draft, ATS score, original-resume score).
+    // Billing each of those separately meant a free user spent three of five
+    // lifetime credits on a single resume. Collapse calls from the same user
+    // and tool inside a short window into one charge. The window is far shorter
+    // than any realistic gap between two deliberate generations, so it cannot
+    // be used to farm free usage.
+    const tool = typeof toolName === "string" ? toolName.slice(0, 64) : "ai-tool";
+    const windowStart = new Date(Date.now() - 90_000).toISOString();
+    const { count: recent } = await admin
+      .from("usage_tracking")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("tool_name", tool)
+      .gte("created_at", windowStart);
+
+    if (!recent) {
+      await admin.from("usage_tracking").insert({ user_id: userId, tool_name: tool });
+    }
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
