@@ -8,19 +8,46 @@ import { toast } from "sonner";
 type Msg = { role: "user" | "assistant"; content: string };
 type Thread = { id: string; title: string; updated_at: string };
 
-const SUGGESTIONS = [
+const DEFAULT_SUGGESTIONS = [
   "Rewrite my top resume bullet to be stronger",
   "What should I say when they ask my salary expectation?",
-  "Turn my plan into what I should do this week",
+  "Turn this into what I should do this week",
   "How do I explain a six-month career gap?",
 ];
+
+/** Follow-ups worth offering per tool, phrased as the user would ask them. */
+export const TOOL_SUGGESTIONS: Record<string, string[]> = {
+  "resume-roast": ["Rewrite my weakest bullet", "Why did I score low on ATS keywords?", "What should I fix first?"],
+  "linkedin-roaster": ["Write me three better headlines", "Rewrite my About section", "What should I post to get noticed?"],
+  "salary-check": ["Script my ask for the next review", "What if they say there's no budget?", "Is this gap worth leaving over?"],
+  "cover-letter": ["Make it shorter and sharper", "Rewrite the opening line", "Adjust the tone to be less formal"],
+  "interview-prep": ["Give me a harder follow-up question", "Critique my answer to question 2", "What do they really want to hear?"],
+  "resume-builder": ["Make my summary stronger", "Add more measurable outcomes", "Tailor this to a specific job"],
+  "startup-validator": ["What's the fastest way to test this?", "Who is the real competitor?", "What would an investor push back on?"],
+  "side-hustle-ideas": ["Which of these earns fastest?", "How do I get my first client?", "What do I need before starting?"],
+  "business-plan": ["Tighten the executive summary", "Are my financial assumptions realistic?", "What's the weakest section?"],
+  "seo-article": ["Rewrite the intro to hook harder", "Suggest a better title", "What internal links should I add?"],
+};
 
 /**
  * Conversational layer over the one-shot plan. The plan is passed as seedPlan on
  * the first message so Aura can refer to it; after that the thread carries its
  * own history server-side.
  */
-export function AuraChat({ seedPlan }: { seedPlan?: unknown }) {
+export function AuraChat({
+  seedPlan,
+  seedContext,
+  suggestions,
+  heading = "Ask Aura",
+  emptyHint = "Aura remembers your plan. Ask it to go deeper on any part of it.",
+}: {
+  seedPlan?: unknown;
+  /** Free-text context — e.g. a tool's generated output — used when there is no structured plan. */
+  seedContext?: string;
+  suggestions?: string[];
+  heading?: string;
+  emptyHint?: string;
+}) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -81,7 +108,9 @@ export function AuraChat({ seedPlan }: { seedPlan?: unknown }) {
           message: content,
           threadId,
           // Only useful when the thread is being created.
-          seedPlan: threadId ? undefined : seedPlan ?? undefined,
+          seedPlan: threadId
+            ? undefined
+            : seedPlan ?? (seedContext ? { context: seedContext.slice(0, 6000) } : undefined),
         }),
       });
 
@@ -145,7 +174,7 @@ export function AuraChat({ seedPlan }: { seedPlan?: unknown }) {
       <header className="flex items-center justify-between px-5 py-3.5 border-b border-border/50">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-base font-semibold tracking-tight">Ask Aura</h2>
+          <h2 className="font-display text-base font-semibold tracking-tight">{heading}</h2>
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5"
@@ -184,11 +213,9 @@ export function AuraChat({ seedPlan }: { seedPlan?: unknown }) {
           <div className="max-h-[460px] min-h-[180px] overflow-y-auto px-5 py-4 space-y-4">
             {messages.length === 0 ? (
               <div className="py-6">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Aura remembers your plan. Ask it to go deeper on any part of it.
-                </p>
+                <p className="text-sm text-muted-foreground mb-4">{emptyHint}</p>
                 <div className="flex flex-wrap gap-2">
-                  {SUGGESTIONS.map((s) => (
+                  {(suggestions ?? DEFAULT_SUGGESTIONS).map((s) => (
                     <button key={s} onClick={() => send(s)}
                       className="text-xs px-3 py-1.5 rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:border-border transition-colors">
                       {s}

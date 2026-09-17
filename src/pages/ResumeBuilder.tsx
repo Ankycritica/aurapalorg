@@ -4,6 +4,7 @@ import { FileText, Upload, Copy, RotateCcw, Loader2, CheckCheck, ArrowRight, X, 
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import { useUsage } from "@/hooks/useUsage";
+import { AuraChat, TOOL_SUGGESTIONS } from "@/components/AuraChat";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
 import { ResumeEditor } from "@/components/ResumeEditor";
@@ -757,6 +758,15 @@ HARD RULES:
           improvedScore={atsScore?.score ?? null}
         />
       )}
+      {result && !loading && (
+        <AuraChat
+          seedContext={`TOOL: Resume Builder\n\nTHE RESUME THIS USER JUST GENERATED:\n${result.slice(0, 5000)}${atsScore ? `\n\nATS SCORE: ${atsScore.score}/100` : ""}`}
+          suggestions={TOOL_SUGGESTIONS["resume-builder"]}
+          heading="Ask about your resume"
+          emptyHint="Aura can see the resume you just generated. Ask it to sharpen a bullet, tailor it to a job, or explain the ATS score."
+        />
+      )}
+
       {result && !loading && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5">
           <p className="text-sm font-medium text-muted-foreground mb-3">🚀 Try another tool</p>

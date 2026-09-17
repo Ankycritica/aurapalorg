@@ -5,6 +5,7 @@ import { useUsage } from "@/hooks/useUsage";
 import { useAuth } from "@/contexts/AuthContext";
 import { PaywallModal } from "@/components/PaywallModal";
 import { ShareScoreModal } from "@/components/ShareScoreModal";
+import { AuraChat, TOOL_SUGGESTIONS } from "@/components/AuraChat";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { aiFetch } from "@/lib/aiFetch";
@@ -155,6 +156,17 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
+      {result && (
+        <div className="mt-4">
+          <AuraChat
+            seedContext={`TOOL: LinkedIn Roaster\n\nTHE ROAST THIS USER RECEIVED:\n${JSON.stringify(result).slice(0, 5000)}`}
+            suggestions={TOOL_SUGGESTIONS["linkedin-roaster"]}
+            heading="Ask about your roast"
+            emptyHint="Aura can see your score and every critique. Ask it to rewrite a section or explain a rating."
+          />
+        </div>
+      )}
+
       {result && <ShareScoreModal open={showShare} onClose={() => setShowShare(false)} score={result.score} type="LinkedIn" />}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

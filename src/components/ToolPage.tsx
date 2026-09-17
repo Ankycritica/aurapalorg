@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { attributionFooter } from "@/lib/referral";
 import { aiFetch } from "@/lib/aiFetch";
+import { AuraChat, TOOL_SUGGESTIONS } from "@/components/AuraChat";
 import { WaitTimeAd } from "@/components/ads/WaitTimeAd";
 
 interface ToolField {
@@ -404,6 +405,22 @@ export function ToolPage({ title, description, icon: Icon, toolSlug, fields, sys
           <AnimatePresence>
             {result && !loading && (
               <SharePanel result={result} toolTitle={title} toolSlug={toolSlug} inputs={values} />
+            )}
+          </AnimatePresence>
+
+          {/* A result usually raises the next question. Rather than ending at the
+              output, let the user interrogate it in place — the generated text is
+              passed as context so Aura can answer about this specific result. */}
+          <AnimatePresence>
+            {result && !loading && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4">
+                <AuraChat
+                  seedContext={`TOOL: ${title}\n\nWHAT THE USER ENTERED:\n${JSON.stringify(values).slice(0, 1500)}\n\nTHE RESULT THEY ARE LOOKING AT:\n${result.slice(0, 5000)}`}
+                  suggestions={TOOL_SUGGESTIONS[toolSlug]}
+                  heading="Ask about this result"
+                  emptyHint="Aura can see what you just generated. Ask it to go deeper, rewrite part of it, or explain a score."
+                />
+              </motion.div>
             )}
           </AnimatePresence>
 
