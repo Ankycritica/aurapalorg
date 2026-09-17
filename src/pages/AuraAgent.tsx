@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { attributionFooter } from "@/lib/referral";
 import { aiFetch } from "@/lib/aiFetch";
+import { AuraChat } from "@/components/AuraChat";
 
 interface Plan {
   headline: string;
@@ -527,6 +528,13 @@ export default function AuraAgent() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* The plan is the opening move, not the end of it. Aura keeps the plan as
+          context so follow-ups ("rewrite that bullet", "what about fintech?")
+          land without the user re-explaining themselves. */}
+      <div className="mt-6">
+        <AuraChat seedPlan={plan ?? undefined} />
+      </div>
     </div>
   );
 }

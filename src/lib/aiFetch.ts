@@ -5,7 +5,7 @@ import { supabase, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/integrations
  * so the function can validate the caller and enforce server-side limits.
  * Throws if the user is not signed in.
  */
-export async function aiFetch(path: "ai-tool" | "aura-agent" | "salary-data", body: unknown): Promise<Response> {
+export async function aiFetch(path: "ai-tool" | "aura-agent" | "salary-data" | "aura-chat", body: unknown): Promise<Response> {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
   if (!token) throw new Error("Not authenticated");
