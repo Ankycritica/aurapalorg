@@ -4,7 +4,7 @@ export default function AiResumeRoast() {
   return (
     <SeoLandingLayout
       metaTitle="Free AI Resume Roast — Brutal Feedback in 15s | AuraPal"
-      metaDescription="Get your resume roasted by AI. Brutal, actionable feedback on formatting, bullet points, ATS keywords, and impact. Free forever. No signup wall."
+      metaDescription="Get your resume roasted by AI. Brutal, actionable feedback on formatting, bullet points, ATS keywords, and impact. Free, no credit card."
       keywords="AI resume roast, resume feedback, resume review, ATS resume check, free resume critique"
       badge="Free AI Resume Roast"
       h1="Get your resume roasted by AI — brutally honest, actually useful"
@@ -17,7 +17,7 @@ export default function AiResumeRoast() {
         "ATS keyword analysis — see what recruiters' bots ignore",
         "Rewrite suggestions in the XYZ impact format",
         "Works for any role, industry, or experience level",
-        "No signup wall — just paste and go",
+        "Free — sign in with Google and paste",
       ]}
       exampleTitle="What an AI Resume Roast looks like"
       exampleOutput={`Score: 41 / 100 — "Could land a phone screen at a small company. Won't survive a Google ATS."

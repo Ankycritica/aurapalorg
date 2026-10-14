@@ -153,7 +153,7 @@ export function SeoLandingLayout(props: SeoLandingProps) {
           ) : (
             <>
               <p className="text-base sm:text-lg text-foreground mb-3">Free to start. No credit card, no trial timer.</p>
-              <p className="text-sm text-muted-foreground">5 generations a day on the free plan, across all 10 tools.</p>
+              <p className="text-sm text-muted-foreground">Free across all 10 tools. No card, no paid plan.</p>
             </>
           )}
         </div>

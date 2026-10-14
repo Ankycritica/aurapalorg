@@ -23,7 +23,7 @@ const tools = [
 
 const reasons = [
   { icon: Zap, title: "Built on frontier AI", desc: "Powered by Google Gemini & GPT-class models — outputs that actually feel expert." },
-  { icon: Shield, title: "Free forever plan", desc: "5 generations per day, no credit card. Upgrade only if you want unlimited." },
+  { icon: Shield, title: "Completely free", desc: "Every tool, no credit card, no paid tier. A high daily cap only stops abuse." },
   { icon: Users, title: "Built for job seekers", desc: "Made for people applying, switching careers, negotiating pay, or starting something of their own." },
   { icon: Sparkles, title: "Share-ready outputs", desc: "Every result is structured for LinkedIn, Twitter, and shareable image cards." },
 ];
@@ -44,7 +44,7 @@ export default function Features() {
             <span className="font-display font-bold text-lg">AuraPal</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to="/pricing" className="hidden sm:inline px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
+            <Link to="/blog" className="hidden sm:inline px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
             <Link to="/auth" className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-all">
               Try free →
             </Link>
@@ -56,20 +56,20 @@ export default function Features() {
       <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-10 text-center">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/20 text-xs font-semibold text-primary mb-5">
-            <Sparkles className="h-3.5 w-3.5" /> 8 free AI tools, one platform
+            <Sparkles className="h-3.5 w-3.5" /> 10 free AI tools, one platform
           </span>
           <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Everything AuraPal can do
           </h1>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            A complete AI career & growth engine — from resume to interview to negotiation to launching your own thing. Free forever plan, no credit card.
+            A complete AI career & growth engine — from resume to interview to negotiation to launching your own thing. Completely free, no credit card.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link to="/auth" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.7)] transition-all">
               Get started free <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/pricing" className="px-6 py-3 rounded-lg border border-border text-sm font-semibold hover:bg-secondary/50 transition-all">
-              View pricing
+            <Link to="/blog" className="px-6 py-3 rounded-lg border border-border text-sm font-semibold hover:bg-secondary/50 transition-all">
+              Read the guides
             </Link>
           </div>
           <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-5">
@@ -82,7 +82,7 @@ export default function Features() {
       {/* Tools grid */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-2">All 10 tools</h2>
-        <p className="text-center text-sm text-muted-foreground mb-8">Each one is free to use 5 times per day. No signup wall.</p>
+        <p className="text-center text-sm text-muted-foreground mb-8">All free. Sign in with Google and start.</p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tools.map((t, i) => (
             <motion.div
@@ -124,48 +124,21 @@ export default function Features() {
 
       {/* Plan summary */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-        <div className="glass-card p-6 sm:p-8">
-          <div className="grid sm:grid-cols-3 gap-6 text-center">
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">Free</p>
-              <p className="font-display text-3xl font-bold mb-2">$0</p>
-              <ul className="text-sm text-muted-foreground space-y-1.5">
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 5 generations / day</li>
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> All 10 tools</li>
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> No credit card</li>
-              </ul>
-            </div>
-            <div className="border-x border-border/40 px-4">
-              <p className="text-xs uppercase tracking-wider text-primary font-bold mb-2">Pro · Most popular</p>
-              <p className="font-display text-3xl font-bold mb-2">$19<span className="text-base text-muted-foreground">/mo</span></p>
-              <ul className="text-sm text-muted-foreground space-y-1.5">
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 100 generations / day</li>
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> Priority AI</li>
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> Premium templates</li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">Premium</p>
-              <p className="font-display text-3xl font-bold mb-2">$49<span className="text-base text-muted-foreground">/mo</span></p>
-              <ul className="text-sm text-muted-foreground space-y-1.5">
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> Unlimited everything</li>
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> Early features</li>
-                <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 1:1 support</li>
-              </ul>
-            </div>
-          </div>
-          <div className="text-center mt-7">
-            <Link to="/pricing" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:opacity-90 transition-all">
-              Compare plans <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+        <div className="glass-card p-6 sm:p-8 text-center">
+          <p className="text-xs uppercase tracking-wider text-primary font-bold mb-2">Pricing</p>
+          <p className="font-display text-3xl font-bold mb-3">$0. Every tool.</p>
+          <ul className="text-sm text-muted-foreground space-y-1.5">
+            <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> All 10 tools, nothing locked</li>
+            <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> Up to 250 generations / day</li>
+            <li className="flex items-center justify-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> No credit card, no trial timer</li>
+          </ul>
         </div>
       </section>
 
       {/* Final CTA */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
         <h2 className="font-display text-2xl md:text-3xl font-bold mb-3">Start free in 15 seconds</h2>
-        <p className="text-muted-foreground mb-6">No credit card. No signup wall. Just open a tool and generate.</p>
+        <p className="text-muted-foreground mb-6">No credit card. Sign in with Google and generate in seconds.</p>
         <Link to="/auth" className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold hover:shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.7)] transition-all">
           Try AuraPal free <ArrowRight className="h-5 w-5" />
         </Link>

@@ -20,7 +20,7 @@ export function Footer() {
               <li><Link to="/resume-builder" className="hover:text-foreground transition-colors">Resume Builder</Link></li>
               <li><Link to="/cover-letter" className="hover:text-foreground transition-colors">Cover Letter</Link></li>
               <li><Link to="/interview-prep" className="hover:text-foreground transition-colors">Interview Prep</Link></li>
-              <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+              <li><Link to="/salary-check" className="hover:text-foreground transition-colors">Salary Check</Link></li>
             </ul>
           </div>
           <div>

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,7 +22,6 @@ import InterviewPrep from "@/pages/InterviewPrep";
 import SalaryCheck from "@/pages/SalaryCheck";
 import StartupValidator from "@/pages/StartupValidator";
 import Settings from "@/pages/Settings";
-import Pricing from "@/pages/Pricing";
 import Auth from "@/pages/Auth";
 import AuthCallback from "@/pages/AuthCallback";
 import Privacy from "@/pages/Privacy";
@@ -93,7 +92,7 @@ const App = () => {
               <Route path="/salary-check" element={<SalaryCheck />} />
               <Route path="/startup-validator" element={<StartupValidator />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/pricing" element={<Navigate to="/dashboard" replace />} />
               <Route path="/admin" element={<Admin />} />
             </Route>
             <Route path="*" element={<NotFound />} />

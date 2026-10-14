@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, CreditCard, Menu } from "lucide-react";
+import { LogOut, Settings, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AuroraBackground } from "@/components/AuroraBackground";
 import { AnimatePresence, motion } from "framer-motion";
@@ -70,9 +70,6 @@ export function AppLayout() {
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="h-4 w-4 mr-2" /> Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/pricing")}>
-                    <CreditCard className="h-4 w-4 mr-2" /> Pricing
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={signOut} className="text-destructive">
                     <LogOut className="h-4 w-4 mr-2" /> Sign Out

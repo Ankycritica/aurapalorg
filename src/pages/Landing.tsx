@@ -42,7 +42,7 @@ const freePoints = [
 ];
 
 const faqs = [
-  { q: "Is AuraPal really free?", a: "Yes. The free plan gives you 5 AI generations per day across all 10 tools. No card required." },
+  { q: "Is AuraPal really free?", a: "Yes. Every tool is free, with up to 250 AI generations a day. No card, no trial, no paid plan." },
   { q: "What AI powers it?", a: "Google Gemini. Every tool wraps it in a purpose-built prompt and a scoring rubric designed around what recruiters and ATS filters actually screen for." },
   { q: "Can I cancel anytime?", a: "Yes. Stop billing in one click from Settings. Your generations and history stay." },
   { q: "Is my resume data private?", a: "Encrypted in transit and at rest, never sold, never used to train models. Delete any generation from your dashboard." },
@@ -197,7 +197,7 @@ export default function Landing() {
       {/* Final CTA — inverted */}
       <section className="bg-white text-black px-4 sm:px-6 py-24">
         <div className="max-w-6xl mx-auto">
-          <p className="mono text-[11px] uppercase tracking-[0.12em] text-black/50 mb-3">Five free. Then upgrade if it sticks.</p>
+          <p className="mono text-[11px] uppercase tracking-[0.12em] text-black/50 mb-3">Free. Every tool. No card.</p>
           <h2 className="font-display font-bold tracking-[-0.03em] text-4xl sm:text-5xl lg:text-6xl max-w-3xl mb-8">Get your first result in the next sixty seconds.</h2>
           <Link to="/auth" className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg text-sm font-semibold hover:opacity-85 transition-opacity">
             Get started <ArrowRight className="h-4 w-4" />

@@ -186,7 +186,7 @@ for (const r of routes) {
   // Indexable copy for crawlers that do not execute JavaScript. React replaces
   // #root on hydration, so a human never sees this.
   const fallback = `<div id="root"><main style="max-width:44rem;margin:0 auto;padding:3rem 1.25rem;font-family:system-ui,sans-serif;background:#050505;color:#fff;min-height:100vh"><h1 style="font-size:2rem;line-height:1.15;margin:0 0 1rem">${esc(r.h1)}</h1><p style="line-height:1.7;color:rgba(255,255,255,.65)">${esc(r.copy)}</p><p style="margin-top:2rem"><a href="/auth" style="color:#fff">Open AuraPal — free, no credit card</a></p></main></div>`;
-  html = html.replace(/<div id="root">[\s\S]*?<\/div>/, fallback);
+  html = html.replace(/<div id="root">[\s\S]*?<\/div>(?=\s*(?:<script|<\/body>))/, fallback);
 
   const outDir = r.path === "/" ? DIST : join(DIST, r.path);
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
