@@ -3,7 +3,7 @@
 // - Generates a stable referral code per user (or anonymous device).
 // - Provides helpers for share URLs and an attribution footer.
 
-const SITE_URL = "https://aurapal.org";
+const SITE_URL = "https://www.aurapal.org";
 const STORAGE_REF_CODE = "aurapal_referral_code";       // this user's own code
 const STORAGE_REFERRED_BY = "aurapal_referred_by";       // code that referred this user
 const STORAGE_REFERRAL_CREDITS = "aurapal_referral_credits";

@@ -1,6 +1,6 @@
 import { parseSalaryData } from "@/components/SalaryBar";
 
-const SITE = "https://aurapal.org";
+const SITE = "https://www.aurapal.org";
 
 function clean(text: string): string {
   return text

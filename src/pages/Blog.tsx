@@ -16,14 +16,14 @@ export default function Blog() {
       "@context": "https://schema.org",
       "@type": "Blog",
       name: "AuraPal Blog",
-      url: "https://aurapal.org/blog",
+      url: "https://www.aurapal.org/blog",
       description: "Career guides, resume tactics and salary research from AuraPal.",
       blogPost: posts.map((p) => ({
         "@type": "BlogPosting",
         headline: p.title,
         description: p.teaser,
         datePublished: p.date,
-        url: `https://aurapal.org/blog/${p.slug}`,
+        url: `https://www.aurapal.org/blog/${p.slug}`,
       })),
     },
   });
@@ -51,7 +51,7 @@ export default function Blog() {
         </p>
 
         <div className="border-t hairline">
-          {posts.map((p, i) => (
+          {[...posts].sort((a, b) => b.date.localeCompare(a.date)).map((p, i) => (
             <motion.div
               key={p.slug}
               initial={{ opacity: 0, y: 10 }}

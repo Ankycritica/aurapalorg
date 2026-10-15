@@ -40,14 +40,9 @@ I've been reviewing market compensation data for Senior Engineers in Austin with
 3. A clear ask — not a range.
 
 Want the full report with counter-offer scripts for each pushback? Generate yours.`}
-      testimonial={{
-        quote: "Used the negotiation script word-for-word. Got a $14K raise in two weeks. AuraPal paid for itself 700×.",
-        name: "Marcus P.",
-        role: "Senior Engineer",
-      }}
       faq={[
         { q: "Is the salary checker really free?", a: "Yes. Every AuraPal tool is free, with no credit card and no paid plan. Sign in with Google to run it." },
-        { q: "Where does the salary data come from?", a: "We blend public compensation datasets with role/location/experience normalization. It's directional but reliable for negotiation prep." },
+        { q: "Where does the salary data come from?", a: "From live advertised salary ranges in current job listings for your role and location, with the sample size shown. When there isn't enough real data, the report says so instead of guessing." },
         { q: "Will my employer find out I checked?", a: "No. We never share or sell your data. Reports are private to your account." },
         { q: "Does it work outside the US?", a: "Yes. We support major markets globally — just enter your city or country." },
       ]}

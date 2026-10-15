@@ -213,8 +213,8 @@ export default function AuraAgent() {
 
   const shareLinkedIn = () => {
     if (!plan) return;
-    const text = `${plan.share_hook}\n\nMy AI career agent at @AuraPal just mapped out my next 7 days.\n\nTry yours free → https://aurapal.org`;
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://aurapal.org")}&summary=${encodeURIComponent(text)}`;
+    const text = `${plan.share_hook}\n\nMy AI career agent at @AuraPal just mapped out my next 7 days.\n\nTry yours free → https://www.aurapal.org`;
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://www.aurapal.org")}&summary=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
     track("agent_share", { channel: "linkedin" });
   };
@@ -222,7 +222,7 @@ export default function AuraAgent() {
   const shareTwitter = () => {
     if (!plan) return;
     const text = `${plan.share_hook}\n\nBuilt by @AuraPal_AI in 30 seconds 🧠`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent("https://aurapal.org")}`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent("https://www.aurapal.org")}`;
     window.open(url, "_blank");
     track("agent_share", { channel: "twitter" });
   };

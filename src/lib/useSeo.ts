@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const SITE = "https://aurapal.org";
+const SITE = "https://www.aurapal.org";
 
 interface SeoOptions {
   title: string;

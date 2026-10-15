@@ -11,4 +11,4 @@ Disallow: /agent
 Disallow: /templates
 Disallow: /pricing
 
-Sitemap: https://aurapal.org/sitemap.xml
+Sitemap: https://www.aurapal.org/sitemap.xml

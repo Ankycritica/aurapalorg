@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = join(__dirname, "..", "dist");
-const SITE = "https://aurapal.org";
+const SITE = "https://www.aurapal.org";
 
 const org = {
   "@context": "https://schema.org",
@@ -112,6 +112,55 @@ const routes = [
     jsonLd: [org],
   },
   {
+    path: "/ats-resume-checker",
+    title: "Free ATS Resume Checker — See What the Parser Sees | AuraPal",
+    description: "Free ATS resume checker. Find formatting that breaks parsers, missing keywords from the job description, and weak bullets — then fix them. No credit card.",
+    keywords: "ats resume checker, free ats resume checker, ats score, resume ats test, ats friendly resume checker, resume keyword scanner",
+    h1: "Free ATS resume checker",
+    copy: "Applicant tracking systems parse your resume into fields before a human sees it. AuraPal checks whether yours parses cleanly, matches the job description's keywords, and has bullets with measurable results — then rewrites the weak ones. Upload a PDF or Word file or paste text. Free, no credit card.",
+    jsonLd: [org, faq([
+      ["What is an ATS score?", "There is no universal ATS score. AuraPal estimates how cleanly your resume parses and how well it matches the job description, and explains each deduction."],
+      ["Do ATS systems reject resumes automatically?", "Mostly no. They store and rank applications; recruiters filter by keywords and knockout questions. A resume that parses badly or misses key terms simply never surfaces."],
+      ["Are PDFs ATS-friendly?", "Text-based PDFs parse well in modern systems. Scanned PDFs and image-heavy designs do not."],
+    ])],
+  },
+  {
+    path: "/free-cover-letter-generator",
+    title: "Free AI Cover Letter Generator — Tailored to the Job in 30 Seconds",
+    description: "Free AI cover letter generator. Paste the job description and your background and get a specific, non-generic cover letter in under a minute. No credit card.",
+    keywords: "free cover letter generator, ai cover letter generator, cover letter writer free, cover letter for job application, tailored cover letter ai",
+    h1: "Free AI cover letter generator",
+    copy: "Paste the job description and a few lines about yourself. AuraPal identifies the two or three things the employer cares about most and writes a short cover letter under 300 words that answers them with your real achievements. Three tones, editable, free.",
+    jsonLd: [org, faq([
+      ["Is the cover letter generator free?", "Yes. Every AuraPal tool is free, with no credit card and no paid plan."],
+      ["Will it sound like AI wrote it?", "It avoids stock phrases and uses the specific achievements you provide. Concrete input gives a less generic letter."],
+    ])],
+  },
+  {
+    path: "/linkedin-profile-review",
+    title: "Free LinkedIn Profile Review — AI Score Out of 100 | AuraPal",
+    description: "Get a free AI LinkedIn profile review. Your headline, About section and experience scored out of 100 with specific rewrites recruiters respond to.",
+    keywords: "linkedin profile review, free linkedin profile review, linkedin profile checker, linkedin headline generator, linkedin about section examples, linkedin profile optimization ai",
+    h1: "Free LinkedIn profile review",
+    copy: "Paste your LinkedIn headline, About section and recent roles. AuraPal scores the profile out of 100, rewrites your headline for recruiter search, restructures your About section around results, and lists keyword gaps for the roles you want. You never connect your LinkedIn account. Free.",
+    jsonLd: [org, faq([
+      ["Do I need to connect my LinkedIn account?", "No. You paste the text. AuraPal never logs into or posts to LinkedIn."],
+      ["What makes a good LinkedIn headline?", "Your target title, two or three skills recruiters search for, and one line of proof."],
+    ])],
+  },
+  {
+    path: "/ai-interview-questions",
+    title: "AI Interview Questions Generator — Free Practice with Answer Frameworks",
+    description: "Generate the interview questions you're likely to get for a specific role and company, with STAR answer frameworks built from your own experience. Free.",
+    keywords: "ai interview questions generator, interview prep ai free, mock interview questions, behavioral interview questions, star method answers, interview practice tool",
+    h1: "AI interview questions generator",
+    copy: "Give AuraPal the role, company and job description. It predicts the behavioral, technical and role-specific questions you are likely to be asked, and helps you build STAR answers from your own experience, including the follow-up questions interviewers use when an answer is vague. Free.",
+    jsonLd: [org, faq([
+      ["What is the STAR method?", "Situation, Task, Action, Result — a structure that keeps behavioral answers specific. Spend most of the time on Action and Result."],
+      ["How many stories should I prepare?", "Six to eight strong stories cover most behavioral interviews, because one story can answer several questions."],
+    ])],
+  },
+  {
     path: "/about",
     title: "About AuraPal — Free AI Career Tools",
     description: "AuraPal is a free set of AI career tools built to help people write better resumes, benchmark their pay and prepare for interviews.",
@@ -142,9 +191,10 @@ const routes = [
 
 // Blog posts are prerendered from the same source the app renders.
 const postsSrc = readFileSync(join(__dirname, "..", "src", "content", "posts.ts"), "utf8");
-for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^"]+)",\s*\n\s*teaser:\s*\n?\s*"([^"]+)"/g)) {
-  const [, slug, title, teaser] = m;
+for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^"]+)",\s*\n\s*teaser:\s*\n?\s*"([^"]+)",\s*\n\s*date:\s*"([^"]+)"/g)) {
+  const [, slug, title, teaser, date] = m;
   routes.push({
+    lastmod: date,
     path: `/blog/${slug}`,
     title: `${title} — AuraPal`,
     description: teaser,
@@ -153,7 +203,8 @@ for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^
     copy: teaser,
     jsonLd: [org, {
       "@context": "https://schema.org", "@type": "BlogPosting",
-      headline: title, description: teaser,
+      headline: title, description: teaser, datePublished: date,
+      author: { "@type": "Organization", name: "AuraPal" },
       publisher: { "@type": "Organization", name: "AuraPal", url: SITE },
       mainEntityOfPage: `${SITE}/blog/${slug}`,
     }],
@@ -194,4 +245,17 @@ for (const r of routes) {
   written++;
 }
 
-console.log(`prerendered ${written} routes`);
+// Sitemap generated from the same route list, so a new page can never be
+// prerendered but missing from the sitemap (or the reverse).
+const today = new Date().toISOString().slice(0, 10);
+const prio = (p) => (p === "/" ? "1.0" : p.startsWith("/blog/") ? "0.7" : p === "/about" ? "0.5" : "0.8");
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${routes.map((r) => `  <url><loc>${SITE}${r.path === "/" ? "/" : r.path}</loc><lastmod>${r.lastmod || today}</lastmod><priority>${prio(r.path)}</priority></url>`).join("\n")}
+  <url><loc>${SITE}/privacy</loc><lastmod>${today}</lastmod><priority>0.2</priority></url>
+  <url><loc>${SITE}/terms</loc><lastmod>${today}</lastmod><priority>0.2</priority></url>
+</urlset>
+`;
+writeFileSync(join(DIST, "sitemap.xml"), sitemap);
+
+console.log(`prerendered ${written} routes, sitemap ${routes.length + 2} urls`);

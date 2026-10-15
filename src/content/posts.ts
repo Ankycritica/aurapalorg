@@ -239,6 +239,203 @@ Sometimes the number is structural — the company does not pay that band for th
 The largest single-step pay increases most people ever get come from changing employer. That is not advice to leave. It is the reason to know your market rate whether or not you intend to use it.
 `,
   },
+
+  {
+    slug: "resume-bullet-points-examples",
+    title: "Resume bullet points: 15 before-and-after examples",
+    teaser:
+      "Most weak bullets describe a duty. Strong ones describe a result. Fifteen real rewrites across roles, and the one formula behind all of them.",
+    date: "2026-10-15",
+    readingMinutes: 6,
+    tool: { label: "Rewrite my bullets", to: "/resume-roast" },
+    body: `
+A recruiter spends seconds on a first pass. In that time they are not reading your bullets so much as scanning them for one thing: evidence that you changed something.
+
+Most bullets fail that scan because they describe a job description, not a person doing it well.
+
+## The formula
+
+Every rewrite below follows the same shape:
+
+> **Action verb + what you did + measurable result + how (optional)**
+
+If you can only fit three of the four, drop the "how". Never drop the result.
+
+When you genuinely have no number, use scale (team size, budget, users, volume), time (how much faster), or a before/after state ("from manual to automated").
+
+## Operations and admin
+
+1. **Before:** Responsible for scheduling meetings.
+   **After:** Coordinated calendars for a 5-person leadership team, cutting double-bookings from weekly to near zero.
+2. **Before:** Handled vendor invoices.
+   **After:** Processed 300+ vendor invoices a month and cleared a 6-week payment backlog in 3 weeks.
+3. **Before:** Managed office supplies.
+   **After:** Renegotiated two supplier contracts, reducing office supply spend 18% year over year.
+
+## Sales and customer success
+
+4. **Before:** Worked with clients to grow accounts.
+   **After:** Expanded 14 mid-market accounts, adding $420K in annual recurring revenue.
+5. **Before:** Answered customer support tickets.
+   **After:** Resolved 60+ tickets a day with a 96% satisfaction score, highest on a team of nine.
+6. **Before:** Did cold outreach.
+   **After:** Built a 1,200-contact outbound list and booked 38 qualified demos in one quarter.
+
+## Engineering and data
+
+7. **Before:** Worked on the backend API.
+   **After:** Rebuilt the order API in Go, cutting p95 latency from 900ms to 180ms.
+8. **Before:** Wrote reports for management.
+   **After:** Automated 12 weekly KPI reports in Tableau, saving the analytics team 6 hours a week.
+9. **Before:** Fixed bugs.
+   **After:** Closed 140 production bugs in 6 months and added regression tests that dropped repeat incidents by half.
+
+## Marketing and content
+
+10. **Before:** Managed social media accounts.
+    **After:** Grew LinkedIn followers from 2K to 11K in 9 months with a three-posts-a-week editorial calendar.
+11. **Before:** Wrote blog posts.
+    **After:** Wrote 40 SEO articles that now drive 22% of organic signups.
+12. **Before:** Ran email campaigns.
+    **After:** Redesigned the onboarding email sequence, lifting trial-to-paid conversion from 9% to 13%.
+
+## Students and early career
+
+13. **Before:** Group project for marketing class.
+    **After:** Led a 4-person team to build a go-to-market plan for a local café; owner adopted 3 of our 5 recommendations.
+14. **Before:** Worked at a restaurant.
+    **After:** Trained 6 new servers and handled 40-cover Friday shifts as the youngest shift lead.
+15. **Before:** Volunteer tutor.
+    **After:** Tutored 12 students in algebra weekly; 10 passed the state exam, up from 5 the year before.
+
+## Three checks before you send
+
+- **Read only the first four words of each bullet.** If they are "Responsible for", "Helped with" or "Worked on", rewrite.
+- **Count the numbers.** Aim for a number in at least half your bullets.
+- **Cut anything a person in the same job would also write.** Those lines are the job description, not you.
+
+If you want a second opinion on which of your bullets are weakest, paste your resume into a roast and look at the bottom three first. Fixing your worst bullets helps more than polishing your best ones.
+`,
+  },
+
+  {
+    slug: "cover-letter-that-gets-read",
+    title: "How to write a cover letter a hiring manager will actually finish",
+    teaser:
+      "Most cover letters restate the resume in longer sentences. A short letter that answers the job post's top two needs works better, and takes less time.",
+    date: "2026-10-15",
+    readingMinutes: 5,
+    tool: { label: "Write my cover letter", to: "/cover-letter" },
+    body: `
+A cover letter has one job: give the reader a reason to open your resume with interest instead of suspicion. It does not need to tell your life story, and it should not repeat your resume in paragraph form.
+
+## Start from the job post, not from yourself
+
+Before writing anything, reread the posting and underline the two or three requirements that appear first or most often. Those are what the hiring manager is worried about. Your letter should answer those worries directly.
+
+A useful test: if you could send the same letter to another company by changing the name, it is not specific enough.
+
+## A structure that works
+
+**Opening (1–2 sentences).** Name the role and the single most relevant thing about you. Skip "I am writing to apply for".
+
+> Your posting for a Product Analyst asks for someone who can turn messy event data into decisions. That has been most of my last two years.
+
+**Proof (one short paragraph per requirement, two at most).** One concrete example each, with a result.
+
+> At Contoso I rebuilt our activation funnel from raw event data and found 38% of new users stalled on one permissions screen. The fix lifted week-one activation from 41% to 52%.
+
+**Close (1–2 sentences).** Suggest a next step and stop.
+
+> I'd welcome 20 minutes to talk about what your onboarding data looks like today.
+
+That is usually 150–250 words. Shorter is fine.
+
+## Phrases to delete on sight
+
+- "I am a passionate, results-driven team player" — everyone says this, so it carries no information.
+- "I believe I would be a great fit" — show the fit instead.
+- "Please find attached my resume" — they know.
+- Anything starting with "As you can see from my resume".
+
+## When a cover letter matters most
+
+- You are **changing fields**, and your resume alone does not explain why.
+- The role is at a **small company** where the hiring manager reads every application.
+- There is a **gap or an unusual move** you want to frame before someone else does.
+
+For large-company roles with an optional cover letter field, a short, specific letter still helps, but a strong resume matters more. Spend your time accordingly.
+
+## Using AI without sounding like AI
+
+AI drafts go generic when the input is generic. Give the generator the actual job description and two real achievements with numbers, then edit the result: remove any sentence you would not say out loud, and make sure every claim is one you can defend in an interview.
+`,
+  },
+
+  {
+    slug: "star-method-interview-answers",
+    title: "STAR interview answers that don't sound rehearsed",
+    teaser:
+      "The STAR method keeps behavioral answers specific, but most people spend too long on the setup. How to build six stories that answer forty questions.",
+    date: "2026-10-15",
+    readingMinutes: 6,
+    tool: { label: "Prep my interview", to: "/interview-prep" },
+    body: `
+Behavioral questions ("Tell me about a time you...") are designed to see how you actually behave, using past behavior as evidence. STAR — **Situation, Task, Action, Result** — is the standard structure for answering them, and it works. The common failure is proportion, not structure.
+
+## Get the proportions right
+
+A good two-minute answer spends roughly:
+
+- **Situation + Task:** 20 seconds. Just enough context to follow.
+- **Action:** 60–70 seconds. What *you* did, in order, with your reasoning.
+- **Result:** 20–30 seconds. A number or a clear before/after, plus what you learned.
+
+Most rehearsed-sounding answers invert this: a long story about the company and the project, a vague "we worked together to fix it", and no result.
+
+## Say "I", not "we"
+
+Interviewers are hiring you, not your old team. "We migrated the database" tells them nothing about your part. "I wrote the migration plan, ran the dry runs and handled the cutover at 2am" does.
+
+Credit the team briefly, then describe your own decisions.
+
+## Build a story bank, not a script
+
+You do not need forty answers for forty questions. You need **six to eight strong stories** that each cover several themes:
+
+1. A time you **delivered under pressure** or a tight deadline
+2. A time you **failed or made a mistake** and what changed afterwards
+3. A **conflict or disagreement** with a colleague or manager
+4. A time you **led or influenced** without formal authority
+5. A time you **improved a process** or found a better way
+6. A time you dealt with **ambiguity** or incomplete information
+7. Your **proudest result**, with numbers
+
+For each story, write five bullet points: one for situation, one for task, two for action, one for result. Then practise telling it out loud from those bullets only. That is what stops it from sounding memorised.
+
+## Prepare for the follow-up
+
+Strong interviewers dig. After your answer, expect:
+
+- "What would you do differently?"
+- "What did your manager think?"
+- "How did you measure that?"
+
+Have one honest sentence ready for each. "I'd validate the entry point with five users before building it" is better than claiming the project was flawless.
+
+## Example
+
+**Question:** Tell me about a time you shipped something users didn't adopt.
+
+**Situation:** Our budgeting feature had 4% adoption a month after launch.
+**Task:** I owned finding out why within two sprints.
+**Action:** I ran 12 user calls and pulled session recordings. The feature worked fine; people just could not find it, because the entry point was buried in Settings. I proposed moving it to the home screen and wrote the spec.
+**Result:** Adoption rose to 19% in six weeks. Since then I test where an entry point goes with five users before we build anything.
+
+That is under ninety seconds, and every sentence is about a decision.
+`,
+  },
+
 ];
 
 export const getPost = (slug: string) => posts.find((p) => p.slug === slug);

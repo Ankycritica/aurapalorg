@@ -36,6 +36,10 @@ import AiResumeRoast from "@/pages/seo/AiResumeRoast";
 import AiResumeRoastFree from "@/pages/seo/AiResumeRoastFree";
 import SalaryCheckerFree from "@/pages/seo/SalaryCheckerFree";
 import StartupIdeaValidator from "@/pages/seo/StartupIdeaValidator";
+import FreeCoverLetterGenerator from "@/pages/seo/FreeCoverLetterGenerator";
+import AtsResumeChecker from "@/pages/seo/AtsResumeChecker";
+import LinkedInProfileReview from "@/pages/seo/LinkedInProfileReview";
+import AiInterviewQuestions from "@/pages/seo/AiInterviewQuestions";
 import AuraAgent from "@/pages/AuraAgent";
 import Templates from "@/pages/Templates";
 import JobFinder from "@/pages/JobFinder";
@@ -70,6 +74,10 @@ const App = () => {
             <Route path="/ai-resume-roast-free" element={<AiResumeRoastFree />} />
             <Route path="/salary-checker-free" element={<SalaryCheckerFree />} />
             <Route path="/startup-idea-validator" element={<StartupIdeaValidator />} />
+            <Route path="/free-cover-letter-generator" element={<FreeCoverLetterGenerator />} />
+            <Route path="/ats-resume-checker" element={<AtsResumeChecker />} />
+            <Route path="/linkedin-profile-review" element={<LinkedInProfileReview />} />
+            <Route path="/ai-interview-questions" element={<AiInterviewQuestions />} />
 
             {/* Public app-layout routes — visitors can preview the tool UI; running it gates on auth */}
             <Route element={<AppLayout />}>

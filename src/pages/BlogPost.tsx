@@ -104,8 +104,8 @@ export default function BlogPost() {
           description: post.teaser,
           datePublished: post.date,
           author: { "@type": "Organization", name: "AuraPal" },
-          publisher: { "@type": "Organization", name: "AuraPal", url: "https://aurapal.org" },
-          mainEntityOfPage: `https://aurapal.org/blog/${post.slug}`,
+          publisher: { "@type": "Organization", name: "AuraPal", url: "https://www.aurapal.org" },
+          mainEntityOfPage: `https://www.aurapal.org/blog/${post.slug}`,
         }
       : undefined,
   });

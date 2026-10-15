@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ReferralModalProps { open: boolean; onClose: () => void; }
 
-const SITE_URL = "https://aurapal.org";
+const SITE_URL = "https://www.aurapal.org";
 
 export function ReferralModal({ open, onClose }: ReferralModalProps) {
   const { user, profile, refreshProfile } = useAuth();
