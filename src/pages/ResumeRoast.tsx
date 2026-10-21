@@ -9,7 +9,8 @@ import { AuraChat, TOOL_SUGGESTIONS } from "@/components/AuraChat";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { aiFetch } from "@/lib/aiFetch";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useSignIn } from "@/components/SignInDialog";
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/client";
 
 /** Visitors get one roast before signing in. The server enforces its own limit too. */
@@ -87,7 +88,7 @@ export default function ResumeRoast() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { openSignIn } = useSignIn();
   const isGuest = !user;
 
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,7 +132,7 @@ export default function ResumeRoast() {
     }
 
     if (isGuest) {
-      if (guestUsed()) { navigate(SIGN_IN_PATH); return; }
+      if (guestUsed()) { openSignIn("/resume-roast"); return; }
       setError(""); setLoading(true); setResult(null);
       try {
         const resp = await fetch(`${SUPABASE_URL}/functions/v1/guest-roast`, {
@@ -242,7 +243,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
     } finally {
       setLoading(false);
     }
-  }, [values, isLimitReached, trackUsage, user, isGuest, navigate, resumeLength, wordCount]);
+  }, [values, isLimitReached, trackUsage, user, isGuest, openSignIn, resumeLength, wordCount]);
 
   const copyResult = () => {
     if (!result) return;
