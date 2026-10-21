@@ -42,8 +42,9 @@ Read this whole file, then `ops/log.md` (what earlier runs did) and `ops/backlog
 ```bash
 npm ci && npm run build
 (setsid npx vite preview --port 4179 --host 127.0.0.1 >/dev/null 2>&1 &); sleep 4
-# Playwright: launch chromium with executablePath "/opt/pw-browsers/chromium" (do not run playwright install),
+# Playwright (>= 1.56; 1.48 fails on this chromium): launch chromium with executablePath "/opt/pw-browsers/chromium" (do not run playwright install),
 # visit each public route, assert document.querySelectorAll("h1").length === 1, collect pageerror events.
-pkill -f "vite preview"
+# Ignore the /_vercel/insights/script.js 404 (exists only on Vercel) and sandbox network errors to Google hosts.
+pkill -f "[v]ite preview"   # brackets stop pkill matching its own shell
 ```
 Install playwright into the scratchpad, not the repo.
