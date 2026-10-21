@@ -39,7 +39,7 @@ function SidebarInner({ collapsed, onNavigate, isAdmin, isPaid }: { collapsed: b
           <img src="/logo.png" alt="AuraPal" className="h-9 w-9 rounded-xl object-contain shrink-0" />
           {!collapsed && (
             <div>
-              <h1 className="font-display font-bold text-foreground text-lg leading-none">AuraPal</h1>
+              <p className="font-display font-bold text-foreground text-lg leading-none">AuraPal</p>
               <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">Career Engine</p>
             </div>
           )}

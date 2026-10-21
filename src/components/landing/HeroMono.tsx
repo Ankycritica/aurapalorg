@@ -42,9 +42,9 @@ export function HeroMono() {
             <Link to="/auth" className="btn-invert px-6 py-3 text-sm inline-flex items-center justify-center gap-2">
               Get started free <ArrowRight className="h-4 w-4" />
             </Link>
-            <a href="#pipeline" className="btn-ghost px-6 py-3 text-sm text-center">
-              See how it works
-            </a>
+            <Link to="/resume-roast" className="btn-ghost px-6 py-3 text-sm text-center">
+              Roast my resume — no sign-up
+            </Link>
           </motion.div>
 
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-5 text-xs" style={{ color: "var(--lm-fg-3)" }}>

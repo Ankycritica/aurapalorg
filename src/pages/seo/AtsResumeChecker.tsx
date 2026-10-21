@@ -9,8 +9,8 @@ export default function AtsResumeChecker() {
       badge="Free ATS Resume Checker"
       h1="Free ATS resume checker"
       subhead="Applicant tracking systems parse your resume into fields before a human sees it. AuraPal checks whether yours survives that step and whether it matches the job you're applying for."
-      ctaTo="/resume-builder"
-      ctaLabel="Check my resume free"
+      ctaTo="/resume-roast"
+      ctaLabel="Check my resume free — no sign-up"
       benefits={[
         "ATS score with the reasons behind it, not just a number",
         "Keyword match against the job description you paste",

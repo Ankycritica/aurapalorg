@@ -9,6 +9,14 @@ import { AuraChat, TOOL_SUGGESTIONS } from "@/components/AuraChat";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { aiFetch } from "@/lib/aiFetch";
+import { Link, useNavigate } from "react-router-dom";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/client";
+
+/** Visitors get one roast before signing in. The server enforces its own limit too. */
+const GUEST_KEY = "aurapal_guest_roast_used";
+const guestUsed = () => { try { return localStorage.getItem(GUEST_KEY) === "1"; } catch { return false; } };
+const markGuestUsed = () => { try { localStorage.setItem(GUEST_KEY, "1"); } catch { /* storage blocked */ } };
+const SIGN_IN_PATH = "/auth?next=%2Fresume-roast";
 
 interface RoastSection {
   name: string;
@@ -79,6 +87,8 @@ export default function ResumeRoast() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isLimitReached, trackUsage, remaining, limit, plan } = useUsage();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const isGuest = !user;
 
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -119,6 +129,36 @@ export default function ResumeRoast() {
       setError(`Your resume is too short (${wordCount} words). Please paste your full resume with experience, skills, and education for an accurate roast. We need at least a few sentences to analyze.`);
       return;
     }
+
+    if (isGuest) {
+      if (guestUsed()) { navigate(SIGN_IN_PATH); return; }
+      setError(""); setLoading(true); setResult(null);
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/guest-roast`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", apikey: SUPABASE_PUBLISHABLE_KEY },
+          body: JSON.stringify({ resume: values.resume, role: values.role || "" }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok && data.roast) {
+          setResult(data.roast as RoastResult);
+          markGuestUsed();
+        } else if (data.signIn) {
+          markGuestUsed();
+          setError("You've used your free roast. Sign in free to keep going — no credit card.");
+        } else if (resp.status === 413) {
+          setError("That resume is too long. Paste just the main sections (up to about 2,000 words).");
+        } else {
+          setError("Something went wrong. Please try again, or sign in free to use the full tool.");
+        }
+      } catch {
+        setError("Something went wrong. Please try again, or sign in free to use the full tool.");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     if (isLimitReached) { setShowPaywall(true); return; }
 
     setError(""); setLoading(true); setResult(null);
@@ -202,7 +242,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
     } finally {
       setLoading(false);
     }
-  }, [values, isLimitReached, trackUsage, user, resumeLength, wordCount]);
+  }, [values, isLimitReached, trackUsage, user, isGuest, navigate, resumeLength, wordCount]);
 
   const copyResult = () => {
     if (!result) return;
@@ -228,7 +268,7 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
-      {result && (
+      {result && !isGuest && (
         <div className="mt-4">
           <AuraChat
             seedContext={`TOOL: Resume Roast\n\nTHE ROAST THIS USER RECEIVED:\n${JSON.stringify(result).slice(0, 5000)}`}
@@ -250,7 +290,11 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
             <h1 className="font-display text-2xl md:text-3xl font-bold">Resume Roast 🔥</h1>
             <p className="text-sm text-muted-foreground">Get your resume roasted with actionable improvements</p>
           </div>
-          {plan !== "premium" && (
+          {isGuest ? (
+            <div className="text-xs text-muted-foreground bg-secondary/60 px-3 py-1.5 rounded-lg">
+              1 free roast · no sign-up
+            </div>
+          ) : plan !== "premium" && (
             <div className="text-xs text-muted-foreground bg-secondary/60 px-3 py-1.5 rounded-lg">
               {remaining}/{limit} left
             </div>
@@ -352,9 +396,11 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
                 <button onClick={copyResult} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
                   {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />} {copied ? "Copied!" : "Copy"}
                 </button>
-                <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
-                  <RotateCcw className="h-4 w-4" /> Regen
-                </button>
+                {!isGuest && (
+                  <button onClick={generate} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
+                    <RotateCcw className="h-4 w-4" /> Regen
+                  </button>
+                )}
               </div>
               <div className={`inline-flex items-center justify-center h-24 w-24 rounded-full border-4 ${getScoreRing(result.total_score)} mb-4`}>
                 <span className={`font-display text-3xl font-bold ${getScoreColor(result.total_score)}`}>{result.total_score}</span>
@@ -395,11 +441,26 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm bg-secondary/60 hover:bg-secondary text-foreground transition-all">
                 <Download className="h-4 w-4" /> Download Roast Report
               </button>
-              <button onClick={() => setShowShare(true)}
-                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-all">
-                <Share2 className="h-4 w-4" /> Share Your Score 🔥
-              </button>
+              {!isGuest && (
+                <button onClick={() => setShowShare(true)}
+                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-all">
+                  <Share2 className="h-4 w-4" /> Share Your Score 🔥
+                </button>
+              )}
             </div>
+
+            {isGuest && (
+              <div className="glass-card p-6 text-center space-y-3">
+                <h3 className="font-display font-semibold">Fix it with the rest of AuraPal</h3>
+                <p className="text-sm text-muted-foreground">
+                  Sign in free to re-roast after your edits, rewrite your bullets in the resume builder, and ask Aura follow-up questions about this roast. No credit card.
+                </p>
+                <Link to={SIGN_IN_PATH}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-all">
+                  Sign in free to keep going
+                </Link>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -29,3 +29,12 @@ Shipped:
 Notes: smoke test ignores `/_vercel/insights/script.js` 404 (only exists on Vercel) and sandbox network errors to Google fonts/auth. Use playwright ≥ 1.56 with /opt/pw-browsers/chromium (1.48 fails on old headless). `pkill -f "vite preview"` kills the calling shell; use `pkill -f "[v]ite preview"`.
 
 Needs Ankit: guest try-without-signup (biggest lever — usage flat for a month), Search Console, leaked password protection, review SECURITY DEFINER RPCs.
+
+## 2026-10-21 (later) — guest roast, requested by Ankit
+
+- New edge function `guest-roast` (verify_jwt off, own limits): fixed server-side roast prompt (clients cannot send prompts), resume 200–15,000 chars, 2 per IP hash per 24h, 200 per day overall, attempts logged as `guest_roast` in analytics_events, resume text never stored. Existing functions, schema and auth untouched.
+- /resume-roast moved out of ProtectedRoute: visitors get one roast (localStorage flag plus server limit), then a "Sign in free to keep going" card; a second try goes to /auth?next=/resume-roast. Aura chat, Regen and Share stay signed-in only.
+- CTAs: homepage hero "Roast my resume — no sign-up"; /ats-resume-checker and /ai-resume-roast point to /resume-roast.
+- Sidebar logo was an H1 on every app page; now a <p>.
+- Tested locally with the function stubbed (Deno) and the UI flow mocked (Playwright). The live function could not be called from the agent sandbox (network), so the first real guest roast is the live check: query `select * from analytics_events where event_name='guest_roast'` and the function logs.
+- Metric to watch: guest_roast count vs signups.

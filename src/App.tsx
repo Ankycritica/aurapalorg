@@ -82,6 +82,7 @@ const App = () => {
             {/* Public app-layout routes — visitors can preview the tool UI; running it gates on auth */}
             <Route element={<AppLayout />}>
               <Route path="/agent" element={<AuraAgent />} />
+              <Route path="/resume-roast" element={<ResumeRoast />} />
             </Route>
 
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
@@ -94,7 +95,6 @@ const App = () => {
               <Route path="/business-plan" element={<BusinessPlan />} />
               <Route path="/side-hustle-ideas" element={<SideHustle />} />
               <Route path="/linkedin-roaster" element={<LinkedInRoaster />} />
-              <Route path="/resume-roast" element={<ResumeRoast />} />
               <Route path="/cover-letter" element={<CoverLetter />} />
               <Route path="/interview-prep" element={<InterviewPrep />} />
               <Route path="/salary-check" element={<SalaryCheck />} />

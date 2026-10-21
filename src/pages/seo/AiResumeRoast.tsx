@@ -10,7 +10,7 @@ export default function AiResumeRoast() {
       h1="Get your resume roasted by AI — brutally honest, actually useful"
       subhead="Stop sending the same dead resume into the void. Our AI Resume Roaster scores you 0–100, names what's broken, and tells you exactly how to fix it."
       ctaTo="/resume-roast"
-      ctaLabel="Roast my resume free"
+      ctaLabel="Roast my resume free — no sign-up"
       benefits={[
         "0–100 brutal score with breakdown across 5 categories",
         "Specific line-by-line callouts (not generic fluff)",
