@@ -440,6 +440,93 @@ That is under ninety seconds, and every sentence is about a decision.
 `,
   },
 
+  {
+    slug: "resume-summary-examples",
+    title: "Resume summary examples for every career stage",
+    teaser:
+      "A resume summary is three lines that tell a recruiter what to look for next. Twelve examples from student to career changer, and how to write yours.",
+    date: "2026-10-21",
+    readingMinutes: 6,
+    tool: { label: "Write my summary", to: "/resume-builder" },
+    body: `
+The summary is the first thing a recruiter reads and the last thing most people write. It usually shows: three lines of adjectives — hard-working, detail-oriented, passionate — that could belong to anyone.
+
+A good summary does a narrower job. It tells the reader **what you are, what you are best at, and what to look for in the rest of the page.** If it does that in three lines, it has earned its space.
+
+## Summary or objective?
+
+An objective says what you want. A summary says what you offer. Recruiters are hiring for their need, not yours, so in almost every case the summary wins.
+
+The one exception is a career change, where a single line of intent helps the reader understand why your history does not match the job title. Even then, keep it inside a summary that leads with what you bring.
+
+## The three-line structure
+
+Every example below follows the same shape:
+
+1. **Who you are, in the employer's language.** Your target title and level, plus years of experience if they help.
+2. **Your strongest proof.** One or two results, with numbers where you have them.
+3. **What you are bringing to this role.** The skills or domain the job post asks for that you can back up below.
+
+Write it last, after your bullets are finished. The summary should be a trailer for the resume, so it is much easier to write once you know what the best scenes are.
+
+## Students and new graduates
+
+You do not have years of experience, so lead with what you studied, what you built, and what you are aiming for.
+
+1. *Computer science graduate with two internships in backend development. Built a course-scheduling API in Python used by 400 students at my university. Looking for a junior backend role working with Python, PostgreSQL and cloud deployment.*
+2. *Marketing student with hands-on campaign experience from a part-time role at a local gym, where I ran the Instagram account and launched a referral offer. Comfortable with Canva, Meta Ads Manager and basic Google Analytics.*
+3. *Finance graduate with a CFA Level I pass and a summer analyst internship building three-statement models for mid-market deals. Strong in Excel, financial modelling and writing clear investment memos.*
+
+Note what is missing: no "eager to learn", no "team player". Every phrase is a fact the interviewer can ask about.
+
+## Early career (2 to 5 years)
+
+At this stage, the summary should show you are past learning the job and starting to own outcomes.
+
+4. *Customer success manager with four years in B2B SaaS, managing a book of 40 mid-market accounts. Cut churn on my book by a third in one year by introducing quarterly business reviews. Strong in onboarding design, renewals and Salesforce.*
+5. *Frontend engineer with three years building React and TypeScript products. Led the rebuild of a checkout flow that reduced drop-off, and set up the team's component library. Looking for a product-focused team where design and engineering work closely.*
+6. *Operations coordinator with three years in logistics, scheduling deliveries across two warehouses. Automated our dispatch spreadsheet into a shared tool that removed a daily hour of manual work. Experienced with inventory systems, vendor management and reporting.*
+
+## Mid-career and senior
+
+The reader now wants scope: how big were the teams, budgets, systems or markets you were responsible for?
+
+7. *Product manager with eight years in fintech, most recently owning payments for a consumer app. Launched instant payouts and led a cross-functional team of twelve. Strong in pricing, compliance-heavy delivery and turning customer research into roadmaps.*
+8. *Data engineering lead with ten years of experience building analytics platforms. Moved a company from nightly batch jobs to near-real-time pipelines and grew the data team from two to seven. Experienced with Spark, dbt, Airflow and cost control on cloud warehouses.*
+9. *Registered nurse with nine years in emergency care, including four as charge nurse on a 30-bed unit. Trained new graduate nurses and led the rollout of a new triage protocol. Calm under pressure, strong in patient communication and clinical documentation.*
+
+## Career changers
+
+Here the summary has to do extra work: connect the old world to the new one so the reader does not have to.
+
+10. *Former high school teacher moving into instructional design. Designed and delivered a full year of curriculum for 150 students a year and built the department's online course materials. Completed a certificate in learning experience design and comfortable with Articulate 360.*
+11. *Retail store manager transitioning into operations management. Ran a store with 25 staff, owned the budget and rota, and improved stock accuracy through weekly cycle counts. Bringing people management, scheduling and inventory control to a warehouse or supply chain role.*
+12. *Journalist moving into content marketing. Seven years writing to deadline for regional and national outlets, with experience interviewing experts and explaining complex topics simply. Now building SEO and analytics skills through freelance content projects.*
+
+The pattern in all three: name the transferable skill in the target field's vocabulary, then point at evidence. "Classroom management" becomes "people management"; "lesson planning" becomes "curriculum design".
+
+## Five mistakes that make a summary forgettable
+
+- **Adjectives without evidence.** "Results-driven" is a claim. "Cut churn by a third" is evidence. Replace each adjective with the fact that made you think of it.
+- **Writing in the first person throughout.** Drop "I am" and "I have". Resume summaries are written in implied first person, which saves space.
+- **Going past four lines.** If it becomes a paragraph, a recruiter will skip it. Cut the weakest clause.
+- **One summary for every job.** Swap the third line for each application so it mirrors the two or three skills the job post emphasises.
+- **Promising what the resume does not show.** If the summary says "leadership", the reader will look for a leadership bullet below. Make sure it is there.
+
+## A quick way to write yours
+
+Open the job description and highlight the job title and the three skills mentioned most. Then answer three questions in one sentence each:
+
+1. What is your current or target title, and how long have you done this kind of work?
+2. What is the single result you would most want an interviewer to ask about?
+3. Which of the highlighted skills can you prove from the bullets on this page?
+
+Join the three sentences and trim. That is your summary. Read it out loud: if it sounds like it could describe a colleague just as well, make the result more specific.
+
+Once you have a draft, put it next to your experience section and check that every claim has a bullet that backs it up. A summary that matches the page below it reads as confident. One that does not reads as padding.
+`,
+  },
+
 ];
 
 /** The <title> for a post page, kept within 60 characters where possible. */
