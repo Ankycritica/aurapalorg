@@ -38,3 +38,8 @@ Needs Ankit: guest try-without-signup (biggest lever — usage flat for a month)
 - Sidebar logo was an H1 on every app page; now a <p>.
 - Tested locally with the function stubbed (Deno) and the UI flow mocked (Playwright). The live function could not be called from the agent sandbox (network), so the first real guest roast is the live check: query `select * from analytics_events where event_name='guest_roast'` and the function logs.
 - Metric to watch: guest_roast count vs signups.
+
+## 2026-10-21 (later) — sign-in page replaced, requested by Ankit
+
+- The full-screen /auth page is gone. Sign-in is a dialog over the current page (Google first, email behind "Use email instead"); every link to /auth opens it in place. /auth shows the homepage with the dialog open. Signed-in-only pages now pass ?next so sign-in returns people to the page they wanted.
+- The GitHub push for c41b4a5 did not trigger a Vercel build; deployed it manually via the Vercel API (dpl_cUTq2iWTbnZACKUttKa5HMMrgBu8). If pushes stop deploying again, check the Vercel ↔ GitHub connection.
