@@ -3,7 +3,7 @@ import { SeoLandingLayout } from "./SeoLandingLayout";
 export default function AiInterviewQuestions() {
   return (
     <SeoLandingLayout
-      metaTitle="AI Interview Questions Generator — Free Practice with Answer Frameworks"
+      metaTitle="AI Interview Questions Generator — Free Practice"
       metaDescription="Generate the interview questions you're likely to get for a specific role and company, with STAR answer frameworks built from your own experience. Free."
       keywords="ai interview questions generator, interview prep ai free, mock interview questions, behavioral interview questions, star method answers, interview practice tool"
       badge="Free AI Interview Prep"

@@ -58,9 +58,9 @@ const faq = (items) => ({
 const routes = [
   {
     path: "/",
-    title: "AuraPal — Free AI Career Tools | Resume Builder, Roast & Salary Check",
+    title: "AuraPal — Free AI Career Engine for Resumes & Jobs",
     description:
-      "Ten free AI career tools in one place: resume builder with ATS scoring, resume roast, LinkedIn roaster, cover letters, interview prep, salary benchmarking and job search. No credit card.",
+      "Ten free AI career tools: resume builder with ATS scoring, resume roast, LinkedIn roaster, cover letters, interview prep, salary check and job search.",
     keywords: "free ai resume builder, resume roast, ai resume checker, linkedin headline generator, salary benchmark tool, ai cover letter generator, interview prep ai, ats resume checker free",
     h1: "Your AI career engine.",
     copy: "AuraPal gives you ten free AI career tools: an ATS-aware resume builder, resume and LinkedIn roasts scored out of 100, a cover letter generator, interview preparation, salary benchmarking against live job listings, a startup idea validator, a job finder across eight boards, an SEO article writer and a business plan generator. Everything is free, with no credit card and no paid tier.",
@@ -126,7 +126,7 @@ const routes = [
   },
   {
     path: "/free-cover-letter-generator",
-    title: "Free AI Cover Letter Generator — Tailored to the Job in 30 Seconds",
+    title: "Free AI Cover Letter Generator — Tailored to Each Job",
     description: "Free AI cover letter generator. Paste the job description and your background and get a specific, non-generic cover letter in under a minute. No credit card.",
     keywords: "free cover letter generator, ai cover letter generator, cover letter writer free, cover letter for job application, tailored cover letter ai",
     h1: "Free AI cover letter generator",
@@ -150,7 +150,7 @@ const routes = [
   },
   {
     path: "/ai-interview-questions",
-    title: "AI Interview Questions Generator — Free Practice with Answer Frameworks",
+    title: "AI Interview Questions Generator — Free Practice",
     description: "Generate the interview questions you're likely to get for a specific role and company, with STAR answer frameworks built from your own experience. Free.",
     keywords: "ai interview questions generator, interview prep ai free, mock interview questions, behavioral interview questions, star method answers, interview practice tool",
     h1: "AI interview questions generator",
@@ -193,10 +193,14 @@ const routes = [
 const postsSrc = readFileSync(join(__dirname, "..", "src", "content", "posts.ts"), "utf8");
 for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^"]+)",\s*\n\s*teaser:\s*\n?\s*"([^"]+)",\s*\n\s*date:\s*"([^"]+)"/g)) {
   const [, slug, title, teaser, date] = m;
+  // Optional seoTitle sits after date, before the next post starts.
+  const rest = postsSrc.slice(m.index + m[0].length);
+  const seo = rest.slice(0, rest.search(/\n\s*slug:|$/)).match(/^\s*,?\s*seoTitle:\s*"([^"]+)"/m);
+  const full = `${title} — AuraPal`;
   routes.push({
     lastmod: date,
     path: `/blog/${slug}`,
-    title: `${title} — AuraPal`,
+    title: seo ? seo[1] : full.length <= 60 ? full : title,
     description: teaser,
     keywords: "career advice, resume tips, job search guide",
     h1: title,

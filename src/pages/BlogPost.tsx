@@ -3,7 +3,7 @@ import { Link, useParams, Navigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { useSeo } from "@/lib/useSeo";
-import { getPost, posts } from "@/content/posts";
+import { getPost, postPageTitle, posts } from "@/content/posts";
 import "@/styles/landing-mono.css";
 
 /** Inline formatting: **bold**, *italic*, `code`. */
@@ -93,7 +93,7 @@ export default function BlogPost() {
   const related = useMemo(() => posts.filter((p) => p.slug !== slug).slice(0, 2), [slug]);
 
   useSeo({
-    title: post ? `${post.title} — AuraPal` : "Article — AuraPal",
+    title: post ? postPageTitle(post) : "Article — AuraPal",
     description: post?.teaser ?? "",
     path: `/blog/${slug ?? ""}`,
     jsonLd: post

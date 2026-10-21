@@ -3,6 +3,8 @@ export type Post = {
   title: string;
   teaser: string;
   date: string;       // ISO
+  /** Optional <title> override when "title — AuraPal" would exceed 60 chars. */
+  seoTitle?: string;
   readingMinutes: number;
   tool?: { label: string; to: string };
   /** Lightweight markdown: ##, ###, **bold**, - bullets, 1. numbered, > quote */
@@ -170,6 +172,7 @@ That is a small edge. It is also close to free, and it takes ten minutes.
     teaser:
       "Most salary advice assumes you already know your market rate. Here is how to establish it from real data, and how to raise it without ultimatums.",
     date: "2026-09-24",
+    seoTitle: "How to Find Out If You're Underpaid — AuraPal",
     readingMinutes: 8,
     tool: { label: "Check my salary", to: "/salary-check" },
     body: `
@@ -324,6 +327,7 @@ If you want a second opinion on which of your bullets are weakest, paste your re
     teaser:
       "Most cover letters restate the resume in longer sentences. A short letter that answers the job post's top two needs works better, and takes less time.",
     date: "2026-10-15",
+    seoTitle: "How to Write a Cover Letter That Gets Read — AuraPal",
     readingMinutes: 5,
     tool: { label: "Write my cover letter", to: "/cover-letter" },
     body: `
@@ -437,5 +441,12 @@ That is under ninety seconds, and every sentence is about a decision.
   },
 
 ];
+
+/** The <title> for a post page, kept within 60 characters where possible. */
+export const postPageTitle = (p: Pick<Post, "title" | "seoTitle">) => {
+  if (p.seoTitle) return p.seoTitle;
+  const full = `${p.title} — AuraPal`;
+  return full.length <= 60 ? full : p.title;
+};
 
 export const getPost = (slug: string) => posts.find((p) => p.slug === slug);

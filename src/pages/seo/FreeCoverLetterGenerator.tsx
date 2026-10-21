@@ -3,7 +3,7 @@ import { SeoLandingLayout } from "./SeoLandingLayout";
 export default function FreeCoverLetterGenerator() {
   return (
     <SeoLandingLayout
-      metaTitle="Free AI Cover Letter Generator — Tailored to the Job in 30 Seconds"
+      metaTitle="Free AI Cover Letter Generator — Tailored to Each Job"
       metaDescription="Free AI cover letter generator. Paste the job description and your background and get a specific, non-generic cover letter in under a minute. No credit card."
       keywords="free cover letter generator, ai cover letter generator, cover letter writer free, cover letter for job application, tailored cover letter ai"
       badge="Free AI Cover Letter Generator"

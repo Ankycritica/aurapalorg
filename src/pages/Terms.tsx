@@ -1,8 +1,10 @@
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/lib/useSeo";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 export default function Terms() {
+  useSeo({ title: "Terms of Service — AuraPal", description: "The terms that apply when you use AuraPal, a free set of AI career tools.", path: "/terms" });
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-3xl mx-auto px-4 py-16">
