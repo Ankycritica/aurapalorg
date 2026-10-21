@@ -215,6 +215,9 @@ for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^
   });
 }
 
+/** Keep in sync with ogName() in generate-og-images.mjs. */
+const ogName = (path) => (path === "/" ? "home" : path.replace(/^\//, "").replace(/\//g, "-"));
+
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const template = readFileSync(join(DIST, "index.html"), "utf8");
@@ -233,6 +236,14 @@ for (const r of routes) {
   html = html.replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${esc(r.title)}"/>`);
   html = html.replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${esc(r.description)}"/>`);
   html = html.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${url}"/>`);
+
+  // Per-page social card when one has been generated (scripts/generate-og-images.mjs);
+  // otherwise keep the site-wide /og-image.png from index.html.
+  const og = `og/${ogName(r.path)}.png`;
+  if (existsSync(join(DIST, og))) {
+    html = html.replace(/<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${SITE}/${og}"/>`);
+    html = html.replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${SITE}/${og}"/>`);
+  }
 
   // Replace the static index.html JSON-LD with this route's graph.
   html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
