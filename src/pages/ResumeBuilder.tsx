@@ -11,27 +11,7 @@ import { ResumeEditor } from "@/components/ResumeEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { aiFetch } from "@/lib/aiFetch";
-
-async function extractTextFromPDF(file: File): Promise<string> {
-  const pdfjsLib = await import("pdfjs-dist");
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  let text = "";
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map((item: any) => item.str).join(" ") + "\n";
-  }
-  return text.trim();
-}
-
-async function extractTextFromDocx(file: File): Promise<string> {
-  const mammoth = await import("mammoth");
-  const arrayBuffer = await file.arrayBuffer();
-  const result = await mammoth.extractRawText({ arrayBuffer });
-  return result.value.trim();
-}
+import { extractResumeText, ResumeExtractError } from "@/lib/extractResumeText";
 
 interface ATSScore {
   score: number;
@@ -103,21 +83,15 @@ export default function ResumeBuilder() {
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const ext = file.name.split(".").pop()?.toLowerCase();
-    if (!["pdf", "doc", "docx"].includes(ext || "")) {
-      setError("Please upload a PDF or Word document (.pdf, .doc, .docx)");
-      return;
-    }
     setUploadedFile(file);
     setExtracting(true);
     setError("");
     try {
-      let text = "";
-      if (ext === "pdf") text = await extractTextFromPDF(file);
-      else text = await extractTextFromDocx(file);
-      setExtractedText(text);
-    } catch {
-      setError("Could not extract text from file. Please enter your details manually.");
+      setExtractedText(await extractResumeText(file));
+    } catch (err) {
+      setUploadedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setError(err instanceof ResumeExtractError ? err.message : "We couldn't read that file. Please enter your details manually.");
     } finally {
       setExtracting(false);
     }
@@ -438,8 +412,8 @@ HARD RULES:
           <label className="flex flex-col items-center gap-3 p-6 border-2 border-dashed border-border/50 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-secondary/20 transition-all duration-200">
             <Upload className="h-8 w-8 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Click to upload PDF or Word document</span>
-            <span className="text-xs text-muted-foreground/60">Supports .pdf, .doc, .docx</span>
-            <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileUpload} />
+            <span className="text-xs text-muted-foreground/60">Supports .pdf and .docx</span>
+            <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={handleFileUpload} />
           </label>
         ) : (
           <div className="flex items-center gap-3 p-4 bg-secondary/30 rounded-xl">

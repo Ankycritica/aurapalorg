@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { useSignIn } from "@/components/SignInDialog";
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/client";
 import { useSeo } from "@/lib/useSeo";
+import { extractResumeText, ResumeExtractError } from "@/lib/extractResumeText";
 
 /** Visitors get one roast before signing in. The server enforces its own limit too. */
 const GUEST_KEY = "aurapal_guest_roast_used";
@@ -32,27 +33,6 @@ interface RoastResult {
   one_liner: string;
   sections: RoastSection[];
   top_3_fixes: string[];
-}
-
-async function extractTextFromPDF(file: File): Promise<string> {
-  const pdfjsLib = await import("pdfjs-dist");
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  let text = "";
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map((item: any) => item.str).join(" ") + "\n";
-  }
-  return text.trim();
-}
-
-async function extractTextFromDocx(file: File): Promise<string> {
-  const mammoth = await import("mammoth");
-  const arrayBuffer = await file.arrayBuffer();
-  const result = await mammoth.extractRawText({ arrayBuffer });
-  return result.value.trim();
 }
 
 function getScoreColor(score: number, max: number = 100) {
@@ -101,22 +81,18 @@ export default function ResumeRoast() {
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const ext = file.name.split(".").pop()?.toLowerCase();
-    if (!["pdf", "doc", "docx"].includes(ext || "")) {
-      setError("Please upload a PDF or Word document (.pdf, .doc, .docx)");
-      return;
-    }
     setUploadedFile(file);
     setExtracting(true);
     setError("");
     try {
-      let text = "";
-      if (ext === "pdf") text = await extractTextFromPDF(file);
-      else text = await extractTextFromDocx(file);
+      const text = await extractResumeText(file);
       setValues(v => ({ ...v, resume: text }));
-      toast.success("Resume text extracted successfully!");
-    } catch {
-      setError("Could not extract text from file. Please paste your resume content manually.");
+      toast.success("Resume text extracted — check it below.");
+    } catch (err) {
+      // Clear the file so the card never claims text was extracted when it wasn't.
+      setUploadedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setError(err instanceof ResumeExtractError ? err.message : "We couldn't read that file. Please paste your resume text below instead.");
     } finally {
       setExtracting(false);
     }
@@ -319,8 +295,8 @@ CRITICAL: Return ONLY valid JSON, no markdown, no code fences. Use this exact sc
           <label className="flex flex-col items-center gap-3 p-6 border-2 border-dashed border-border/50 rounded-xl cursor-pointer hover:border-orange-500/50 hover:bg-secondary/20 transition-all duration-200">
             <Upload className="h-8 w-8 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Click to upload PDF or Word document</span>
-            <span className="text-xs text-muted-foreground/60">Supports .pdf, .doc, .docx</span>
-            <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileUpload} />
+            <span className="text-xs text-muted-foreground/60">Supports .pdf and .docx</span>
+            <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={handleFileUpload} />
           </label>
         ) : (
           <div className="flex items-center gap-3 p-4 bg-secondary/30 rounded-xl">
