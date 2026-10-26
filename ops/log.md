@@ -43,3 +43,16 @@ Needs Ankit: guest try-without-signup (biggest lever — usage flat for a month)
 
 - The full-screen /auth page is gone. Sign-in is a dialog over the current page (Google first, email behind "Use email instead"); every link to /auth opens it in place. /auth shows the homepage with the dialog open. Signed-in-only pages now pass ?next so sign-in returns people to the page they wanted.
 - The GitHub push for c41b4a5 did not trigger a Vercel build; deployed it manually via the Vercel API (dpl_cUTq2iWTbnZACKUttKa5HMMrgBu8). If pushes stop deploying again, check the Vercel ↔ GitHub connection.
+
+## 2026-10-26 — check requested by Ankit
+
+Metrics (7d): 35 users · 2 signups (prev 7d: 4) · 0 generations (last 2026-09-19) · 0 guest roasts since launch on Oct 21 · 17 page views (prev 15). No Vercel runtime errors in 7d; no edge-function errors.
+
+Fixed:
+- /resume-roast (public since Oct 21) was not prerendered, so it served the homepage title and canonical. Added it to the prerender list with its own title, description and OG card; the page also sets them client-side via useSeo.
+
+Checked: the 6 SECURITY DEFINER RPC warnings are safe (all check auth.uid()). guest-roast is ACTIVE but has had no traffic yet.
+
+Schedule: full run Wednesday plus a Saturday health run (see AGENT.md "Two kinds of run").
+
+Needs Ankit: post the marketing drafts (traffic is the bottleneck), Google Search Console, leaked password protection.

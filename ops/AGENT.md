@@ -22,13 +22,20 @@ Read this whole file, then `ops/log.md` (what earlier runs did) and `ops/backlog
 6. **Never post to social media or send email.** Write marketing drafts to `marketing/`; Ankit posts them himself.
 7. Public-facing pages are crawled by Google: keep titles ≤ 60 chars, descriptions ≤ 160, one H1, canonical on `https://www.aurapal.org`.
 
-## Each run
+## Two kinds of run
+
+- **Wednesday — full run:** every step below.
+- **Saturday — health run:** steps 1, 2, 6 (only if something was fixed), 7 and 8. No new post, no improvement, no marketing file. Also check: any `guest_roast` events this week (`select count(*) from analytics_events where event_name='guest_roast' and created_at > now()-interval '7 days'`), and that every public route in `scripts/prerender.mjs` serves its own `<title>` and canonical (use the Vercel `web_fetch_vercel_url` tool if WebFetch is blocked). Report in 3–5 lines; if all is fine, say so in one line.
+
+## Each run (full)
 
 1. **Health check** (report every result):
    - Latest Vercel production deployment is READY and matches `main` HEAD.
    - WebFetch `https://www.aurapal.org/`, `/blog`, and two landing pages: one H1, no stale pricing ("$19", "$49", "promo", "Oct 1"), no error text.
    - Supabase: `get_advisors` (security), `query_logs` for function errors in the last 24h.
-   - Metrics (read-only SQL): total users, signups last 7d, `generations` last 7d, distinct users generating last 7d, `analytics_events` page_views last 7d.
+   - Metrics (read-only SQL): total users, signups last 7d, `generations` last 7d, distinct users generating last 7d, `analytics_events` page_views last 7d, `guest_roast` events last 7d.
+   - Vercel `get_runtime_errors` for the last 7d.
+   - Any public page not in `scripts/prerender.mjs` serves the homepage's title and canonical. When a page is made public (moved out of ProtectedRoute), add it to the prerender route list in the same change.
 2. **Fix** any regression from step 1 (within the hard rules).
 3. **SEO:** write one new blog post for the top unchecked keyword in `ops/backlog.md` — 700–1,200 words, genuinely useful on its own, matching the style of the existing posts in `src/content/posts.ts` (append to the array; keep the `slug/title/teaser/date` field order, because the prerender regex depends on it; no backticks or `${` in the body). Link it to the matching tool. Tick the keyword off. Then give it a social card: after `npm run build`, run `PLAYWRIGHT_MODULE=<scratchpad>/node_modules/playwright node scripts/generate-og-images.mjs --chromium /opt/pw-browsers/chromium` (only new pages get an image; `--force` regenerates all), check the PNG, commit it, and build again. Do the same for any new landing page.
 4. **Improve:** do the top unchecked item in "Next improvements" in the backlog, if it is within the rules. Otherwise skip.

@@ -12,6 +12,7 @@ import { aiFetch } from "@/lib/aiFetch";
 import { Link } from "react-router-dom";
 import { useSignIn } from "@/components/SignInDialog";
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/client";
+import { useSeo } from "@/lib/useSeo";
 
 /** Visitors get one roast before signing in. The server enforces its own limit too. */
 const GUEST_KEY = "aurapal_guest_roast_used";
@@ -76,6 +77,12 @@ function getSectionBg(score: number) {
 const MIN_RESUME_LENGTH = 100;
 
 export default function ResumeRoast() {
+  useSeo({
+    title: "Roast My Resume Free — No Sign-Up | AuraPal",
+    description: "Paste your resume and get a free AI roast scored out of 100: formatting, bullet impact, ATS keywords and quantified results, with fixes. No sign-up needed.",
+    path: "/resume-roast",
+    ogImage: "https://www.aurapal.org/og/resume-roast.png",
+  });
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState<RoastResult | null>(null);
   const [loading, setLoading] = useState(false);

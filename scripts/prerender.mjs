@@ -72,6 +72,15 @@ const routes = [
     ])],
   },
   {
+    path: "/resume-roast",
+    title: "Roast My Resume Free — No Sign-Up | AuraPal",
+    description: "Paste your resume and get a free AI roast scored out of 100: formatting, bullet impact, ATS keywords and quantified results, with fixes. No sign-up needed.",
+    keywords: "roast my resume, resume roast free, free resume review no sign up, ai resume critique, resume score",
+    h1: "Resume Roast",
+    copy: "Paste your resume and get an honest AI roast scored out of 100 across formatting, bullet impact, ATS keywords and quantified achievements, with a specific fix for each weak section. Your first roast needs no account; sign in with Google to save results and keep going.",
+    jsonLd: [org],
+  },
+  {
     path: "/ai-resume-roast",
     title: "AI Resume Roast — Get Your Resume Scored Out of 100 | Free",
     description:
