@@ -56,3 +56,9 @@ Checked: the 6 SECURITY DEFINER RPC warnings are safe (all check auth.uid()). gu
 Schedule: full run Wednesday plus a Saturday health run (see AGENT.md "Two kinds of run").
 
 Needs Ankit: post the marketing drafts (traffic is the bottleneck), Google Search Console, leaked password protection.
+
+## 2026-10-26 (later) — resume upload broken, reported by Ankit
+
+- Uploading a PDF or .docx never filled the resume box on /resume-roast and /resume-builder, but the file card still said "Text extracted". Cause: pdfjs-dist 6.3 with a 4.4.168 worker from cdnjs (version mismatch), and the bundled mammoth hitting an @xmldom DOMParser error.
+- Fix (9721989): shared `src/lib/extractResumeText.ts` with a bundled pdf.js worker and mammoth's browser build; failures clear the file and show a specific message (scanned PDF, .doc, too large).
+- Smoke test should now include uploading a text PDF and a .docx to /resume-roast and asserting the textarea fills.
