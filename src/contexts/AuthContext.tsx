@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useCallback, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
@@ -84,12 +84,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Check subscription on login and periodically
+  // Billing is gone (everything is free), so sync the plan once per signed-in
+  // user per page load instead of polling every minute. Keyed on the user id so
+  // token refreshes, which hand us a new user object, don't trigger it again.
+  const checkedUserId = useRef<string | null>(null);
   useEffect(() => {
-    if (!user) return;
+    if (!user || checkedUserId.current === user.id) return;
+    checkedUserId.current = user.id;
     checkSubscription();
-    const interval = setInterval(checkSubscription, 60000);
-    return () => clearInterval(interval);
   }, [user, checkSubscription]);
 
   // Auto-redeem referral code captured at signup time
