@@ -6,7 +6,7 @@
 - [x] how to write a cover letter — /blog/cover-letter-that-gets-read
 - [x] star method interview answers — /blog/star-method-interview-answers
 - [x] resume summary examples (by career stage) — /blog/resume-summary-examples
-- [ ] how to answer "tell me about yourself"
+- [x] how to answer "tell me about yourself" — /blog/tell-me-about-yourself-answer
 - [ ] salary negotiation email template
 - [ ] career change resume (no direct experience)
 - [ ] what to put in LinkedIn About section (examples)

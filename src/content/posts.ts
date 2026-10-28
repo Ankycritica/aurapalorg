@@ -527,6 +527,91 @@ Once you have a draft, put it next to your experience section and check that eve
 `,
   },
 
+  {
+    slug: "tell-me-about-yourself-answer",
+    title: "How to answer “Tell me about yourself” in an interview",
+    teaser:
+      "A simple present, past, future structure for the first interview question, with example answers for graduates, experienced hires and career changers.",
+    date: "2026-10-28",
+    readingMinutes: 7,
+    tool: { label: "Prep my interview", to: "/interview-prep" },
+    body: `
+Almost every interview starts the same way. The interviewer looks up from your resume and says: "So, tell me about yourself."
+
+It sounds like small talk. It is not. It sets the frame for every question that follows, and most people answer it badly — with a life story that starts at school, or a recital of the resume the interviewer is already holding.
+
+The fix is to treat it as what it really is: **a 60 to 90 second pitch for why you are a sensible person to be talking to about this job.**
+
+## What the interviewer is actually asking
+
+Behind the open question are three narrower ones:
+
+1. **Who are you, professionally?** What kind of work do you do, and at what level?
+2. **What is the strongest evidence you are good at it?** One or two things worth asking about.
+3. **Why are you here?** Why this role, why now, and does it make sense given your history?
+
+An answer that covers those three, briefly, is a good answer. Everything else — hobbies, where you grew up, every job since your first — is optional at best and a distraction at worst.
+
+## The present, past, future structure
+
+The most reliable shape is three short parts, in this order:
+
+- **Present:** what you do now, in one or two sentences. Title, type of company, what you own.
+- **Past:** one or two experiences that explain how you got good at it. Pick the ones most relevant to this job, not the most recent ones by default.
+- **Future:** why this role is the logical next step. This is where you connect your story to their job description.
+
+Starting with the present matters. It answers the interviewer's first silent question immediately, and it stops you from drifting into a chronological history. The past is there to support the present, not to replace it.
+
+Aim for about 150 to 200 words spoken. That is roughly a minute at a normal pace. If the interviewer wants more, they will ask, and a follow-up question is a better use of time than a monologue.
+
+## Example answers
+
+These are written to be spoken, so they are deliberately plain. Swap the specifics for your own; the structure is what carries over.
+
+### New graduate
+
+> I recently finished a degree in computer science, where I focused on backend systems. In my final year I built a room-booking API for my university's library that students still use, and during a summer internship at a logistics startup I worked on the service that calculated delivery windows — mostly Python and PostgreSQL. What I enjoyed most in both was making slow things fast and reliable. That is why this junior backend role stood out: your team owns the services behind checkout, and the job post mentions performance work, which is exactly the part I want to get better at.
+
+Note what it does not say: no grades, no list of modules, no "I have always been passionate about technology". It names one project and one internship, and ties them to something specific in the job post.
+
+### Experienced hire
+
+> I am a customer success manager at a B2B software company, where I look after about forty mid-market accounts. Before that I spent three years in account management at an agency, which is where I learned to run renewals and handle difficult conversations with clients. The thing I am proudest of in my current role is introducing quarterly business reviews for my accounts — they made it much easier to spot unhappy customers early, and churn on my book dropped noticeably over the year. I am looking for a role where I can do that at a larger scale, which is why the senior position here, with ownership of the onboarding programme, appeals to me.
+
+One sentence of present, one of past, one result, one sentence of future. The result is concrete enough to invite a follow-up, which is exactly what you want.
+
+### Career changer
+
+> For the last six years I have been a secondary school science teacher. A big part of that job, which people don't always see, is designing material: I rewrote our department's whole Year 10 curriculum and built the online course we used during remote teaching. That is the part of the job I have enjoyed most, so over the past year I have been moving deliberately into instructional design — I completed a certificate in learning experience design and built two short e-learning modules for a local charity. This role is a natural next step because you are building training for frontline staff, and explaining complex ideas to people who are busy and not always keen to learn is what I have been doing every day.
+
+For a career changer, the "past" section has a harder job: it has to translate your old work into the new field's vocabulary so the interviewer doesn't have to. Name the transferable skill, then show you have already started acting on the change.
+
+## Mistakes that weaken the answer
+
+- **Reading out your resume.** They have it. Use the answer to choose and connect, not to list.
+- **Starting at the beginning.** "I grew up in..." or "After school I..." spends your best thirty seconds on the least relevant material.
+- **Being vague about what you do.** "I work in tech" or "I do operations" forces the interviewer to dig. Say your title and what you own.
+- **No reason for this role.** An answer that ends with your current job leaves the interviewer to guess why you applied. Always land on the future.
+- **Going on too long.** Past two minutes, you are losing them. If you are unsure, stop and let them ask.
+- **Over-rehearsing.** Know your three parts and your one result. Do not memorise a script word for word; it sounds recited and falls apart if you are interrupted.
+
+## Tailoring it to each interview
+
+Your present section rarely changes. The past and future sections should, every time.
+
+Before each interview, open the job description and underline the two or three things it emphasises most. Then check your answer:
+
+1. Does the experience you chose for the past section match one of them?
+2. Does the future section name something specific about this role or team, rather than a generic "growth opportunity"?
+3. Is there at least one detail the interviewer is likely to follow up on, and do you have a good story ready for that follow-up?
+
+That third point is the quiet advantage of a good answer. When you mention one concrete result, the interviewer usually asks about it next — which means the second question of the interview is one you have already prepared. A short STAR-style story behind that result is worth having ready.
+
+## Practise it out loud
+
+The answer only works if it sounds natural, and that comes from saying it, not writing it. Record yourself once on your phone, listen back, and cut anything you would not want to hear twice. Then practise with the follow-up questions your answer invites, so the next five minutes of the interview are as prepared as the first one.
+`,
+  },
 ];
 
 /** The <title> for a post page, kept within 60 characters where possible. */
