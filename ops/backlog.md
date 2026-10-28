@@ -21,17 +21,19 @@
 ## Next improvements (frontend/content, top first)
 
 - [x] Per-page OG images — `scripts/generate-og-images.mjs` → `public/og/` (2026-10-21)
-- [ ] Stop polling `check-subscription`: one signed-in session called it 129 times in a day (Oct 21). Billing is gone; call it at most once per session, or not at all (frontend only)
+- [x] Stop polling `check-subscription` — now once per signed-in user per page load (2026-10-28)
 - [ ] "Related guides" block at the bottom of each blog post linking 2 other posts + the matching landing page
 - [ ] Add an RSS feed (`/rss.xml`) generated in `scripts/prerender.mjs`
 - [ ] Breadcrumb JSON-LD on blog posts and landing pages
 - [ ] Landing page for "resume summary generator" (`/resume-summary-generator`) → /resume-builder
 - [ ] Landing page for "LinkedIn headline generator" (`/linkedin-headline-generator`) → /linkedin-roaster
+- [ ] Align /blog client-side title with the prerendered one ("Career Guides, Resume and Salary Research")
 - [ ] Lighthouse pass on `/`: fix any accessibility issues (contrast, alt text, button labels)
 
 ## Needs Ankit (agent must not do these)
 
-- [ ] **Usage is flat:** 0 generations since 2026-09-19 and only 1 signup and 4 tracked page views in the week to Oct 21. Content alone won't move this soon; the guest-try item below and posting the marketing drafts are the levers.
+- [ ] **Usage is flat (still, Oct 28):** 0 generations since Sep 19 and 0 guest roasts since the Oct 21 launch; 23 page views/week.
+  Earlier note: 0 generations since 2026-09-19 and only 1 signup and 4 tracked page views in the week to Oct 21. Content alone won't move this soon; the guest-try item below and posting the marketing drafts are the levers.
 
 - [x] **Guest try without signup** — shipped 2026-10-21 at Ankit's request: /resume-roast is public, one roast per visitor via the `guest-roast` edge function (per-IP 2/24h, global 200/24h, counted as `guest_roast` in analytics_events). Next: watch guest_roast → signup conversion; consider the same for the LinkedIn roaster.
 - [ ] Verify the site in Google Search Console and submit `https://www.aurapal.org/sitemap.xml` (Bing is already verified via BingSiteAuth.xml)

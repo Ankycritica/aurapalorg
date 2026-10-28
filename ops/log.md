@@ -62,3 +62,18 @@ Needs Ankit: post the marketing drafts (traffic is the bottleneck), Google Searc
 - Uploading a PDF or .docx never filled the resume box on /resume-roast and /resume-builder, but the file card still said "Text extracted". Cause: pdfjs-dist 6.3 with a 4.4.168 worker from cdnjs (version mismatch), and the bundled mammoth hitting an @xmldom DOMParser error.
 - Fix (9721989): shared `src/lib/extractResumeText.ts` with a bundled pdf.js worker and mammoth's browser build; failures clear the file and show a specific message (scanned PDF, .doc, too large).
 - Smoke test should now include uploading a text PDF and a .docx to /resume-roast and asserting the textarea fills.
+
+## 2026-10-28 — weekly run
+
+Metrics (7d to Oct 28): 36 users (+3 vs 33 on Oct 21) · 3 signups (prev full run: 1) · 0 generations (unchanged; last 2026-09-19) · 0 users generating · 23 page views (was 4 on Oct 21, 17 on Oct 26) · 0 guest_roast events (0 all-time since launch Oct 21).
+
+Health: prod deployment READY on main HEAD (bd5bde7 before this run); /, /blog, /resume-roast, /free-cover-letter-generator fetched live via the Vercel fetch tool (WebFetch permission timed out): one H1, own title + canonical, no stale pricing, no errors. No Vercel runtime errors in 7d; no edge-function log entries in 24h. Advisors unchanged: leaked password protection off; 6 SECURITY DEFINER RPC WARNs (verified safe Oct 26). All public routes are prerendered (privacy/terms set theirs client-side). Smoke test: 23 routes one H1 and no console errors; PDF and .docx upload on /resume-roast fill the textarea.
+
+Shipped:
+- Post: /blog/tell-me-about-yourself-answer + OG card (1edec22)
+- Improvement: AuthContext no longer polls check-subscription every 60s; it runs once per signed-in user per page load (754257e). Not testable signed-in from the sandbox; worth a glance at check-subscription invocation counts next week.
+- marketing/2026-10-28.md (769556c), deploy dpl_2tyqTvNSx8wh2QysRjM6vWK5SewA READY.
+
+Noticed: the /blog page sets its client-side title to "AuraPal Blog — Career Guides & Job Search Tactics" while the prerender says "…Resume and Salary Research"; harmless, aligned later. Settings.tsx still invokes check-subscription after a `?checkout=success` return (billing is gone; dead path).
+
+Needs Ankit: guest roast has had zero uses in a week — it needs traffic, so posting the drafts (with the /resume-roast link in comments where allowed) matters more than any page change; Google Search Console; leaked password protection.
