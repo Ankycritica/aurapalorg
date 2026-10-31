@@ -84,7 +84,7 @@ const routes = [
     path: "/ai-resume-roast",
     title: "AI Resume Roast — Get Your Resume Scored Out of 100 | Free",
     description:
-      "Paste your resume and get a brutally honest AI critique scored out of 100 across formatting, bullet impact, ATS keywords and quantified achievements. Free, no sign-up cost.",
+      "Paste your resume for a brutally honest AI critique scored out of 100 across formatting, bullet impact, ATS keywords and quantified results. Free.",
     keywords: "ai resume roast, resume roast free, roast my resume, ai resume critique, resume score checker, free resume review ai",
     h1: "AI Resume Roast",
     copy: "Paste your resume and get an honest critique scored out of 100. AuraPal's resume roast grades formatting and readability, the impact of your bullet points, ATS keyword coverage, and whether your achievements are quantified — then rewrites the weak sections. Free, instant, no credit card.",
@@ -104,7 +104,7 @@ const routes = [
     path: "/salary-checker-free",
     title: "Am I Underpaid? Free AI Salary Checker with Real Market Data",
     description:
-      "Find out if you're underpaid. Compare your salary against live advertised ranges for your role and location — P25 to P90, with sample size — plus a negotiation script.",
+      "Find out if you're underpaid. Compare your pay to live advertised ranges for your role and location (P25–P90, with sample size), plus a negotiation script.",
     keywords: "am i underpaid, free salary checker, salary benchmark tool, market rate salary calculator, salary comparison by role and location, how much should i be paid",
     h1: "Am I Underpaid?",
     copy: "Compare your salary against the real market. AuraPal pulls live advertised salary ranges for your role and location and shows you the 25th, 50th, 75th and 90th percentiles with the sample size, where you sit in that spread, and a negotiation script to close the gap. Free.",
@@ -181,7 +181,7 @@ const routes = [
   {
     path: "/features",
     title: "All Ten AI Career Tools — AuraPal Features",
-    description: "Resume builder, resume roast, LinkedIn roaster, cover letters, interview prep, salary check, startup validator, job finder, SEO writer, business plans. All free.",
+    description: "Resume builder, resume roast, LinkedIn roaster, cover letters, interview prep, salary check, startup validator, job finder, SEO writer, business plans. Free.",
     keywords: "ai career tools list, resume builder features, linkedin optimizer, ai interview preparation, ai job search tools",
     h1: "Ten AI Career Tools",
     copy: "Every AuraPal tool in one place: AI resume builder with ATS scoring and three templates, resume roast, LinkedIn roaster, cover letter generator, interview preparation, salary benchmarking, startup idea validator, job finder across eight job boards, SEO article generator and business plan generator.",
