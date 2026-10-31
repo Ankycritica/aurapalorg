@@ -77,3 +77,14 @@ Shipped:
 Noticed: the /blog page sets its client-side title to "AuraPal Blog — Career Guides & Job Search Tactics" while the prerender says "…Resume and Salary Research"; harmless, aligned later. Settings.tsx still invokes check-subscription after a `?checkout=success` return (billing is gone; dead path).
 
 Needs Ankit: guest roast has had zero uses in a week — it needs traffic, so posting the drafts (with the /resume-roast link in comments where allowed) matters more than any page change; Google Search Console; leaked password protection.
+
+## 2026-10-31 — Saturday health run
+
+Metrics (7d to Oct 31): 37 users (+1 vs 36 on Oct 28) · 3 signups · 0 generations (last 2026-09-19) · 0 users generating · 10 page views (23 on Oct 28) · 0 guest_roast events (0 all-time).
+
+Health: prod READY on main HEAD (4b43f87); /, /resume-roast, /blog, /ats-resume-checker, /salary-checker-free fetched live via the Vercel fetch tool: own title + canonical, one H1, no stale pricing or error text. All prerendered routes have their own title + canonical. No Vercel runtime errors in 7d; no edge-function log entries in 24h. Advisors unchanged (leaked password protection off; 6 SECURITY DEFINER WARNs, verified safe Oct 26). Smoke test: 18 routes, one H1, no page errors.
+
+Fixed:
+- Three prerendered meta descriptions were over 160 chars (/ai-resume-roast 172, /salary-checker-free 167, /features 161); trimmed (43eaaf6), deploy dpl_4fjYZi2NbGUKiqgFb3ETEGWg41CX READY.
+
+Needs Ankit: traffic — page views halved and guest roast still unused; post the marketing drafts. Search Console; leaked password protection.
