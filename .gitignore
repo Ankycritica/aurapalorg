@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local environment files (never commit server-side credentials)
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Test results and local caches
+coverage
+.vite
+.cache
+.DS_Store
