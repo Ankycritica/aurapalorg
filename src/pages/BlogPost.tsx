@@ -111,11 +111,30 @@ function renderBody(body: string) {
   return out;
 }
 
+/** Public landing page that matches each in-app tool (all prerendered). */
+const LANDING_FOR_TOOL: Record<string, { to: string; title: string; blurb: string }> = {
+  "/resume-roast": { to: "/ats-resume-checker", title: "Free ATS resume checker", blurb: "Find formatting that breaks parsers, missing keywords and weak bullets." },
+  "/resume-builder": { to: "/ats-resume-checker", title: "Free ATS resume checker", blurb: "Find formatting that breaks parsers, missing keywords and weak bullets." },
+  "/linkedin-roaster": { to: "/linkedin-profile-review", title: "LinkedIn profile review", blurb: "Headline, About and experience scored out of 100, with specific rewrites." },
+  "/salary-check": { to: "/salary-checker-free", title: "Free salary checker", blurb: "Compare your pay to live advertised ranges for your role and location." },
+  "/cover-letter": { to: "/free-cover-letter-generator", title: "Free cover letter generator", blurb: "Paste the job description and your background for a specific first draft." },
+  "/interview-prep": { to: "/ai-interview-questions", title: "AI interview questions", blurb: "Likely questions for your role and company, with STAR answer frameworks." },
+};
+
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const post = slug ? getPost(slug) : undefined;
 
-  const related = useMemo(() => posts.filter((p) => p.slug !== slug).slice(0, 2), [slug]);
+  // Two related posts: same tool first, then newest. Plus the matching public landing page.
+  const related = useMemo(() => {
+    const current = slug ? getPost(slug) : undefined;
+    const others = posts
+      .filter((p) => p.slug !== slug)
+      .sort((a, b) => b.date.localeCompare(a.date));
+    const sameTool = others.filter((p) => current?.tool && p.tool?.to === current.tool.to);
+    return [...sameTool, ...others.filter((p) => !sameTool.includes(p))].slice(0, 2);
+  }, [slug]);
+  const landing = post?.tool ? LANDING_FOR_TOOL[post.tool.to] : undefined;
 
   useSeo({
     title: post ? postPageTitle(post) : "Article — AuraPal",
@@ -180,9 +199,9 @@ export default function BlogPost() {
           </div>
         )}
 
-        {related.length > 0 && (
-          <div className="mt-16 pt-10 border-t hairline">
-            <p className="section-number mb-6">Keep reading.</p>
+        {(related.length > 0 || landing) && (
+          <section className="mt-16 pt-10 border-t hairline" aria-labelledby="related-guides">
+            <h2 id="related-guides" className="section-number mb-6">Related guides.</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {related.map((r) => (
                 <Link key={r.slug} to={`/blog/${r.slug}`} className="panel p-5 hover:bg-white/[0.03] transition-colors">
@@ -190,8 +209,16 @@ export default function BlogPost() {
                   <p className="text-xs leading-relaxed" style={{ color: "var(--lm-fg-3)" }}>{r.teaser}</p>
                 </Link>
               ))}
+              {landing && (
+                <Link to={landing.to} className="panel p-5 hover:bg-white/[0.03] transition-colors sm:col-span-2">
+                  <p className="text-sm font-medium mb-1.5 inline-flex items-center gap-1.5">
+                    {landing.title} <ArrowRight className="h-3.5 w-3.5" />
+                  </p>
+                  <p className="text-xs leading-relaxed" style={{ color: "var(--lm-fg-3)" }}>{landing.blurb}</p>
+                </Link>
+              )}
             </div>
-          </div>
+          </section>
         )}
       </article>
 
