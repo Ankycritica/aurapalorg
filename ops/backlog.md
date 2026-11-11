@@ -7,7 +7,7 @@
 - [x] star method interview answers — /blog/star-method-interview-answers
 - [x] resume summary examples (by career stage) — /blog/resume-summary-examples
 - [x] how to answer "tell me about yourself" — /blog/tell-me-about-yourself-answer
-- [ ] salary negotiation email template
+- [x] salary negotiation email template — /blog/salary-negotiation-email-template
 - [ ] career change resume (no direct experience)
 - [ ] what to put in LinkedIn About section (examples)
 - [ ] how long should a resume be in 2026
@@ -22,7 +22,7 @@
 
 - [x] Per-page OG images — `scripts/generate-og-images.mjs` → `public/og/` (2026-10-21)
 - [x] Stop polling `check-subscription` — now once per signed-in user per page load (2026-10-28)
-- [ ] "Related guides" block at the bottom of each blog post linking 2 other posts + the matching landing page
+- [x] "Related guides" block on each blog post — 2 posts (same tool first) + matching landing page (2026-11-11)
 - [ ] Add an RSS feed (`/rss.xml`) generated in `scripts/prerender.mjs`
 - [ ] Breadcrumb JSON-LD on blog posts and landing pages
 - [ ] Landing page for "resume summary generator" (`/resume-summary-generator`) → /resume-builder
@@ -32,7 +32,7 @@
 
 ## Needs Ankit (agent must not do these)
 
-- [ ] **Usage is flat (still, Oct 28):** 0 generations since Sep 19 and 0 guest roasts since the Oct 21 launch; 23 page views/week.
+- [ ] **Usage is flat (still, Nov 11):** 0 generations since Sep 19, 0 guest roasts since the Oct 21 launch, 4 page views in the week to Nov 11 (23 on Oct 28). No runs were logged Nov 4/7 — check the scheduled tasks are firing.
   Earlier note: 0 generations since 2026-09-19 and only 1 signup and 4 tracked page views in the week to Oct 21. Content alone won't move this soon; the guest-try item below and posting the marketing drafts are the levers.
 
 - [x] **Guest try without signup** — shipped 2026-10-21 at Ankit's request: /resume-roast is public, one roast per visitor via the `guest-roast` edge function (per-IP 2/24h, global 200/24h, counted as `guest_roast` in analytics_events). Next: watch guest_roast → signup conversion; consider the same for the LinkedIn roaster.

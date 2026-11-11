@@ -88,3 +88,18 @@ Fixed:
 - Three prerendered meta descriptions were over 160 chars (/ai-resume-roast 172, /salary-checker-free 167, /features 161); trimmed (43eaaf6), deploy dpl_4fjYZi2NbGUKiqgFb3ETEGWg41CX READY.
 
 Needs Ankit: traffic — page views halved and guest roast still unused; post the marketing drafts. Search Console; leaked password protection.
+
+## 2026-11-11 — weekly run
+
+Metrics (7d to Nov 11): 39 users (+3 vs 36 on Oct 28) · 2 signups (Oct 28: 3) · 0 generations (last 2026-09-19) · 0 users generating · 4 page views (Oct 28: 23, Oct 31: 10) · 0 guest_roast events (0 all-time since Oct 21).
+
+Health: prod READY on main HEAD (4d7dfd8, Ankit's README/.gitignore commits of Nov 4 deployed fine). /, /blog, /resume-roast, /salary-checker-free fetched live via the Vercel fetch tool (WebFetch permission timed out again): one H1, own title + canonical, no stale pricing or error text. No Vercel runtime errors in 7d; no edge-function log entries in 24h. Advisors unchanged (leaked password protection off; 6 SECURITY DEFINER WARNs, verified safe Oct 26). Smoke test: 24 routes, one H1, no page errors; PDF and .docx upload on /resume-roast fill the textarea (test each on a fresh page — the file input is replaced by a card after one upload).
+
+Gap: no run was logged for Nov 4 (full) or Nov 7 (health). Either those scheduled runs did not fire or they did not get as far as logging.
+
+Shipped:
+- Post: /blog/salary-negotiation-email-template + OG card (b14d082). Blog renderer now joins consecutive "> " lines into one blockquote (bare ">" = paragraph break) so email templates render as one block.
+- Improvement: "Related guides" block on every post — 2 related posts (same tool first, then newest) + the matching public landing page (e3348ef). Before, every post showed the same first two posts.
+- marketing/2026-11-11.md (5cb9149), deploy dpl_GvXdckbiyrXWELkBTKjPqsETeYek READY, post live.
+
+Needs Ankit: traffic is near zero (4 tracked page views in a week) and the guest roast is still unused after three weeks — content without distribution isn't moving anything, so posting the drafts matters most. Google Search Console (still not verified, so there is no search data at all); leaked password protection.
