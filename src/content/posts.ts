@@ -612,6 +612,164 @@ That third point is the quiet advantage of a good answer. When you mention one c
 The answer only works if it sounds natural, and that comes from saying it, not writing it. Record yourself once on your phone, listen back, and cut anything you would not want to hear twice. Then practise with the follow-up questions your answer invites, so the next five minutes of the interview are as prepared as the first one.
 `,
   },
+
+  {
+    slug: "salary-negotiation-email-template",
+    title: "Salary negotiation email templates (with examples)",
+    teaser:
+      "Copy-ready emails for countering a job offer, asking for a raise, negotiating benefits and accepting gracefully, plus what to change before you hit send.",
+    date: "2026-11-11",
+    readingMinutes: 8,
+    tool: { label: "Check my salary", to: "/salary-check" },
+    body: `
+Most negotiation happens over email now. That helps: you get time to think, no awkward silence on a call, and a written record of what was agreed. It also makes it easy to sound apologetic or aggressive by accident. The templates below avoid both. Each is short, polite and asks for something concrete.
+
+Before you use any of them, you need one thing: **a number you can defend.** That means a market range for the role, level and location, ideally from job postings with disclosed salaries rather than from a single website average. Without it, every template below is guesswork with good manners.
+
+## The rules that apply to every negotiation email
+
+**Thank them first, briefly.** One sentence. Gratitude is not weakness; it signals you want this to work.
+
+**Restate your interest.** Recruiters and managers negotiate harder for people they believe will say yes. Make it clear you want the job, or want to stay.
+
+**Name a specific number.** Not "something higher" and not "a bit more". A specific figure anchors the conversation. Round numbers are fine.
+
+**Give one reason, based on the market or the scope of the role.** Not your rent, not your other expenses. Those are real, but they are not why the role is worth more.
+
+**Ask a question at the end.** "Is there flexibility here?" or "Would that be possible?" invites a reply rather than a standoff.
+
+**Keep it under 200 words.** Long negotiation emails read as anxious, and yours may be forwarded, so it should make sense on its own.
+
+## Template 1: Countering a job offer
+
+Use this when you have a written offer and the base salary is below what the market supports.
+
+> Subject: Re: Offer for [Job Title]
+>
+> Hi [Name],
+>
+> Thank you for the offer. I'm excited about the role and the team, and I'd like to make this work.
+>
+> Before I accept, I'd like to discuss the base salary. Based on advertised ranges for [Job Title] roles at a similar level in [City], and the scope we discussed around [one specific responsibility], I was expecting something closer to [Number].
+>
+> Is there flexibility to move the base to [Number]? If so, I'm ready to move forward.
+>
+> Best,
+> [Your Name]
+
+**What to change:** the specific responsibility should be something the hiring manager actually said in an interview. It shows you listened, and it ties your number to the job rather than to you.
+
+**What to expect:** a common outcome is a partial move, somewhere between the offer and your ask. That is a normal result, not a failure.
+
+## Template 2: Countering when you have a competing offer
+
+Only use this if the other offer is real. Recruiters talk to each other more than candidates assume, and some will ask to see it.
+
+> Subject: Re: Offer for [Job Title]
+>
+> Hi [Name],
+>
+> Thanks again for the offer. [Company] is my first choice, and I want to be upfront about where things stand.
+>
+> I've received another offer with a base salary of [Number]. I'd prefer to join you, and I'm hoping we can close that gap. If you can match [Number], I'm happy to accept this week.
+>
+> Best,
+> [Your Name]
+
+**What to change:** if the other offer is better on equity or bonus rather than base, compare like with like.
+
+## Template 3: Negotiating benefits when salary is fixed
+
+Some employers have hard salary bands, especially in public sector, education and large companies. If the answer on base is a firm no, other things often still move.
+
+> Subject: Re: Offer for [Job Title]
+>
+> Hi [Name],
+>
+> I understand the base salary is set by the band for this level, and I appreciate you checking.
+>
+> Would there be flexibility on any of the following instead?
+>
+> - A signing bonus of [Number]
+> - [Number] additional days of annual leave
+> - A start date of [Date]
+> - A salary review at six months rather than twelve
+>
+> Any of these would help me accept with confidence.
+>
+> Best,
+> [Your Name]
+
+**What to change:** pick the two or three items that matter most to you. A list of eight looks like you are shopping.
+
+## Template 4: Asking your manager for a raise
+
+This email is not the negotiation itself. Its job is to get a meeting, with enough context that your manager can prepare and is not ambushed.
+
+> Subject: Time to talk about my compensation
+>
+> Hi [Manager's Name],
+>
+> Could we set up 30 minutes in the next couple of weeks to talk about my compensation?
+>
+> Over the past year my role has grown to include [new responsibility] and [new responsibility]. I've also looked at what similar roles pay in the market, and I'd like to discuss bringing my salary in line with that.
+>
+> I'd rather raise this now than at review time, so there's room to plan for it.
+>
+> Thanks,
+> [Your Name]
+
+**What to change:** time it a couple of months before your company's review or budget cycle. Once the budget is set, even a supportive manager has little room to move.
+
+**In the meeting itself:** bring the market range, name your number, and describe what you own now that you did not own a year ago. Effort and hours are not the argument; scope is.
+
+## Template 5: Following up after a "not now"
+
+A "not now" with nothing attached is a soft no. A "not now" with a date and a bar is a real commitment. This email turns the first into the second.
+
+> Subject: Following up on our compensation conversation
+>
+> Hi [Manager's Name],
+>
+> Thanks for talking through my compensation last week. I understand the timing isn't right for a change this cycle.
+>
+> To make sure I'm working toward the right things, could we agree on what you'd need to see from me, and a date to revisit this? I was thinking [Month].
+>
+> Thanks,
+> [Your Name]
+
+## Template 6: Accepting after a negotiation
+
+Once you have agreed terms, confirm them in writing before you resign from anything.
+
+> Subject: Re: Offer for [Job Title]
+>
+> Hi [Name],
+>
+> Thank you for working with me on this. I'm happy to accept the offer at a base salary of [Number], with [any other agreed item], and a start date of [Date].
+>
+> Could you send the updated offer letter reflecting these terms? I'll sign as soon as I receive it.
+>
+> Looking forward to getting started.
+>
+> Best,
+> [Your Name]
+
+## Mistakes that cost people money
+
+**Accepting on the call.** You can be enthusiastic and still say, "Thank you, can I take a day to review the full offer?" That is a normal request.
+
+**Giving a range.** If you say "80 to 90", you have just agreed to 80. Name one number.
+
+**Apologising.** "Sorry to ask" and "I hope this isn't too much" weaken a reasonable request. You are not asking for a favour.
+
+**Negotiating against yourself.** After you send the email, wait. Do not send a second message lowering your number before they have replied.
+
+## Know your number first
+
+Every template here depends on the number in the brackets. Too low leaves money behind; far above market without justification costs credibility. AuraPal's salary checker pulls live advertised salary ranges for your role and location and shows the 25th to 90th percentiles with the sample size, so you can see where an offer actually sits. When real data is not available for a role, it says so rather than guessing. It is free, and it is a sensible five minutes before you send any of the emails above.
+`,
+  },
 ];
 
 /** The <title> for a post page, kept within 60 characters where possible. */

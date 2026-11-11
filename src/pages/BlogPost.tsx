@@ -47,8 +47,41 @@ function renderBody(body: string) {
     list = [];
   };
 
+  // Consecutive "> " lines form one blockquote (e.g. an email template);
+  // a bare ">" line is a paragraph break inside it.
+  let quote: string[] = [];
+  let quoteKey = 0;
+  const flushQuote = () => {
+    if (!quote.length) return;
+    const paras = quote.join("\n").split(/\n\s*\n/);
+    const multi = quote.length > 1;
+    out.push(
+      <blockquote
+        key={`q-${quoteKey}`}
+        className={`my-6 border-l-2 pl-5 py-1 hairline-2 text-[15px] leading-[1.75] ${multi ? "" : "italic"}`}
+        style={{ color: "var(--lm-fg-2)" }}
+      >
+        {paras.map((para, pi) => (
+          <p key={pi} className={pi ? "mt-3" : undefined}>
+            {para.split("\n").map((l, li) => (
+              <span key={li}>{li > 0 && <br />}{inline(l, `q-${quoteKey}-${pi}-${li}`)}</span>
+            ))}
+          </p>
+        ))}
+      </blockquote>
+    );
+    quote = [];
+  };
+
   lines.forEach((raw, i) => {
     const line = raw.trimEnd();
+    if (line === ">" || line.startsWith("> ")) {
+      flushList();
+      if (!quote.length) quoteKey = i;
+      quote.push(line === ">" ? "" : line.slice(2));
+      return;
+    }
+    flushQuote();
     if (!line.trim()) { flushList(); return; }
 
     if (line.startsWith("## ")) {
@@ -59,15 +92,6 @@ function renderBody(body: string) {
     if (line.startsWith("### ")) {
       flushList();
       out.push(<h3 key={i} className="font-display text-xl font-semibold mt-8 mb-3">{line.slice(4)}</h3>);
-      return;
-    }
-    if (line.startsWith("> ")) {
-      flushList();
-      out.push(
-        <blockquote key={i} className="my-6 border-l-2 pl-5 py-1 hairline-2 text-[15px] leading-[1.75] italic" style={{ color: "var(--lm-fg-2)" }}>
-          {inline(line.slice(2), `q-${i}`)}
-        </blockquote>
-      );
       return;
     }
     const num = line.match(/^(\d+)\.\s+(.*)$/);
@@ -82,6 +106,7 @@ function renderBody(body: string) {
     );
   });
 
+  flushQuote();
   flushList();
   return out;
 }
