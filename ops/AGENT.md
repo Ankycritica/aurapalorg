@@ -21,6 +21,7 @@ Read this whole file, then `ops/log.md` (what earlier runs did) and `ops/backlog
 5. **Small, reviewable changes.** Per run: at most one new blog post, one improvement, plus any bug fixes. One commit each.
 6. **Never post to social media or send email.** Write marketing drafts to `marketing/`; Ankit posts them himself.
 7. Public-facing pages are crawled by Google: keep titles ≤ 60 chars, descriptions ≤ 160, one H1, canonical on `https://www.aurapal.org`.
+8. Every SPA route (public or signed-in) must be listed in `vercel.json` `rewrites`; anything else returns a real 404 (dist/404.html). Add new routes there in the same change.
 
 ## Two kinds of run
 
