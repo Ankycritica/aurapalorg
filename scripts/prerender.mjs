@@ -204,7 +204,10 @@ for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^
   const [, slug, title, teaser, date] = m;
   // Optional seoTitle sits after date, before the next post starts.
   const rest = postsSrc.slice(m.index + m[0].length);
-  const seo = rest.slice(0, rest.search(/\n\s*slug:|$/)).match(/^\s*,?\s*seoTitle:\s*"([^"]+)"/m);
+  const own = rest.slice(0, rest.search(/\n\s*slug:|$/));
+  const seo = own.match(/^\s*,?\s*seoTitle:\s*"([^"]+)"/m);
+  const body = (own.match(/body:\s*`([\s\S]*?)`,/) || [])[1] || "";
+  const tool = own.match(/tool:\s*\{\s*label:\s*"([^"]+)",\s*to:\s*"([^"]+)"/);
   const full = `${title} — AuraPal`;
   routes.push({
     lastmod: date,
@@ -214,9 +217,11 @@ for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^
     keywords: "career advice, resume tips, job search guide",
     h1: title,
     copy: teaser,
+    article: { body, date, tool: tool ? { label: tool[1], to: tool[2] } : null },
     jsonLd: [org, {
       "@context": "https://schema.org", "@type": "BlogPosting",
-      headline: title, description: teaser, datePublished: date,
+      headline: title, description: teaser, datePublished: date, dateModified: date,
+      image: `${SITE}/og/${`blog/${slug}`.replace(/\//g, "-")}.png`,
       author: { "@type": "Organization", name: "AuraPal" },
       publisher: { "@type": "Organization", name: "AuraPal", url: SITE },
       mainEntityOfPage: `${SITE}/blog/${slug}`,
@@ -228,6 +233,30 @@ for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^
 const ogName = (path) => (path === "/" ? "home" : path.replace(/^\//, "").replace(/\//g, "-"));
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/** Same markdown subset as renderBody() in src/pages/BlogPost.tsx. */
+const mdInline = (t) => esc(t)
+  .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+  .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+function mdToHtml(body) {
+  const out = []; let list = []; let ordered = false; let quote = [];
+  const flushList = () => { if (!list.length) return; const t = ordered ? "ol" : "ul"; out.push(`<${t}>${list.map((l) => `<li>${mdInline(l)}</li>`).join("")}</${t}>`); list = []; };
+  const flushQuote = () => { if (!quote.length) return; out.push(`<blockquote>${quote.join("\n").split(/\n\s*\n/).map((p) => `<p>${p.split("\n").map(mdInline).join("<br>")}</p>`).join("")}</blockquote>`); quote = []; };
+  for (const raw of body.trim().split("\n")) {
+    const line = raw.trimEnd();
+    if (line === ">" || line.startsWith("> ")) { flushList(); quote.push(line === ">" ? "" : line.slice(2)); continue; }
+    flushQuote();
+    if (!line.trim()) { flushList(); continue; }
+    if (line.startsWith("## ")) { flushList(); out.push(`<h2>${mdInline(line.slice(3))}</h2>`); continue; }
+    if (line.startsWith("### ")) { flushList(); out.push(`<h3>${mdInline(line.slice(4))}</h3>`); continue; }
+    const num = line.match(/^(\d+)\.\s+(.*)$/);
+    if (num) { if (!ordered) flushList(); ordered = true; list.push(num[2]); continue; }
+    if (line.startsWith("- ")) { if (ordered) flushList(); ordered = false; list.push(line.slice(2)); continue; }
+    flushList(); out.push(`<p>${mdInline(line)}</p>`);
+  }
+  flushQuote(); flushList();
+  return out.join("");
+}
 
 const template = readFileSync(join(DIST, "index.html"), "utf8");
 let written = 0;
@@ -260,13 +289,36 @@ for (const r of routes) {
 
   // Indexable copy for crawlers that do not execute JavaScript. React replaces
   // #root on hydration, so a human never sees this.
-  const fallback = `<div id="root"><main style="max-width:44rem;margin:0 auto;padding:3rem 1.25rem;font-family:system-ui,sans-serif;background:#050505;color:#fff;min-height:100vh"><h1 style="font-size:2rem;line-height:1.15;margin:0 0 1rem">${esc(r.h1)}</h1><p style="line-height:1.7;color:rgba(255,255,255,.65)">${esc(r.copy)}</p><p style="margin-top:2rem"><a href="/auth" style="color:#fff">Open AuraPal — free, no credit card</a></p></main></div>`;
+  // Blog posts carry the full article so non-JS crawlers (Bing, AI search) see the real content.
+  const a = r.article;
+  const articleHtml = a
+    ? `<article style="line-height:1.7;color:rgba(255,255,255,.75)">${mdToHtml(a.body)}</article>`
+      + (a.tool ? `<p style="margin-top:2rem"><a href="${a.tool.to}" style="color:#fff">${esc(a.tool.label)} — free</a></p>` : "")
+      + `<p><a href="/blog" style="color:#fff">All career guides</a></p>`
+    : "";
+  if (a) {
+    html = html.replace(/<meta property="og:type"[^>]*>/, `<meta property="og:type" content="article" />`
+      + `<meta property="article:published_time" content="${a.date}" />`);
+  }
+  const fallback = `<div id="root"><main style="max-width:44rem;margin:0 auto;padding:3rem 1.25rem;font-family:system-ui,sans-serif;background:#050505;color:#fff;min-height:100vh"><h1 style="font-size:2rem;line-height:1.15;margin:0 0 1rem">${esc(r.h1)}</h1><p style="line-height:1.7;color:rgba(255,255,255,.65)">${esc(r.copy)}</p>${articleHtml || `<p style="margin-top:2rem"><a href="/auth" style="color:#fff">Open AuraPal — free, no credit card</a></p>`}</main></div>`;
   html = html.replace(/<div id="root">[\s\S]*?<\/div>(?=\s*(?:<script|<\/body>))/, fallback);
 
   const outDir = r.path === "/" ? DIST : join(DIST, r.path);
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, "index.html"), html);
   written++;
+}
+
+// 404.html: Vercel serves it with a real 404 status for any path that is neither
+// a file nor an SPA rewrite in vercel.json (no more soft 404s). The SPA boots and
+// shows its NotFound page; noindex and no canonical keep it out of search.
+{
+  let nf = template;
+  nf = nf.replace(/<title>[\s\S]*?<\/title>/, "<title>Page not found — AuraPal</title>");
+  nf = nf.replace(/<meta name="robots"[^>]*>/, '<meta name="robots" content="noindex, follow" />');
+  nf = nf.replace(/<meta name="googlebot"[^>]*>\s*/, "");
+  nf = nf.replace(/<link rel="canonical"[^>]*>\s*/, "");
+  writeFileSync(join(DIST, "404.html"), nf);
 }
 
 // Sitemap generated from the same route list, so a new page can never be

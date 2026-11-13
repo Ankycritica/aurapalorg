@@ -1,21 +1,116 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/auth",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/auth/callback",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/agent",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/resume-builder",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/templates",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/jobs",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/jobs/tracker",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/seo-article-generator",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/business-plan",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/side-hustle-ideas",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/linkedin-roaster",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/cover-letter",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/interview-prep",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/salary-check",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/startup-validator",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
       ]
     }
   ]
