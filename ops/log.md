@@ -103,3 +103,10 @@ Shipped:
 - marketing/2026-11-11.md (5cb9149), deploy dpl_GvXdckbiyrXWELkBTKjPqsETeYek READY, post live.
 
 Needs Ankit: traffic is near zero (4 tracked page views in a week) and the guest roast is still unused after three weeks — content without distribution isn't moving anything, so posting the drafts matters most. Google Search Console (still not verified, so there is no search data at all); leaked password protection.
+
+## 2026-11-13 — SEO fixes, requested by Ankit
+
+- Prerendered blog posts now contain the full article HTML (was H1 + teaser only), so crawlers that skip JS (Bing, AI search) see the content.
+- Real 404s: vercel.json catch-all rewrite replaced by an explicit list of SPA routes; unknown paths get dist/404.html (noindex) with status 404. Verified live: /this-page-does-not-exist → 404; /auth/callback, /dashboard, /privacy → 200. **Any new SPA route must be added to vercel.json rewrites** (or it will 404 on direct load).
+- Blog posts: og:type article, article:published_time, BlogPosting image + dateModified (1339870, dpl_pJZTcahP499wQBf5yDKJkJtsJHse READY).
+- Search check: "aurapal.org" returns no results for the site itself; the site is likely not indexed. Search Console verification is the blocker.
