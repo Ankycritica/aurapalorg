@@ -770,6 +770,110 @@ Once you have agreed terms, confirm them in writing before you resign from anyth
 Every template here depends on the number in the brackets. Too low leaves money behind; far above market without justification costs credibility. AuraPal's salary checker pulls live advertised salary ranges for your role and location and shows the 25th to 90th percentiles with the sample size, so you can see where an offer actually sits. When real data is not available for a role, it says so rather than guessing. It is free, and it is a sensible five minutes before you send any of the emails above.
 `,
   },
+  {
+    slug: "career-change-resume",
+    title: "How to write a career change resume with no direct experience",
+    teaser:
+      "Changing fields without the matching job title? How to lead with transferable evidence, pick the right format and rewrite old bullets for a new reader.",
+    date: "2026-11-18",
+    seoTitle: "Career Change Resume With No Direct Experience — AuraPal",
+    readingMinutes: 7,
+    tool: { label: "Build my resume", to: "/resume-builder" },
+    body: `
+A career change resume has one job that a normal resume does not: it has to explain, in the six or seven seconds a recruiter spends on a first pass, why someone without the obvious title is still worth a conversation.
+
+Most career changers lose that moment in the same way. They submit the resume they already have, with a new objective line on top. The recruiter reads a teacher's resume, or an accountant's resume, applying for a product or data role, and moves on. The experience might be relevant. The document does not show it.
+
+The fix is not to hide your past. It is to **re-describe it in the language of the job you want**, and to put the most transferable evidence where it will be read first.
+
+## Start from the target job, not your history
+
+Before you edit a single line, collect three to five job postings for the role you want. Not one: several, so you can see what repeats. Then list:
+
+1. **The skills every posting mentions.** These are the real requirements.
+2. **The tools and terms they use.** "Stakeholder management", "SQL", "roadmap", "pipeline", whatever the field's vocabulary is.
+3. **The problems the role exists to solve.** A customer success role exists to keep customers; a data analyst role exists to answer business questions with data.
+
+Now go through your current and past work and mark anything that matches. You are looking for overlap in what you did, not in what your title was. A teacher who built a grading spreadsheet that the whole department adopted has done basic data work and change management. A retail manager who cut staff turnover has done hiring, training and retention.
+
+That overlap is your resume. Everything else is context.
+
+## Pick a format that leads with the overlap
+
+There are three common formats, and career changers are often told to use the "functional" one, which groups skills and hides the timeline. Be careful with it. Recruiters know why people use it, and some applicant tracking systems parse it badly because they expect dates attached to jobs.
+
+A **hybrid format** usually works better:
+
+- **Header** with your target title, not your current one, if you can honestly back it up. "Data Analyst" over "Teacher" is fine if the rest of the page supports it.
+- **Summary** of three lines that names the switch and the strongest evidence for it.
+- **Relevant skills** section, short and specific, using the terms from the postings.
+- **Relevant projects** (optional, but powerful for changers) with real work in the new field.
+- **Experience** in reverse chronological order, with bullets rewritten for the new audience.
+- **Education and training**, including any courses or certificates that relate to the move.
+
+This keeps the timeline a recruiter expects while making sure the first third of the page is about the job you want.
+
+## Write a summary that names the change
+
+Your summary is where the career change is explained, so do not avoid it. A good one answers: what you have done, what carries over, and what you are moving into.
+
+> Former secondary school maths teacher moving into data analysis. Six years building and maintaining student performance trackers in Excel and Google Sheets, used by a department of twelve. Completed a SQL and Python analytics course and three public projects analysing open datasets.
+
+Notice what is not there: no "passionate", no "seeking an opportunity to grow", no apology. It reads like someone who has already started doing the new job. If you want more patterns, our guide to resume summary examples has versions for career changers at different stages.
+
+## Rewrite bullets for the new reader
+
+Your old bullets were written for people in your old field. They assume context the new reader does not have and highlight things the new reader does not care about. Rewrite each one with two questions in mind: **what did I actually do, and why would someone in the new field care?**
+
+Some before and after examples:
+
+**Teacher to instructional designer**
+
+- Before: Taught Year 10 science to classes of 30.
+- After: Designed and delivered a 12-week science curriculum for 150 students a year, rewriting units based on assessment results.
+
+**Hospitality manager to operations**
+
+- Before: Managed restaurant staff and daily service.
+- After: Ran daily operations for a 40-cover restaurant with a team of 14, building the rota and stock process that cut weekly food waste.
+
+**Accountant to product analyst**
+
+- Before: Prepared monthly management accounts.
+- After: Built monthly reporting packs for the leadership team and answered ad-hoc questions about margin by product line.
+
+The facts did not change. The emphasis did. Only use numbers you can stand behind in an interview; if you do not know the exact figure, describe the scope ("for the whole department", "every month") instead of inventing one. Our resume bullet points guide covers the structure in more detail.
+
+## Fill the gap with projects
+
+The strongest thing a career changer can add is evidence of doing the new work, even unpaid. A short "Projects" section can carry a lot of weight:
+
+- A dashboard or analysis built on a public dataset, with a link.
+- A redesigned process or tool you introduced in your current job that resembles the new role.
+- Freelance, volunteer or side work in the new field, however small.
+- A course project, but only if it produced something real you can show.
+
+Two or three projects with a sentence each on the problem, what you did and the result are worth more than a long list of certificates.
+
+## Common mistakes
+
+**Leading with an objective statement.** "Seeking a role in UX" tells the reader what you want, not why they should want you. Replace it with the summary above.
+
+**Listing every old responsibility.** Cut bullets that have no relevance to the new field. Your resume is not an archive; one or two lines for an unrelated job is enough.
+
+**Keyword stuffing.** Using the posting's terms is good. Pasting a block of skills you cannot discuss is not, and it falls apart in the first interview.
+
+**Hiding dates.** Gaps and unusual timelines are easier to explain than missing dates, which make recruiters assume the worst.
+
+**Sending one version everywhere.** A career change resume should be adjusted for each posting, because the overlap you lead with changes from job to job.
+
+## Check it before you send it
+
+Read the top third of the page as if you were a recruiter in the new field who has never heard of your old one. Can you tell, in a few seconds, what this person wants to do and why they are credible? If not, move the strongest evidence higher.
+
+AuraPal's resume builder can help with the rewriting: upload your current resume, enter the target job title and the skills from the postings you collected, and it rewrites your experience for that role and gives an ATS score with the keywords it thinks are missing. It is free. Treat the draft as a starting point: check every bullet, and remove any number you cannot back up in an interview.
+`,
+  },
 ];
 
 /** The <title> for a post page, kept within 60 characters where possible. */

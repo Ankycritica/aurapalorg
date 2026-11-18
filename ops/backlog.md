@@ -8,7 +8,7 @@
 - [x] resume summary examples (by career stage) — /blog/resume-summary-examples
 - [x] how to answer "tell me about yourself" — /blog/tell-me-about-yourself-answer
 - [x] salary negotiation email template — /blog/salary-negotiation-email-template
-- [ ] career change resume (no direct experience)
+- [x] career change resume (no direct experience) — /blog/career-change-resume
 - [ ] what to put in LinkedIn About section (examples)
 - [ ] how long should a resume be in 2026
 - [ ] how to explain a gap in your resume
