@@ -110,3 +110,20 @@ Needs Ankit: traffic is near zero (4 tracked page views in a week) and the guest
 - Real 404s: vercel.json catch-all rewrite replaced by an explicit list of SPA routes; unknown paths get dist/404.html (noindex) with status 404. Verified live: /this-page-does-not-exist → 404; /auth/callback, /dashboard, /privacy → 200. **Any new SPA route must be added to vercel.json rewrites** (or it will 404 on direct load).
 - Blog posts: og:type article, article:published_time, BlogPosting image + dateModified (1339870, dpl_pJZTcahP499wQBf5yDKJkJtsJHse READY).
 - Search check: "aurapal.org" returns no results for the site itself; the site is likely not indexed. Search Console verification is the blocker.
+
+## 2026-11-18 — weekly run
+
+Metrics (7d to Nov 18): 42 users (+3 vs 39 on Nov 11) · 3 signups (Nov 11: 2) · 0 generations (last 2026-09-19) · 0 users generating · 16 page views (Nov 11: 4) · 1 guest_roast event (first ever; 0 before).
+
+Health: prod READY on main HEAD (56f55e7) before this run. /, /blog, /resume-roast, /free-cover-letter-generator fetched live via the Vercel fetch tool (curl blocked by the sandbox proxy): one H1, own title + canonical, no stale pricing or error text. No Vercel runtime errors in 7d; no edge-function errors in 24h. Advisors unchanged (leaked password protection off; 6 SECURITY DEFINER WARNs, verified safe Oct 26). Smoke test: 26 routes, one H1, no page errors; PDF and .docx upload on /resume-roast fill the textarea.
+
+Gap: no Saturday health run logged for Nov 14.
+
+Shipped:
+- Post: /blog/career-change-resume + OG card (94ab13c).
+- Improvement: RSS feed at /rss.xml (10 posts, newest first) built by scripts/prerender.mjs, plus a `<link rel="alternate" type="application/rss+xml">` on every prerendered page (f835174). Verified live, served as application/xml.
+- marketing/2026-11-18.md (4eebaf1), deploy dpl_497bpk6qKQNakeC9veYECdpCFv3r READY, post and feed live.
+
+Noticed: ResumeBuilder.tsx prompts Gemini to "add inferred metrics where missing", which can put invented numbers on a user's resume. Added to Needs Ankit rather than changed, since it alters tool output.
+
+Needs Ankit: post the drafts (page views are up from 4 to 16 and the guest roast finally got its first use, so distribution is starting to show); OK the resume-builder prompt fix; Google Search Console; leaked password protection.

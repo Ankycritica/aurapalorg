@@ -23,7 +23,7 @@
 - [x] Per-page OG images — `scripts/generate-og-images.mjs` → `public/og/` (2026-10-21)
 - [x] Stop polling `check-subscription` — now once per signed-in user per page load (2026-10-28)
 - [x] "Related guides" block on each blog post — 2 posts (same tool first) + matching landing page (2026-11-11)
-- [ ] Add an RSS feed (`/rss.xml`) generated in `scripts/prerender.mjs`
+- [x] RSS feed `/rss.xml` generated in `scripts/prerender.mjs` + `<link rel="alternate">` on every prerendered page (2026-11-18)
 - [ ] Breadcrumb JSON-LD on blog posts and landing pages
 - [ ] Landing page for "resume summary generator" (`/resume-summary-generator`) → /resume-builder
 - [ ] Landing page for "LinkedIn headline generator" (`/linkedin-headline-generator`) → /linkedin-roaster
@@ -32,6 +32,8 @@
 
 ## Needs Ankit (agent must not do these)
 
+- [ ] **Resume builder prompt invents metrics:** `ResumeBuilder.tsx` tells Gemini to "add inferred metrics where missing", so users can get made-up numbers on their resume. Proposed: change to "suggest where a metric would help, as [add number], never invent one". Frontend-only, but it changes tool output, so the agent is waiting for Ankit's OK (noticed 2026-11-18).
+- [ ] **Usage is flat (Nov 18):** first-ever guest roast this week (1), 16 page views (Nov 11: 4), 3 signups, still 0 generations since Sep 19. No Saturday health run was logged for Nov 14 — check the scheduled task fired.
 - [ ] **Usage is flat (still, Nov 11):** 0 generations since Sep 19, 0 guest roasts since the Oct 21 launch, 4 page views in the week to Nov 11 (23 on Oct 28). No runs were logged Nov 4/7 — check the scheduled tasks are firing.
   Earlier note: 0 generations since 2026-09-19 and only 1 signup and 4 tracked page views in the week to Oct 21. Content alone won't move this soon; the guest-try item below and posting the marketing drafts are the levers.
 
