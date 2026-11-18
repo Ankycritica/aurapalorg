@@ -273,7 +273,8 @@ for (const r of routes) {
   html = html.replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${url}"/>`);
   html = html.replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${esc(r.title)}"/>`);
   html = html.replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${esc(r.description)}"/>`);
-  html = html.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${url}"/>`);
+  html = html.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${url}"/>`
+    + `\n    <link rel="alternate" type="application/rss+xml" title="AuraPal Blog" href="${SITE}/rss.xml"/>`);
 
   // Per-page social card when one has been generated (scripts/generate-og-images.mjs);
   // otherwise keep the site-wide /og-image.png from index.html.
@@ -334,4 +335,28 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.path === "/" ? "/" : r.path}</loc><l
 `;
 writeFileSync(join(DIST, "sitemap.xml"), sitemap);
 
-console.log(`prerendered ${written} routes, sitemap ${routes.length + 2} urls`);
+// RSS feed of blog posts, newest first, from the same route list.
+const rfc822 = (d) => new Date(`${d}T12:00:00Z`).toUTCString();
+const feedPosts = routes.filter((r) => r.article).sort((a, b) => b.article.date.localeCompare(a.article.date));
+const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>AuraPal Blog</title>
+  <link>${SITE}/blog</link>
+  <description>Practical career guides: resumes, cover letters, interviews and salary negotiation.</description>
+  <language>en</language>
+  <atom:link href="${SITE}/rss.xml" rel="self" type="application/rss+xml"/>
+  <lastBuildDate>${feedPosts.length ? rfc822(feedPosts[0].article.date) : new Date().toUTCString()}</lastBuildDate>
+${feedPosts.map((r) => `  <item>
+    <title>${esc(r.h1)}</title>
+    <link>${SITE}${r.path}</link>
+    <guid isPermaLink="true">${SITE}${r.path}</guid>
+    <pubDate>${rfc822(r.article.date)}</pubDate>
+    <description>${esc(r.description)}</description>
+  </item>`).join("\n")}
+</channel>
+</rss>
+`;
+writeFileSync(join(DIST, "rss.xml"), rss);
+
+console.log(`prerendered ${written} routes, sitemap ${routes.length + 2} urls, rss ${feedPosts.length} posts`);
