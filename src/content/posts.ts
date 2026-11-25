@@ -874,6 +874,104 @@ Read the top third of the page as if you were a recruiter in the new field who h
 AuraPal's resume builder can help with the rewriting: upload your current resume, enter the target job title and the skills from the postings you collected, and it rewrites your experience for that role and gives an ATS score with the keywords it thinks are missing. It is free. Treat the draft as a starting point: check every bullet, and remove any number you cannot back up in an interview.
 `,
   },
+  {
+    slug: "linkedin-about-section-examples",
+    title: "What to put in your LinkedIn About section (with examples)",
+    teaser:
+      "A structure for the LinkedIn About section that works for recruiters and search: a hook before the fold, proof, keywords in context and a clear next step.",
+    date: "2026-11-25",
+    seoTitle: "LinkedIn About Section Examples — AuraPal",
+    readingMinutes: 7,
+    tool: { label: "Roast my LinkedIn", to: "/linkedin-roaster" },
+    body: `
+The About section is the only part of your LinkedIn profile written in your own voice. Your headline is a single line, your experience entries are tied to job titles, and your skills are a list. About is the one place where you get to explain who you are, what you are good at and why someone should get in touch.
+
+Most people waste it. The typical About section stays empty, repeats the resume in paragraph form, or opens with a sentence that could belong to anyone: "Results-driven professional with a passion for excellence." Here is what to put there instead, with examples you can adapt.
+
+## What the About section is for
+
+Two kinds of reader see your About section, and it has to work for both.
+
+1. **Search.** Recruiters search LinkedIn by keyword, and the text of your profile, About included, is part of what gets matched. If the terms for the work you want never appear on your profile, you are harder to find.
+2. **A person deciding whether to message you.** Once someone lands on your profile, the About section is where they decide if you are worth a conversation. They are skimming, and they will only see the first few lines unless something makes them click "see more".
+
+So the section has to contain the right words, and the first lines have to be good enough that someone keeps reading.
+
+## How long it should be
+
+LinkedIn allows up to 2,600 characters. You do not need all of them. For most people, **150 to 300 words** is enough: long enough to say something specific, short enough that someone actually reads it.
+
+What matters more than total length is the opening. LinkedIn shows only the first couple of lines before the "see more" link, and on a phone that is very little text. Whatever you put there is, for most visitors, the whole About section.
+
+## A structure that works
+
+You do not need a formula, but most strong About sections do the same four things in roughly this order.
+
+**1. A hook that says what you do.** One or two sentences, before the fold, that name your work and something specific about how you do it. Not your title alone. What you actually do, for whom, or the problem you like solving.
+
+**2. Proof.** Two to four sentences or short bullets with concrete evidence: things you built, shipped, fixed, grew or ran. Scope works when you do not have exact numbers: "for a team of twelve", "across three product lines", "every quarter since 2023".
+
+**3. Skills and keywords, in context.** Name the tools, methods and domains you want to be found for, inside real sentences. "I mostly work in SQL, dbt and Looker" reads better and is just as searchable as a pasted keyword block.
+
+**4. A next step.** Tell the reader what you want them to do: get in touch about a kind of role, read your writing, see a portfolio, or ask you about a specific topic. A surprising number of profiles never say.
+
+Write in the first person. "I build" reads like a person; "Jane is a seasoned professional" reads like a press release.
+
+## Examples by situation
+
+These are illustrations of the structure, not templates to copy word for word. Replace every detail with your own, and leave out any number you cannot back up.
+
+**Software engineer**
+
+> I build backend systems that stay boring under load. For the past five years I have worked on payments and billing infrastructure in Go and Postgres, most recently leading the migration of our invoicing service off a legacy monolith.
+>
+> What I am good at: designing data models that survive product changes, making slow queries fast, and writing the runbook before the incident. I care a lot about observability and on-call that does not burn people out.
+>
+> Open to senior backend roles in fintech or developer tools. Happy to talk about Postgres performance any time.
+
+**Career changer**
+
+> Former secondary school teacher, now working in data analysis. For six years I built the spreadsheets my maths department used to track student progress, and I found I liked the data work more than the marking.
+>
+> Since then I have completed a SQL and Python course and published three small analyses of public datasets, linked in the Featured section. I bring something many junior analysts do not: years of explaining numbers to people who did not ask for them.
+>
+> Looking for junior data analyst roles. Message me if your team needs someone who can turn a messy spreadsheet into a clear answer.
+
+**Recent graduate**
+
+> Computer science graduate interested in machine learning engineering, especially getting models out of notebooks and into production.
+>
+> My final-year project was a text classification service with a small API and a monitoring dashboard; the code is on my GitHub. I also spent a summer as a teaching assistant for the introductory programming course, which taught me to explain things simply.
+>
+> Looking for graduate or junior ML and data engineering roles. I am happy to walk through any of my projects.
+
+Each one opens with the work, gives specific proof without inflating it, names searchable skills and ends with the conversation the person wants.
+
+## Mistakes to avoid
+
+**The empty opener.** "Passionate, results-driven professional" uses your most valuable line on words that say nothing. Start with the work.
+
+**The resume in paragraph form.** Listing every job in sentences repeats the Experience section below. Pick the thread that connects your work and tell that instead.
+
+**Keyword stuffing.** A block of thirty comma-separated skills at the bottom reads like spam to a human, and it is the human you are trying to convince. Put the important terms in sentences and trust the Skills section for the rest.
+
+**Writing in the third person.** It sounds distant, and everyone knows you wrote it.
+
+**Claims you cannot support.** "Generated millions in revenue" invites the obvious interview question. Use numbers you can explain, or describe scope instead.
+
+**No ending.** If you are open to roles, say which ones. If you want clients, say what you offer. Make the next step obvious.
+
+## How it fits with the rest of your profile
+
+Your headline is what people see in search results; the About section is what convinces them once they click. They should tell the same story: if your headline says "Backend engineer, payments infrastructure", the About section should open by expanding on exactly that. Our guide to LinkedIn headline mistakes covers the headline side.
+
+## Check yours
+
+Read your current About section and ask three questions. Do the first two lines say what you do? Is there at least one piece of concrete evidence? Would someone searching for the role you want find the words they typed?
+
+If you want a second opinion, AuraPal's LinkedIn roaster is free: paste your headline, About section and experience, and it scores the profile, critiques the About section and suggests a rewrite. You never connect your LinkedIn account. Treat the rewrite as a draft and keep only the parts that are true to you.
+`,
+  },
 ];
 
 /** The <title> for a post page, kept within 60 characters where possible. */
