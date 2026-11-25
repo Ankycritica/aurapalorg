@@ -229,6 +229,18 @@ for (const m of postsSrc.matchAll(/slug:\s*"([^"]+)",\s*\n\s*title:\s*\n?\s*"([^
   });
 }
 
+// BreadcrumbList on every page except home: Home > [Blog >] page.
+for (const r of routes) {
+  if (r.path === "/") continue;
+  const trail = [{ name: "Home", url: `${SITE}/` }];
+  if (r.path.startsWith("/blog/")) trail.push({ name: "Blog", url: `${SITE}/blog` });
+  trail.push({ name: r.path === "/blog" ? "Blog" : r.h1, url: `${SITE}${r.path}` });
+  r.jsonLd = [...r.jsonLd, {
+    "@context": "https://schema.org", "@type": "BreadcrumbList",
+    itemListElement: trail.map((t, i) => ({ "@type": "ListItem", position: i + 1, name: t.name, item: t.url })),
+  }];
+}
+
 /** Keep in sync with ogName() in generate-og-images.mjs. */
 const ogName = (path) => (path === "/" ? "home" : path.replace(/^\//, "").replace(/\//g, "-"));
 
