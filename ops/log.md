@@ -127,3 +127,18 @@ Shipped:
 Noticed: ResumeBuilder.tsx prompts Gemini to "add inferred metrics where missing", which can put invented numbers on a user's resume. Added to Needs Ankit rather than changed, since it alters tool output.
 
 Needs Ankit: post the drafts (page views are up from 4 to 16 and the guest roast finally got its first use, so distribution is starting to show); OK the resume-builder prompt fix; Google Search Console; leaked password protection.
+
+## 2026-11-25 — weekly run
+
+Metrics (7d to Nov 25): 45 users (+3 vs 42 on Nov 18) · 3 signups (Nov 18: 3) · 0 generations (last 2026-09-19) · 0 users generating · 6 page views (Nov 18: 16) · 0 guest_roast events (Nov 18: 1; 1 all-time).
+
+Health: prod READY on main HEAD (6bbf299) before this run. /, /blog, /resume-roast, /ats-resume-checker fetched live via the Vercel fetch tool: one H1, own title + canonical, no stale pricing or error text. No Vercel runtime errors in 7d; no edge-function log entries in 24h. Advisors unchanged (leaked password protection off; 6 SECURITY DEFINER WARNs, verified safe Oct 26). Smoke test: 26 routes, one H1, no page errors.
+
+Saturday runs: no Saturday health run has been logged since Oct 31. Checked the scheduled tasks: only the Wednesday "AuraPal weekly improvement" task exists; there is no Saturday task, so those runs were never scheduled (not failing).
+
+Shipped:
+- Post: /blog/linkedin-about-section-examples + OG card (dc1c62b). Links to /linkedin-roaster; related landing /linkedin-profile-review.
+- Improvement: BreadcrumbList JSON-LD on every prerendered page except home (Home > [Blog >] page), built in scripts/prerender.mjs (b966204). Prerender only: the client-side useSeo JSON-LD is added alongside, so adding it there too would duplicate it on direct loads.
+- marketing/2026-11-25.md (05ced41), deploy dpl_EKwqafKmqw54Kxza9umsNQEhnwDz READY, post live with og:image and BreadcrumbList.
+
+Needs Ankit: traffic dipped back (6 page views, 0 guest roasts) — the drafts from the last weeks only help once posted. No Saturday health task exists; recreate it if you want the twice-weekly checks. Still open: resume-builder "inferred metrics" prompt fix, Google Search Console, leaked password protection.

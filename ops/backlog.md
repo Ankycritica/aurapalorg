@@ -9,7 +9,7 @@
 - [x] how to answer "tell me about yourself" — /blog/tell-me-about-yourself-answer
 - [x] salary negotiation email template — /blog/salary-negotiation-email-template
 - [x] career change resume (no direct experience) — /blog/career-change-resume
-- [ ] what to put in LinkedIn About section (examples)
+- [x] what to put in LinkedIn About section (examples) — /blog/linkedin-about-section-examples
 - [ ] how long should a resume be in 2026
 - [ ] how to explain a gap in your resume
 - [ ] questions to ask at the end of an interview
@@ -24,7 +24,7 @@
 - [x] Stop polling `check-subscription` — now once per signed-in user per page load (2026-10-28)
 - [x] "Related guides" block on each blog post — 2 posts (same tool first) + matching landing page (2026-11-11)
 - [x] RSS feed `/rss.xml` generated in `scripts/prerender.mjs` + `<link rel="alternate">` on every prerendered page (2026-11-18)
-- [ ] Breadcrumb JSON-LD on blog posts and landing pages
+- [x] Breadcrumb JSON-LD on every prerendered page except home, in `scripts/prerender.mjs` (2026-11-25)
 - [ ] Landing page for "resume summary generator" (`/resume-summary-generator`) → /resume-builder
 - [ ] Landing page for "LinkedIn headline generator" (`/linkedin-headline-generator`) → /linkedin-roaster
 - [ ] Align /blog client-side title with the prerendered one ("Career Guides, Resume and Salary Research")
@@ -33,6 +33,7 @@
 ## Needs Ankit (agent must not do these)
 
 - [ ] **Resume builder prompt invents metrics:** `ResumeBuilder.tsx` tells Gemini to "add inferred metrics where missing", so users can get made-up numbers on their resume. Proposed: change to "suggest where a metric would help, as [add number], never invent one". Frontend-only, but it changes tool output, so the agent is waiting for Ankit's OK (noticed 2026-11-18).
+- [ ] **Usage dipped (Nov 25):** 6 page views (Nov 18: 16), 0 guest roasts (Nov 18: 1), 3 signups, still 0 generations since Sep 19. No Saturday scheduled task exists (only the Wednesday one), which explains the missing Saturday runs; recreate it if you want them.
 - [ ] **Usage is flat (Nov 18):** first-ever guest roast this week (1), 16 page views (Nov 11: 4), 3 signups, still 0 generations since Sep 19. No Saturday health run was logged for Nov 14 — check the scheduled task fired.
 - [ ] **Usage is flat (still, Nov 11):** 0 generations since Sep 19, 0 guest roasts since the Oct 21 launch, 4 page views in the week to Nov 11 (23 on Oct 28). No runs were logged Nov 4/7 — check the scheduled tasks are firing.
   Earlier note: 0 generations since 2026-09-19 and only 1 signup and 4 tracked page views in the week to Oct 21. Content alone won't move this soon; the guest-try item below and posting the marketing drafts are the levers.
